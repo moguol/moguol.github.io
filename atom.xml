@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2015-05-23T13:19:06.000Z</updated>
+  <updated>2015-06-21T15:52:45.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,270 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[tmux使用录]]></title>
+    <link href="http://yoursite.com/2015/06/20/tmux/"/>
+    <id>http://yoursite.com/2015/06/20/tmux/</id>
+    <published>2015-06-20T14:20:20.000Z</published>
+    <updated>2015-06-21T15:52:45.000Z</updated>
+    <content type="html"><![CDATA[<p>&emsp;<a href="https://tmux.github.io/" target="_blank" rel="external">tmux</a>是一款优秀且好用的终端复用工具，有点类似screen。之所以说好用是因为它支持全键盘操作，连屏幕复制都能直接通过键盘完成，以下是平时的一点使用记录。</p>
+<h2 id="安装"><strong>安装</strong></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ubuntu：sudo apt-get install tmux</span><br><span class="line">CentOS：yum install tmux</span><br></pre></td></tr></table></figure>
+<h2 id="基础概念"><strong>基础概念</strong></h2><p>&emsp;要用好tmux，需要先了解有关tmux的几个基础概念——会话(session)、窗口(window)和面板(pane)</p>
+<ul>
+<li>会话(session)：直接输入<code>tmux</code>命令即创建了一个会话</li>
+<li>窗口(window)： window为session的终端，一个session可以包含多个window</li>
+<li>面板(pane)：     面板为一个窗口分隔出的若干小终端，一个window可以包含多个pane</li>
+<li>前缀操作(prefix)：tmux的所有键盘操作都必须以前缀操作开始即<code>prefix + command</code>，默认的前缀操作prefix为<code>Ctrl + b</code>(可根据个人习惯更改)</li>
+</ul>
+<p>&emsp;会话(session)、窗口(window)、面板(pane)之间的关系<br><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">session1&#123;</span><br><span class="line">		window1&#123;pane1,pane2,<span class="keyword">...</span>&#125;,</span><br><span class="line">		window2&#123;pane1,pane2,<span class="keyword">...</span>&#125;,</span><br><span class="line">		window3&#123;pane1,pane2,<span class="keyword">...</span>&#125;,</span><br><span class="line">		<span class="keyword">...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="会话(session)操作"><strong>会话(session)操作</strong></h2><table>
+<thead>
+<tr>
+<th style="text-align:left">快捷键</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">tmux ls</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">列出所有session</td>
+</tr>
+<tr>
+<td style="text-align:left">tmux attach -t session_name</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">重新进入指定的session</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix d</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">离开session</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix $</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">重命名session</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix s</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">查看/切换session</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix t</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">查看时间</td>
+</tr>
+</tbody>
+</table>
+<h2 id="窗口(window)操作"><strong>窗口(window)操作</strong></h2><table>
+<thead>
+<tr>
+<th style="text-align:left">快捷键</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">prefix c</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">新建窗口</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix ,</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">重命名窗口</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix &amp;</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">关闭窗口</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix 窗口号</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">切换到窗口号</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix n</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">移动到下一个窗口</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix p</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">移动到上一个窗口</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix l</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">移动到上一次活动的窗口</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix w</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">列出所有窗口，并进行选择切换</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix f</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">搜索窗口名</td>
+</tr>
+</tbody>
+</table>
+<h2 id="面板(pane)操作"><strong>面板(pane)操作</strong></h2><table>
+<thead>
+<tr>
+<th style="text-align:left">快捷键</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">prefix “</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">水平分隔出一个pane</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix %</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">垂直分隔出一个pane</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix 方向键</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">在所有pane中移动</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix o</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">移动到下一个pane</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix 空格</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">循环变换pane布局</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix q</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">显示pane编号</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix x</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">关闭当前pane</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix !</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">将当前pane置于一个新建窗口中</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix z</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">临时最大化当前pane/恢复pane原大小</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix ;</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">切换到上次使用的pane</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix {</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">向前置换当前pane</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix }</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">向后置换当前pane</td>
+</tr>
+</tbody>
+</table>
+<h2 id="复制模式"><strong>复制模式</strong></h2><p>进入复制模式可以非常方便的复制粘贴屏幕的内容，有点类似与VIM的<code>Ctrl-v</code>模式，首先要在配置文件<code>~/.tmux.conf</code>添加如下配置：<br><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span>-window-option -<span class="keyword">g</span> <span class="built_in">mode</span>-<span class="built_in">keys</span> <span class="keyword">vi</span></span><br><span class="line">bind-key -<span class="keyword">t</span> <span class="keyword">vi</span>-<span class="built_in">copy</span> <span class="string">'v'</span> begin-selection</span><br><span class="line">bind-key -<span class="keyword">t</span> <span class="keyword">vi</span>-<span class="built_in">copy</span> <span class="string">'y'</span> <span class="built_in">copy</span>-selection</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><code>prefix [</code>进入选择模式</li>
+<li>按<code>v</code>进入vi选择模式</li>
+<li>移动选择需要复制的行，可用vim的移动快捷方式</li>
+<li>按<code>y</code>将选择的行复制到tmux的剪贴板中</li>
+<li>按<code>prefix ]</code>粘贴到光标所在处</li>
+</ul>
+<h2 id="tmux配置"><strong>tmux配置</strong></h2><p>tmux的配置文件为<code>~/.tmux.conf</code>，以下是我参考网上修改的配置文件，因为终端颜色显示问题最好先执行此命令<strong><code>echo &quot;alias tmux=&#39;tmux -2&#39;&quot; &gt;&gt; ~/.bashrc</code></strong><br><figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">##设置颜色</span></span><br><span class="line"><span class="keyword">set</span> -g <span class="keyword">default</span>-terminal <span class="string">"screen-256color"</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">##### 256 ######</span></span><br><span class="line"><span class="preprocessor"># default statusbar colors</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-bg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-fg colour129 <span class="preprocessor">#purple</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-attr <span class="keyword">default</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># default window title colors</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-fg colour244 <span class="preprocessor">#base0</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-bg <span class="keyword">default</span></span><br><span class="line"><span class="preprocessor">#set-window-option -g window-status-attr dim</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># active window title colors</span></span><br><span class="line"><span class="preprocessor">#set-window-option -g window-status-current-fg colour166 #orange</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-current-fg colour2 <span class="preprocessor">#green</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-current-bg <span class="keyword">default</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># pane border</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g pane-border-fg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g pane-active-border-fg colour196 <span class="preprocessor">#base01</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># message text</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g message-bg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g message-fg colour166 <span class="preprocessor">#orange</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># pane number display</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g display-panes-active-colour colour33 <span class="preprocessor">#blue</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g display-panes-colour colour166 <span class="preprocessor">#orange</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># clock</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g clock-mode-colour colour64 <span class="preprocessor">#green</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#设置前缀为,</span></span><br><span class="line"><span class="keyword">set</span> -g prefix C-o</span><br><span class="line"><span class="preprocessor">#解除Ctrl+b 与前缀的对应关系</span></span><br><span class="line">unbind C-b</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#复制</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g mode-keys vi</span><br><span class="line">bind-<span class="keyword">key</span> -t vi-copy <span class="comment">'v' begin-selection</span></span><br><span class="line">bind-<span class="keyword">key</span> -t vi-copy <span class="comment">'y' copy-selection</span></span><br></pre></td></tr></table></figure></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>&emsp;<a href="https://tmux.github.io/" target="_blank" rel="external">tmux</a>是一款优秀且好用的终端复用工具，有点类似screen。之所以说好用是因为它支持全键盘操作，连屏幕复制都能直接通过键盘]]>
+    </summary>
+    
+      <category term="tmux" scheme="http://yoursite.com/tags/tmux/"/>
+    
+      <category term="linux" scheme="http://yoursite.com/categories/linux/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[Autossh反向连接]]></title>
