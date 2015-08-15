@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2015-06-29T13:38:30.000Z</updated>
+  <updated>2015-08-15T02:16:44.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,11 +15,447 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title><![CDATA[tmux使用录]]></title>
+    <title><![CDATA[重读《TCP/IP详解卷一》之链路层TCP]]></title>
+    <link href="http://yoursite.com/2015/07/16/review-tcp-ip-3/"/>
+    <id>http://yoursite.com/2015/07/16/review-tcp-ip-3/</id>
+    <published>2015-07-16T12:41:29.000Z</published>
+    <updated>2015-08-15T02:16:44.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="TCP传输控制协议"><strong>TCP传输控制协议</strong></h2><p>&emsp;TCP工作在传输层，提供一种面向连接的、可靠的字节流服务。面向连接表示在进行数据传输之前必须先建立一个<strong>TCP连接</strong>，这就有了之后要将的<strong>TCP三次握手</strong>。<br>&emsp;TCP传输的信息单元称之为<strong>段(segment)</strong>。TCP提供<strong>点对点</strong>的服务，不支持多播和组播(UDP支持广播和多播)。<br>&emsp;TCP提供确认重传机制，当TCP发送一个段(segment)后会启动一个定时器，超时后没有等到确认段则超时重传，所以说TCP为可靠的。<br>&emsp;TCP的可靠性还体现在数据校验上，TCP首部会有<code>检验和</code>字段会对<strong>TCP首部和数据</strong>进行检验(IP首部同样有<code>校验和</code>，但仅对<strong>IP首部</strong>进行校验不对其数据部分进行校验，数据的校验交给TCP完成)。<br>&emsp;TCP会对应用数据进行分割或填充，总是以TCP认为最合适的数据块大小进行发送。此外TCP还提供流量控制。</p>
+<h3 id="TCP首部结构"><strong>TCP首部结构</strong></h3><p>&emsp;TCP首部如下图所示：<br><img src="http://7xk64o.com1.z0.glb.clouddn.com/tcp-header.png" alt="tcp-header"><br>&emsp;TCP头部如果不包含<code>选项</code>通常是<strong>20字节</strong>(IP头部不含选项也是<strong>20字节</strong>)</p>
+<ul>
+<li><strong>源端口(16位)</strong>：发送端的端口号。源端口及目的端口主要用于寻找发送端和接收端的应用程序。端口占<strong>16位</strong>表明端口最大为<code>2^16</code>(端口最大为65535)。</li>
+<li><strong>目的端口(16位)</strong>： 接收端的端口号。TCP通过<strong><code>src_ip, src_port, dst_ip, dst_port</code></strong>四个元组唯一标识一个TCP连接。</li>
+<li><strong>序号(32位)</strong> &amp; <strong>确认序号(32位)</strong>：之所以会有两个序号是因为TCP是全双工的。<code>序号</code>用来表明发送方向上的字节流而<code>确认序号</code>用来表明接收方向上的字节流。<code>数据</code>中的一个字节占用一个序号，若<code>TCP数据</code>有100个字节则<code>序号</code>就<code>+100</code>。当<code>数据</code>为<code>0</code>时(无数据要传输只有IP首部和TCP首部)，只要<code>SYN</code>或<code>FIN</code>标志为<code>1</code>则<code>序号</code>就要<code>+1</code>(<code>ACK</code>位为<code>1</code>序号是不需要+1的)。<br>  &emsp;&emsp;<code>序号</code>和<code>确认序号</code>变化过程：<ul>
+<li>假定发送端的开始<code>序号</code>为<code>SN</code></li>
+<li>当发送端发送100字节数据，则<code>序号</code>变为<code>SN+100</code></li>
+<li>当接收端成功接收100字节数据后，则<code>确认序号</code>为<strong><code>SN+100+1</code></strong>(只有当<code>ACK</code>被置为<code>1</code>时，<code>确认序号</code>才有效)</li>
+<li>当发送端收到接收端发来的TCP段，查看<code>确认序号</code>为<code>SN+100+1</code>得知之前发送的100字节数据已经成功传输。</li>
+</ul>
+</li>
+<li><strong>首部长度(4位)</strong>：TCP的<code>首部长度</code>字节和IP的<code>首部长度</code>字节完全一致，既<code>TCP首部</code>最大能有<strong><code>60字节</code></strong>(包含<code>选项</code>)，一般正常的<code>TCP首部</code>和<code>IP首部</code>一样为<strong>20字节</strong></li>
+<li><strong>保留(6位)</strong>：保留未使用</li>
+<li><strong>FLAG(6位)</strong>：有6个flag，若某位被置<code>1</code>则表示使用此flag位<ul>
+<li>URG：紧急指针</li>
+<li>ACK：确认序号有效(除三次握手的第一个SYN包ACK位没有置1外，其余的所有包都要ACK标志)</li>
+<li>PSH：接收端应尽快将段传给应用层(此位用处不大)</li>
+<li>RST：重建连接</li>
+<li>SYN：同步序号(用于三次握手)</li>
+<li>FIN：发送端完成发送任务(主动断开TCP连接)</li>
+</ul>
+</li>
+<li><strong>窗口大小(16位)</strong>：申明窗口大小，用于TCP流量控制(滑动窗口流量控制)。主要作用是让接收端对发送端发送的数据进行控制。因为<code>窗口大小</code>字段占<code>16位</code>所以窗口大小最大为<code>65535</code>，但对于高速网络窗口太小，故在<code>TCP选项</code>中有<strong><code>窗口扩大因子</code></strong>用于扩大窗口大小。</li>
+<li><strong>校验和(16位)</strong>：TCP的校验和是包含<code>TCP首部</code>和<code>TCP数据</code>的校验。</li>
+<li><strong>紧急指针(16位)</strong>：当<code>URG</code>被置<code>1</code>时，此字段才有效，用于表明哪一段数据为紧急数据。</li>
+<li><strong>选项</strong>：<code>选项</code>字段最大为<code>40字节</code><ul>
+<li>MSS(Maximum Segment Size)：表明最长报文大小。告诉对方本端能接收的最大长度的段是多少。一般以太网的<code>MTU</code>为<code>1500</code>则TCP的<code>MSS</code>为<code>1460</code>(除去IP首部和TCP首部，1500-20-20)。通常都是在<code>SYN</code>中顺带声明<code>MSS</code>。若应用层交给TCP的数据超过<code>MSS</code>，TCP则会数据进行分割(让数据小于MSS后再传输)，故TCP很少会有IP分片而UDP则会较多IP分片(UDP不会对数据进行分割，应用层传大多数据给UDP，UDP直接加个UDP首部后直接传给IP)</li>
+<li>窗口扩大因子：用于扩大窗口大小。TCP首部中<code>窗口大小</code>字段占<code>16位</code>最大窗口大小为<code>65535</code>，但在高速网络中此大小可能不够用，需要用到<code>窗口扩大因子</code>选项来增大TCP的窗口大小以便更快的传输数据。</li>
+</ul>
+</li>
+<li><strong>数据</strong>：TCP的<code>数据</code>部分是可选的，既TCP段是可以没有数据的，如三次握手的TCP段就没有<code>数据</code>。</li>
+</ul>
+<h3 id="TCP连接状态"><strong>TCP连接状态</strong></h3><p>&emsp;TCP是面向连接的，所以在开始传输数据前需要建立连接。而这个建立连接并非是在发送端和接收端创建一个专属的链路，只是发送端和接受端双方来维护一个连接状态，从而使得网络存在一个连接一样。TCP连接状态十分重要，<strong>建立连接(三次握手)</strong>以及<strong>释放连接(四次挥手)</strong>的详细过程如下图所示(<a href="http://coolshell.cn/articles/11564.html" target="_blank" rel="external">图片来源</a>)</p>
+<p><center><br><img src="http://7xk64o.com1.z0.glb.clouddn.com/tcp-open-close.jpeg" alt="tcp-open-close"><br></center></p>
+<ul>
+<li>当上一次收到的包是<code>SYN</code>或<code>FIN</code>时，此次发送ACK的<code>确认序号</code>为上次收到<code>SYN</code>或<code>FIN</code>包的<strong><code>序号</code>+1</strong>。如图中第一次握手时，Client发送<code>SYN seq=x</code>。当Server收到此<code>SYN</code>包后需要回一个确认ACK包，Server判断由于上次收到的是一个<code>SYN</code>包，所以回复<code>ACK</code>包的<code>确认序号</code>为上次<code>SYN</code>包中的<strong><code>序号</code>+1</strong>既<code>x+1</code></li>
+<li>通常在第一、二次握手的<code>SYN</code>包中，<code>TCP首部</code>的<code>选项</code>都会带有<strong><code>MSS</code></strong>选项，分别告诉对方自己的最长报文大小是多少，然后协商用MSS小的为准进行传输。</li>
+<li>TCP三次握手其中一个很重要的作用是确定双方的初始化<code>序号</code>，既图中的<strong><code>x</code></strong>及<strong><code>y</code></strong>。借助此<code>序号</code>保证应用层接收数据时不会乱序问题。</li>
+<li>四次挥手，其实是两次的<code>FIN+ACK</code>。因为TCP是全双工的，所以当要断开连接时，Client——&gt;Server方向需要一个<code>FIN</code>，Server——&gt;Client方向也需要一个<code>FIN</code></li>
+<li>当Client和Server同时断开，既同时发送<code>FIN</code>给对方时，TCP状态则不同于上图，Client和Server的状态都是<code>FIN_WAIT_1——&gt;CLOSING(收到对方的Fin)——&gt;TIME_WAIT</code></li>
+<li>在建立连接时，若其中一方发出<code>SYN</code>后对方没有响应，则发送<code>SYN</code>的一方会尝试超时重传。重传采用的是一种称之为<strong>指数退避</strong>的策略，既重传的时间间隔为2的N次幂<code>2^N</code>。第一次重传时间间隔<code>2^0=1</code>(1秒后没收到ACK回应则重传)，第二次重传时间间隔<code>2^1=2</code>(第一次重传后2秒没有收到ACK回应则重传)，第三次重传时间间隔<code>2^2=4</code>(第二次重传后4秒没有收到ACK回应则重传)。至于会重传多少次则根据每个设备不同而不同。</li>
+<li>TIME_WAIT状态也被称之为<strong>2MSL等待状态</strong>(Maximum Segment Lifetime)，既TIME_WAIT状态要持续2<em>MSL秒才能到CLOSED状态。之所以要等待2</em>MSL秒有两个主要原因：<ul>
+<li>Client发送的最后一个<code>ACK</code>有可能丢失，需要给Server足够的时间重传<code>FIN</code>，一个<code>ACK</code>和一个<code>FIN</code>正好是2个MSL</li>
+<li>确保有足够时间使得该连接(src_ip, src_port, dst_ip, dst_port)不能被再次使用，假若不等待2MSL再释放，该连接(src_ip, src_port, dst_ip, dst_port)立马被新的程序所使用，由于网络存在延时上一次连接的数据报在新连接建立后才到达目的端，那么上次连接的数据将会和新连接混淆。</li>
+</ul>
+</li>
+<li>Linux内核中有很多专门针对TCP状态进行调整优化的选项，大多在<strong><code>/proc/sys/net/ipv4/</code></strong>目录下，其中各选项参数涉及复杂改天专门写一篇博客记录。</li>
+<li><code>RST</code>复位报文，在TCP首部FLAG字段中有一个<code>RST</code>复位字段，当报文发往基准的连接出现错误时，TCP就会发送一个复位报文。复位报文可以用来释放一个TCP连接，这种称之为<strong>异常释放</strong>(正常的释放都通过发送<code>FIN</code>释放TCP连接的)，正常释放会待双方数据都发送完毕后关闭，而异常释放则会丢弃待发送的数据。</li>
+</ul>
+<h3 id="TCP流量控制"><strong>TCP流量控制</strong></h3><p>&emsp;TCP需要提供可靠的数据传输服务，那么就必须根据网络的实际情况及接受方数据的处理能力进行发送数据的调整，通过流量控制调整发送速率避免引起网络拥塞导致丢包。TCP是通过<strong>滑动窗口</strong>进行流量控制。</p>
+<h4 id="滑动窗口">滑动窗口</h4><p>&emsp;在<code>TCP首部</code>有<code>窗口大小</code>字段，该字段是告诉对方自己的缓冲区还能接受多少数据，发送方根据接收方窗口的大小调整发送速率，防止发送方发送数据过快过多导致接收方缓冲区被占满无法接受处理新的数据。一般我们称接收方缓冲区空间大小的窗口为<strong>通告窗口</strong>。下面通过一个实例来了解TCP是如何利用滑动窗口来实现流量控制的<br><img src="http://7xk64o.com1.z0.glb.clouddn.com/tcp-slide-window.jpg" alt="tcp-slide-window"><br>&emsp;如上图所示，图中大致可分为三部分，框框即为<strong>滑动窗口</strong>：</p>
+<ul>
+<li><code>1-3</code>部分：发送并已收到<code>ACK</code>确认。这部分为已经成功传输的数据</li>
+<li><code>4-9</code>部分：此部分为在<code>滑动窗口</code>中的数据，如图所示目前窗口大小为<strong><code>6</code></strong>。其中又可细分为两部分：<ul>
+<li><code>4-6</code>：已发送，但未收到<code>ACK</code>确认</li>
+<li><code>7-9</code>：未发送，但接受方缓存区仍有空间，发送方可尽快将此部分数据发给接收方</li>
+</ul>
+</li>
+<li><code>10-11</code>部分：暂时不能发送，由于接受方缓存区空间不足而需要等待<code>滑动窗口</code>移动</li>
+</ul>
+<p>&emsp;下面来描述一下<code>滑动窗口</code>变化的一些过程：</p>
+<ul>
+<li>发送方发送完数据<code>1 2 3</code>后，接收方回复<code>ACK=4 window=6</code>，于是有了上图所示的情况，发送方准备再次发送<code>4</code>以后的数据。</li>
+<li>发送方发送<code>4 5 6</code>数据(发送方并不一定要一次性发送所有窗口大小的数据)，此时滑动窗口大小为<code>6</code>，窗口中的数据为<code>4-9</code>，<code>4 5 6</code>数据已发送但未确认，<code>7 8 9</code>可选择性尽快发送。</li>
+<li>接收方接受到<code>4 5 6</code>数据，根据自身缓冲区大小确定<strong>通告窗口</strong>大小并回复<code>ACK=7 window=X</code></li>
+<li>发送方接受到<code>ACK=7 window=X</code>的确认包，确定<code>4 5 6</code>已成功传输，<code>滑动窗口左边缘</code>向右移动到达数据<code>7</code>的位置，根据<code>ACK=7 window=X</code>调整<code>滑动窗口</code>的大小<ul>
+<li>若<code>ACK=7 window=3</code>，表明接收方确实已成功收到<code>4 5 6</code>数据但应用程序没有将数据从缓冲区读走，所以窗口大小为<code>3</code>(窗口缩小)。当前<code>滑动窗口</code>中的数据为<code>7 8 9</code></li>
+<li>若<code>ACK=7 window=6</code>，表明接收方成功收到<code>4 5 6</code>数据并被应用程序从缓冲区读走，窗口大小保持不变为<code>6</code>。<code>滑动窗口右边缘</code>向右滑动<code>3</code>到达数据<code>12</code>的位置。当前<code>滑动窗口</code>中的数据为<code>7-12</code></li>
+</ul>
+</li>
+<li>假定发送方收到的是<code>ACK=7 window=3</code>的确认包，当前<code>滑动窗口</code>的大小为<code>3</code>其中的数据只有<code>7 8 9</code>，此时发送方一次性将<code>7 8 9</code>全部发出</li>
+<li>接收方收到<code>7 8 9</code>数据，缓冲区被填满。于是接收方回复<code>ACK=10 window=0</code>，告诉发送方自身的缓冲区已满不要再发送数据了</li>
+<li>发送方收到<code>ACK=10 window=0</code>的确认包，确定<code>7 8 9</code>数据已成功传输，<code>滑动窗口左边缘</code>向右移动到达数据<code>10</code>的位置，发现接收方的窗口大小为<code>0</code>表示已不能再接受数据了，于是停止发送数据并等待。</li>
+<li>如果接收方缓冲区中的数据被读走，缓冲区有剩余空间，那么接收方会再次发送一个<code>ACK</code>包通告自己的窗口大小<code>window=X</code>。发送方收到此确认包后调整<code>滑动窗口</code>大小再发送数据，如此重复。</li>
+</ul>
+<h4 id="零窗口_与_糊涂窗口">零窗口 与 糊涂窗口</h4><p>&emsp;TCP使用<code>滑动窗口</code>来进行流量控制需要注意<strong>零窗口</strong>与<strong>糊涂窗口</strong>：</p>
+<ul>
+<li><strong>零窗口</strong>：如上面所说，当发送方窗口大小为<code>0</code>且接收方回复的<code>window=0</code>表明无法再接收数据时，发送方会停止发送数据并等待。当接收方缓存区有空间后，接收方会回复一个<code>ACK</code>给发送方告诉发送方自己的窗口大小让发送方发送数据。但如果接收方发送的这个<code>ACK</code>包丢失了，那么发送方就以为接收方窗口一直为<code>0</code>就无止境的等待。<br>&emsp;&emsp;为防止此情况出现，TCP使用<strong>Zero Window Probe技术</strong>。当发送方窗口大小为<code>0</code>时，发送方会向接收方发送<strong>零窗口探测包</strong>，让接收方回复<code>ACK</code>通告它的窗口。有些设计会规定若三次探测包后接收方窗口大小依旧通告为<code>0</code>，则发送方会发一个<code>RST</code>复位报文中断连接。</li>
+<li><strong>糊涂窗口综合症</strong>：如上图的例子，当接收方通告自身窗口<code>window=0</code>时，发送方就会停止发送数据并等待。假若过了一段时间，接收方缓冲区有空间但空间很小比如说只有<code>1</code>字节的空间，此时接收方通告自身窗口<code>window=1</code>而发送方为了传输这<code>1字节</code>的数据需要耗费<code>40字节</code>开销(IP首部20字节+TCP首部20字节)，这种花费大开销传输少数据的情况称之为<em>糊涂窗口综合症</em>。<br>&emsp;&emsp;为了解决<em>糊涂窗口综合症</em>，特意针对是发送方引起的还是接收方引起的糊涂窗口分为两种情况的解决方法：<ul>
+<li>发送方引起的糊涂窗口：Nagle算法。1)等到 Window Size&gt;=MSS 或是 Data Size &gt;=MSS；2)等待时间或是超时200ms。两个条件满足其中一个就发数据，否则一直等待攒数据到满足条件为止。</li>
+<li>接收方引起的糊涂窗口：接收方引起的糊涂窗口又可分为两种解决办法<ol>
+<li>Clark解决方案：只要有数据到达就回复<code>ACK=X window=0</code>，通告自身窗口为<code>0</code>让发送方停止发送数据，直到接收方<strong>Window Size&gt;=MSS</strong>或<strong>缓冲区有一半空间</strong></li>
+<li>延迟确认：当有数据到达时不立即回复<code>ACK</code>，等待缓冲区有足够空间为止，为防止发送方超时重传，延时不能超过500毫秒</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="TCP重传机制"><strong>TCP重传机制</strong></h3><p>&emsp;TCP是一个可靠的传输协议，为了保证数据成功到达接收方就必须有数据丢失后的重传机制，因为1)数据可能在传输过程中丢失，2)即使接收方成功接受到数据，当回复<code>ACK</code>时，这个<code>ACK</code>数据包也可能会丢失。<br>&emsp;TCP重传机制是通过在发送数据时设置<strong>定时器</strong>来解决丢包问题，当<code>定时器</code>溢出时仍没有收到<code>ACK</code>确认，TCP则任务该数据已经丢失变回重新传输该数据。TCP重传机制的重点在于<strong>如何确定超时时间</strong>和<strong>如何确定重传频率</strong>。<br>&emsp;TCP重传机制的<strong>定时器</strong>可分为四种类型：</p>
+<ul>
+<li>重传定时器</li>
+<li>坚持定时器</li>
+<li>保活定时器</li>
+<li>2MSL定时器</li>
+</ul>
+<h4 id="重传定时器">重传定时器</h4><p>&emsp;为了确认数据是否丢失或被丢弃而设定，是对数据<code>ACK</code>确认包等待的时间。当TCP发送数据时，就创建针对该数据的<em>重传定时器</em>。若定时器超时前收到<code>ACK</code>确认包，则撤消<em>重传定时器</em>；若定时器超时后还没有收到<code>ACK</code>确认包，则重传该数据，并将<em>重传定时器</em>复位重新计时。<br>&emsp;如果重传失败，TCP会尝试多次重传，至于重传多少次后放弃则不同系统设计不同，Linux系统与<code>/proc/sys/net/ipv4/tcp_retries1</code> <code>/proc/sys/net/ipv4/tcp_retries2</code>有关，关于这两个选项参数更详细内容请点击<a href="https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt" target="_blank" rel="external">这里</a><br>&emsp;TCP多次重传的间隔并不都是一样的，TCP重传间隔采用<strong>指数退避(exponential backoff)</strong>策略，既两次重传时间间隔是一个倍乘关系(每次增加1倍)。如书中的例子重传时间间隔为<code>1 3 6 12 24 48 64 64 64 64...</code>；Linux下可能是这样<code>1 2 4 8 16 32 64 64*8</code>(<code>tcp_retries2</code>默认为<code>15</code>)。</p>
+<h4 id="坚持定时器">坚持定时器</h4><p>&emsp;其实<code>坚持定时器</code>在<strong>零窗口</strong>的时候就已经提到过。当接收方的窗口大小为<code>0</code>时，会通告自身<code>通告窗口</code>已为<code>0</code>让发送方停止发送数据。等到接收方的缓冲区空闲<code>通告窗口</code>恢复后，接收方会发送<code>ACK</code>包通告自身窗口大小。因为TCP是不会对<code>ACK</code>包进行确认的，既这个带<code>通告窗口</code>大小的<code>ACK</code>包可能会丢失。假若此<code>ACK</code>包丢失，发送方认为接收方窗口仍为<code>0</code>继续等待，接收方认为自己已经通知发送方自己窗口大小而等待发送方的数据，双方都陷入等待当中。为了避免这个<code>ACK</code>包丢失而导致的双方等待，当接收方通告自身窗口大小为<code>0</code>时，发送方会启用<strong>坚持定时器</strong>，当<strong>坚持定时器</strong>超时后，发送方会主动发送<code>探测包</code>询问接收方的窗口大小。在计算<strong>坚持定时器</strong>时同样是使用<strong>指数退避</strong>，比如说首次坚持定时器超时时间为<code>1.5秒</code>，则后续超时时间为<code>3 6 12</code>。但不会一直增加下去<strong>坚持定时器</strong>总是在<strong><code>5~60</code></strong>之间，达到<code>60</code>后就一直以<code>60</code>为超时时间。</p>
+<h4 id="保活定时器">保活定时器</h4><p>&emsp;其实TCP的保活定时器就是类似于HTTP的Keepalive功能，<strong>保活定时器</strong>是用于检测对方是否发送异常，如果有异常则及时关闭连接释放资源。当<strong>保活定时器</strong>超时后会检查连接是否空闲太久，若空闲时间超过设定时间则发送探测报文。通过对方是否响应、响应是否符合预期，来判断对方是否正常，若不正常则关闭连接释放资源。<br>&emsp;在Linux系统中是由<code>/proc/sys/net/ipv4/tcp_keepalive_time</code>、<code>/proc/sys/net/ipv4/tcp_keepalive_intvl</code>、<code>/proc/sys/net/ipv4/tcp_keepalive_probes</code>三个内核参数决定。</p>
+<ul>
+<li>/proc/sys/net/ipv4/tcp_keepalive_time<br>  最后一次数据交换到TCP发送第一个保活探测报文的时间，即允许连接空闲的时间，默认为7200s</li>
+<li>/proc/sys/net/ipv4/tcp_keepalive_intvl<br>  保活探测报文的重传时间，默认为75s</li>
+<li>/proc/sys/net/ipv4/tcp_keepalive_probes<br>  保活探测报文的发送次数，默认为9次</li>
+</ul>
+<p>&emsp;默认情况下Linux的一次完整的保活探测时间，既Linux下TCP认为一个连接出现异常后关闭的时间：<br>tcp_keepalive_time + tcp_keepalive_intvl × tcp_keepalive_probes = <code>7200 + 75 × 9</code> = <code>7875</code></p>
+<h4 id="2MSL定时器">2MSL定时器</h4><p>&emsp;TCP的<code>TIME_WAIT状态</code>也称之为<strong><code>2MSL等待状态</code></strong>，之前的章节也已说过。TCP连接的一端发起主动关闭，在四次挥手主动关闭方发送完最后一个<code>ACK</code>包后既进入<code>TIME_WAIT</code>状态，必须等待<strong><code>2MSL</code></strong>的时间后才能释放该TCP连接。之所以必须等待<code>2MSL</code>时间主要有以下两个原因：</p>
+<ol>
+<li>给被动关闭方重传<code>FIN</code>包的机会。主动关闭方发送的最后一个<code>ACK</code>包有可能会丢失，假若该最后一个<code>ACK</code>包丢失，被动关闭方的<code>重传定时器</code>超时后仍没有收到该<code>ACK</code>包就会重传之前的<code>FIN</code>。假若主动关闭方在发送完最后一个<code>ACK</code>后释放连接而此<code>ACK</code>丢失，就会导致被动关闭方处在<code>CLOSE_WAIT</code>状态，<code>重传定时器</code>不断超时、<code>FIN</code>指数退避不断重传，Linux系统中直到被动关闭方达到<code>tcp_retries2</code>次数后，TCP认为此连接出现问题才会释放该连接。</li>
+<li>防止已失效连接的旧数据包出现在新连接上。TCP是根据四元组(src_ip,src_port,dst_ip,dst_port)唯一标识一个连接，数据包可能因为网络等原因延时到达，假若主动关闭方在发送最后一个<code>ACK</code>后立刻释放连接使得原先的端口可以被使用，当应用程序使用原先被释放的端口新建了一个TCP连接而旧连接的数据延时到达，这样就会造成数据混淆。</li>
+</ol>
+<h4 id="超时重传_与_快速重传">超时重传 与 快速重传</h4><p>&emsp;介绍完四个定时器后，接下来看看TCP常见的两种重传机制——<strong>超时重传</strong>、<strong>快速重传</strong></p>
+<ul>
+<li><strong>超时重传</strong>：超时重传机制利用到的就是<code>重传定时器</code>，当<code>重传定时器</code>超时后仍没有收到<code>ACK</code>确认则认为该数据包已经丢失，发送方会重传该数据包并将<code>重传定时器</code>复位重新计算。至于<code>重传定时器</code>的<strong>*超时时间</strong>则是由<strong>Jcobson/Karels 算法</strong>计算而得。</li>
+<li><strong>快速重传</strong>：由于<code>超时重传</code>是以时间作为驱动，需要等待<strong>timeout</strong>后才进行重传。为了更快的得知数据是否已经丢失，TCP还会使用<strong>快速重传</strong>机制。<strong>快速重传</strong>是以数据为驱动的，如果发送方<strong>连续</strong>收到<strong>3次</strong>相同的<strong>ACK</strong>，则认为数据包已经丢失需要重传。<br>  &emsp;比如说发送方发送<code>1 2 3 4 5</code>数据，但<code>2</code>丢失了<code>3 4 5</code>成功到达，则<code>3 4 5</code>到达时接收方回复的都是<code>ACK=2</code>。发送方收到三个重复的ACK则知道<code>2</code>已丢失需要重传。</li>
+</ul>
+<p>&emsp;所以只要是<code>重传定时器</code>超时或收到<code>重复ACK</code>，TCP则会认为数据丢失需要重传数据。</p>
+<h3 id="TCP拥塞控制"><strong>TCP拥塞控制</strong></h3><p>&emsp;TCP流量控制主要是针对发送端和接收端进行，而TCP拥塞控制则是对其中的网络情况进行控制。试想一下，当网络负载严重导致网络拥塞，进而使得数据丢失或延时到达，假若TCP不加控制就超时重传数据，那便会加重网络负载致使恶性循环直至整个网络瘫痪。为了避免此情况出现，TCP拥塞控制的主要实现方法有以下四种：</p>
+<ul>
+<li>慢启动</li>
+<li>拥塞避免</li>
+<li>快速重传</li>
+<li>快速恢复</li>
+</ul>
+<h4 id="慢启动">慢启动</h4><p>&emsp;慢启动，既当刚刚需要发送数据时，不是一下便发送大流量数据而是一点点的进行提速。<br>&emsp;慢启动为TCP的发送方定义了一个窗口——<strong>拥塞窗口(Congestion Window)</strong>，简称<strong>cwnd</strong>，拥塞窗口表明发送方一次可以发送多少报文段，一般cwnd是根据MSS而定，每收到一个<code>ACK</code>则<code>cwnd=cwnd+cwnd</code>。<br>&emsp;慢启动理想状态的过程如下所示()：</p>
+<ul>
+<li>TCP三次握手建立连接后，<strong>cwnd=1</strong>，表明可以发送一个MSS大小的数据。假定MSS=1024，cwnd=1则可发送<code>1024(1)</code>大小的数据</li>
+<li>当收到<code>ACK</code>后，<strong>cwnd=1+1</strong>，表明可以发送两个MSS大小的数据。cwnd=2可发送<code>2048(2)</code>大小的数据</li>
+<li>当收到cwnd=2时发送数据的<code>ACK</code>后，<strong>cwnd=2+2</strong>，表明可以发送四个MSS大小的数据。cwnd=4可发送<code>4096(4)</code>大小的数据</li>
+<li>当收到cwnd=4时发送数据的<code>ACK</code>后，<strong>cwnd=4+4</strong>，表明可以发送八个MSS大小的数据。cwnd=8可发送<code>8192(8)</code>大小的数据</li>
+<li>cwnd呈指数增长。但并不会无限增长下去，当拥塞窗口&lt;通告窗口时，发送拥塞窗口大小数据;但当拥塞窗口&gt;通告窗口时，只能发送通告窗口大小数据</li>
+</ul>
+<h4 id="拥塞避免_快速重传_快速恢复">拥塞避免 快速重传 快速恢复</h4><p>&emsp;TCP对于拥塞避免有一套复杂的拥塞避免算法，在此只能简要的描述TCP是如何实现拥塞避免的。<br>&emsp;TCP的拥塞避免算法通常都是与<strong>慢启动</strong>一起作用，那么每个TCP连接就会维持两个变量——<strong><code>cwnd</code></strong>(拥塞窗口Congestion Window)、<strong><code>ssthresh</code></strong>(慢启动门限slow start threshold)，TCP拥塞避免大致过程如下：</p>
+<ul>
+<li>当TCP完成三次握手后，会给该连接设定两个变量<strong><code>cwnd</code></strong>和<strong>ssthresh</strong>。<strong><code>cwnd</code></strong>初始化值为<code>1个报文段</code>(该值通常为MSS-40[IP+TCP header])，<strong><code>ssthresh</code></strong>初始化值一般为<code>65535字节</code></li>
+<li>首先TCP使用<strong>慢启动</strong>，<strong><code>cwnd</code></strong>指数增长，但<strong><code>cwnd</code></strong>并不会无限制增长，当<strong><code>cwnd</code></strong><code>&gt;</code>接收方的<strong>通告窗口</strong>时以<strong>通告窗口</strong>为标准。<strong>拥塞窗口</strong>是发送方的流量控制、<strong>通告窗口</strong>是接收方的流量控制。当<em>拥塞窗口</em> <code>&lt;</code> <em>通告窗口</em>时，由<em>拥塞窗口</em>(发送方)控制发送速率(既为慢启动)；当<em>拥塞窗口</em> <code>&gt;</code> <em>通告窗口</em>时，由<em>通告窗口</em>(接收方)控制发送速率。</li>
+<li>TCP在两种情况下会认为数据包已经丢失(详看重传机制)——<strong>超时</strong> 或 <strong>收到3个重复ACK</strong>，TCP对这两种情况处理又所有不同：<ol>
+<li>假若在<strong>慢启动</strong>过程中出现<strong>超时</strong><ul>
+<li>出现超时后则需要重新设置<strong>ssthresh</strong>。数据包超时后<strong>慢启动门限ssthresh</strong>会被设置为当前<strong>拥塞窗口</strong>的一半，既<strong><code>ssthresh=cwnd/2</code></strong></li>
+<li><strong><code>cwnd</code></strong>重新初始化，既<code>cwnd</code>=1。重新开始慢启动过程</li>
+<li>重新慢启动后，<code>cwnd</code>指数增长。当<code>cwnd</code> <code>=</code> <code>ssthresh</code>时，停止<strong>慢启动</strong>进入<strong>拥塞避免算法</strong></li>
+<li>进入<strong>拥塞避免算法</strong>后，每收到一个<code>ACK</code>不再像慢启动那样<code>+1cwnd</code>而是<code>+1/cwnd</code>，既<code>cwnd = cwnd + 1/cwnd</code></li>
+</ul>
+</li>
+<li>假若在<strong>慢启动</strong>过程中<strong>收到重复<code>ACK</code></strong><ul>
+<li>收到<code>3</code>个重复<code>ACK</code>后需要重新设置<strong>ssthresh</strong>，<strong><code>ssthresh=cwnd/2</code></strong>。进入<strong>快速恢复算法</strong></li>
+<li>在<strong>快速恢复算法</strong>中，<code>cwnd</code>会被重新计算——<strong><code>cwnd = ssthresh(既上面的cwnd/2) + 3*MSS(3个ACK)</code></strong> </li>
+<li>启用<strong>快速重传</strong>重新丢失的数据包</li>
+<li>如果在收到重复<code>ACK</code>则<code>cwnd=cwnd+1MSS</code></li>
+<li>如果收到新<code>ACK</code>则<code>cwnd=ssthresh</code>，然后进入<strong>拥塞避免算法</strong>(既每收到一个<code>ACK</code>则<code>cwnd=cwnd+1/cwnd</code>)</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<p>&emsp;&emsp;&emsp;&emsp;超时：<code>慢启动</code>——&gt;<code>超时</code>——&gt;<code>ssthresh=cwnd/2 重新慢启动</code>——&gt;<code>cwnd=ssthresh</code>——&gt;<code>拥塞避免算法(cwnd=cwnd+1/cwnd)</code><br>&emsp;&emsp;&emsp;&emsp;重复ACK：<code>慢启动</code>——&gt;<code>3重复ACK</code>——&gt;<code>快速恢复算法+快速重传 ssthresh=cwnd/2</code>——&gt;<code>cwnd=ssthresh</code>——&gt;<code>拥塞避免算法(cwnd=cwnd+1/cwnd)</code><br>&emsp;&emsp;&emsp;&emsp;<strong>当<code>cwnd</code> <code>&lt;=</code> <code>ssthresh</code>时，慢启动(指数增长)；当<code>cwnd</code> <code>&gt;</code> <code>ssthresh</code>，拥塞避免算法(线性增长)</strong></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="TCP传输控制协议"><strong>TCP传输控制协议</strong></h2><p>&emsp;TCP工作在传输层，提供一种面向连接的、可靠的字节流服务。面向连接表示在进行数据传输之前必须先建立一个<strong>TCP连接</strong>，这就有了之后要]]>
+    </summary>
+    
+      <category term="TCP/IP" scheme="http://yoursite.com/tags/TCP-IP/"/>
+    
+      <category term="TCP/IP" scheme="http://yoursite.com/categories/TCP-IP/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[重读《TCP/IP详解卷一》之网络层]]></title>
+    <link href="http://yoursite.com/2015/07/04/review-tcp-ip-2/"/>
+    <id>http://yoursite.com/2015/07/04/review-tcp-ip-2/</id>
+    <published>2015-07-04T14:25:15.000Z</published>
+    <updated>2015-07-27T13:41:17.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="IP网际协议"><strong>IP网际协议</strong></h2><p>&emsp;IP提供的是不可靠、无连接的数据报传输服务。</p>
+<ul>
+<li>不可靠：不能保证IP数据报能成功到达目的地，既可能<strong>丢包</strong>。可靠性需要由上层提供，如TCP的超时重传机制等。IP有一个简单的错误处理办法，当IP数据报被丢弃后，会发送ICMP消息告诉发送端错误情况。</li>
+<li>无连接：不维护任何后续数据报的状态信息。每个数据报都是相互独立的，独立进行路由选择，到达目的地的顺序和发送顺序可以不同。虽然IP是无连接的，但TCP是面向连接的。<br>举个例子，发送端TCP有四个数据包<code>0 1 2 3</code>，传给网络层，IP封装IP头部后将四个数据包发送出去；由于网络原因产生丢包或延时到达，在接收端只收到<code>0 1 3</code>三个数据包，由于IP是无连接的所以它不需要等<code>2</code>号包的到来就直接将三个数据包传给TCP。由于TCP是面向连接的，所以必须等到<code>2</code>号包的到达组装成完整的数据包后才能传入应用层。</li>
+</ul>
+<h2 id="IP头部分析"><strong>IP头部分析</strong></h2><p>&emsp;IP头部如图所示：</p>
+<p><center><br><img src="http://7xk64o.com1.z0.glb.clouddn.com/ip-header.png" alt="ip-header"><br></center><br>&emsp;普通的IP头部长<strong>20字节</strong>(不包含选项字段)</p>
+<ul>
+<li><strong>版本(4位)</strong>：常说的IPv4或IPv6</li>
+<li><strong>首部长度(4位)</strong>：IP头部最长为<strong>60字节</strong>(一般为<strong>20字节</strong>)。用4位表示长度，那么最大为<code>1111</code>转换成十进制为<code>15</code>，那么最大则为<code>15*4字节=60字节</code>。<br>  &emsp;需要注意的是：4个位里面，<code>0001</code>代表的不是数值1而是首部的1个单位长度，1个单位长度为32bit=4字节(如图所示一行为32bit)。所以首部长度表示首部占32bit字的数目，既首部长度能占多少行(每行32bit)。故一般IP头部长<strong>20字节</strong>，首部长度字段的值为<strong><code>5</code></strong>。</li>
+<li><strong>服务类型TOS(8位)</strong>：TOS(8bit)=优先权子字段(3bit[已弃用])+TOS子字段(4bit)+保留位(1bit)，服务类型字段主要可用在QOS上。<br>  &emsp;4bitTOS子字段分别代表：<code>1000</code>——最小延时、<code>0100</code>——最大吞吐量、<code>0010</code>——最高可靠性、<code>0001</code>——最小费用</li>
+<li><strong>总长度(16位)</strong>：指定整个IP数据报的长度(IP头部+数据)，单位为<strong>字节</strong>。由于<code>总长度</code>字段占<code>16</code>位，所以IP数据报的最长总长度为<code>2^16</code>既<code>65535</code>字节。</li>
+<li><strong>标识(16位)</strong>：唯一标识每个数据报。通常情况下每发一个数据报该字段加1。<br>  &emsp;在IP分片的时候，比如说一个包该标识字段为<code>1</code>，此包过大需要被分片，分成三个小包<code>1-1</code>、<code>1-2</code>、<code>1-3</code>，这三个小包的标识字段依旧是<code>1</code>，而后面的<code>1、2、3</code>则和接下来的字段相关。</li>
+<li><strong>标志(3位)</strong>：目前只用到2bit，第3位保留。<br>  &emsp;标志(3bit)=0+DF+MF    &emsp;&emsp;&emsp;&emsp;DF——Don’t Fragment    &emsp;&emsp;&emsp;&emsp;MF——More Fragment<br>  &emsp;<code>010</code>DF=1表示不允许分片(DF=1，若包过大则直接丢弃并用ICMP报文通知源端相关情况)；<code>DF=0</code>则表示允许分片<br>  &emsp;<code>001</code>MF=1表示后续还有分片；MF=0表示此分片包为若干分片的最后一个</li>
+<li><strong>片偏移(13位)</strong>：分片在原数据报中的相对位置。相对于原数据报起点，该分片从何处开始。片偏移都是以<strong>8字节</strong>为偏移单位，既除最后一片外，其余所有分片长度皆为8字节的整数倍。由于IP是无连接的，分片后的数据报可能乱序到达所以需要用片偏移对分片进行正确重组。<br>  &emsp;举例说明：一个数据报被分成<code>1 2 3</code>三个分片，<code>1</code>分片的长度80字节、<code>2</code>分片长度64字节、<code>3</code>分片长度10字节。<br>  &emsp;<code>1</code>分片的片偏移为<code>0</code><br>  &emsp;<code>2</code>分片的片偏移为<code>80</code>，在原数据报中，<code>2</code>分片从第<em>80</em>字节开始<br>  &emsp;<code>3</code>分片的片偏移为<code>144</code>(0+80+64)</li>
+<li><strong>TTL生存时间(8位)</strong>：设置数据报可经过的最多路由器数。经过一个路由器，TTL减一。当TTL=0时，数据报被丢弃并发送ICMP报文通知源端。<br>  &emsp;TTL占8bit，所以TTL最大值为<code>2^8</code>既<code>255</code>。TTL设置的意义在于防止网络出现环路时，数据报被无限的传递。</li>
+<li><strong>协议(8位)</strong>：表明上一层传输层用的协议类型。常见的协议及字段值如下所示：<br>  &emsp;TCP——6、UDP——17、ICMP——1、EGP——8、IGP——9、OSPF——89</li>
+<li><strong>首部检验和(16位)</strong>：IP头部的检验和</li>
+<li><strong>源地址(32位)</strong></li>
+<li><strong>目标地址(32位)</strong></li>
+<li><strong>选项</strong>：由于IP头部最大位<code>60字节</code>，以上的基础头部占用<code>20字节</code>，所以选项最多只有<code>40字节</code><br>  &emsp;选项位是一个可变长的字段，目前有如下这些定义：<ul>
+<li>安全和处理限制</li>
+<li>路径记录(记录每跳路由的IP)</li>
+<li>时间戳</li>
+<li>宽松源站路由</li>
+<li>严格源站路由</li>
+</ul>
+</li>
+</ul>
+<h2 id="IP路由选择"><strong>IP路由选择</strong></h2><p>&emsp;IP路由选择是<strong>逐跳</strong>进行的，所有的IP路由选择只为数据传输提供下一站路由的IP地址。IP路由选择需要注意以下两点：</p>
+<ul>
+<li>数据报中的<strong>目的IP</strong>始终是不变的(除非在IP头部<code>选项</code>中使用<code>源站路由</code>，目的IP才可能会被改变)。</li>
+<li>链路层的<strong>目的MAC</strong>始终都是在改变的(非直连路由)，并且是下一跳路由的MAC地址。(下一跳路由的MAC通过ARP协议获得)</li>
+</ul>
+<p>&emsp;IP路由选择的大致过程如下：</p>
+<ol>
+<li>检查IP头部的<code>TTL</code>值，若<code>TTL=0</code>则丢弃该数据报并发送ICMP报文通知源端</li>
+<li>搜索路由表，优先匹配主机，寻找能与目的IP完全匹配的条目。</li>
+<li>搜索路由表，匹配相同子网的条目，寻找能与目的网络号匹配的条目。</li>
+<li>搜索路由表，寻找默认路由条目。</li>
+<li>搜索路由表后都没有找到以上三种相关的条目，丢弃该数据报。</li>
+</ol>
+<p>&emsp;路由选择的顺序：<code>匹配主机——&gt;匹配子网——&gt;默认路由</code></p>
+<p>&emsp;IP路由根据连接情况可粗略分成两类：<code>直连路由</code>和<code>非直连路由</code></p>
+<ul>
+<li>直连路由的寻址<br>  源IP、目的IP、源MAC、目的MAC由始到终都是固定的，数据报不经过路由器</li>
+<li>非直连路由<br>  <code>源IP</code>、<code>源MAC</code>、<code>目的IP</code>都是不变的(IP头部非源站路由)，但其中需要经过若干个路由器，每经过一次IP路由选择得出<code>下一跳路由</code>后，<code>目的MAC</code>就被修改成该<code>下一跳路由</code>接口的MAC</li>
+</ul>
+<p>&emsp;直连路由的目的MAC就是目标主机的MAC，而非直连路由的目的MAC是经路由选择后下一跳接口的MAC</p>
+<h2 id="ARP"><strong>ARP</strong></h2><p>&emsp;ARP是为IP地址到对应的硬件地址(以太网中既MAC地址)之间提供动态映射的一种协议。</p>
+<h3 id="实例分析"><strong>实例分析</strong></h3><p>&emsp;书中举例一个FTP的例子，可以从这个例子中全局的理解TCP/IP一个整体的过程，例子图如下：</p>
+<p><center><br><img src="http://7xk64o.com1.z0.glb.clouddn.com/arp_example.png" alt="arp_example"><br></center><br><code>ftp bsdi</code></p>
+<ol>
+<li>应用层：FTP应用程序需要获取FTP服务器的IP地址，FTP应用程序发现输入的是一个域名于是调用DNS域名解析将域名解析成32bit的IP地址并将数据传给传输层</li>
+<li>传输层：由于FTP是使用TCP连接的，所以请求TCP进行三次握手建立连接，TCP将握手包封装好后传给网络层</li>
+<li>网络层：如果目的IP是直连网络那么数据报可直接送给目的主机；如果目的IP是非直连网络则按<code>IP路由选择</code>获取下一跳地址并将数据报转发。</li>
+<li>链路层(以太网)：有了目的IP后需要知道目的IP对应的MAC(直连是目的主机的MAC/非直连是下一跳的MAC)才能将数据报真正的传给目的主机。这就需要ARP做<code>IP——&gt;MAC</code>的解析。</li>
+<li>ARP解析过程<ul>
+<li>ARP发送一个二层的<strong>广播</strong>既<code>ARP广播请求包</code>，ARP广播包里的<strong>目的MAC</strong>为<code>FF:FF:FF:FF:FF:FF</code>全F，全网广播询问<code>目的IPxxx.xxx.x.x对应的MAC是多少</code>。本网段的所有主机都会收到此ARP广播包，然后根据广播包中的目的IP是否为自己的IP做出判断。如果目的IP不是自己的IP则丢弃该ARP广播包。</li>
+<li>目的主机发现该ARP广播包中的目的IP是自己的IP，于是向源IP发送一个<strong>单播</strong>的<code>ARP响应包</code>。该ARP响应包中包含了自己的MAC地址</li>
+</ul>
+</li>
+<li><ul>
+<li>如果是直连网络的话，源IP、源MAC、目的IP和目的MAC都齐全了并且建立连接后即可传输数据(数据的传输其实还是上述的过程)</li>
+<li>如果是非直连网络的话，目的MAC就是下一跳的MAC，将数据报转发给下一跳的设备，经过不断的IP路由选择，数据报最终到达目的主机(期间不断重复3/4/5步骤)。在非直连网络中，数据报中的<code>目的IP</code>始终是不变的(非源站路由)而<code>目的MAC</code>总是在变换是下一跳设备接口的MAC，IP地址用于逻辑选路，MAC地址才是真正决定数据报要传到哪个设备或主机上。</li>
+</ul>
+</li>
+</ol>
+<p>&emsp;假若ARP解析失败，无法获取目的IP的MAC，那么网络层封装的IP包是不会从主机接口发出去的。<br>&emsp;在收到<code>ARP应答</code>的时候，操作系统或网络设备等都会将查询到的<code>IP-MAC</code>对应关系缓存起来，所以一般情况下系统会维护一张<strong>ARP表</strong>以供快速查询。Linux系统可以通过命令<code>arp -a</code>或<code>cat /proc/net/arp</code>查看缓存的arp记录</p>
+<h3 id="ARP包结构"><strong>ARP包结构</strong></h3><p>&emsp;在<a href="">上一篇博客</a>中讲到以太网帧的结构，其中<code>类型</code>字段用来表示上层所用的协议，<strong><code>0x0806</code></strong>表示的是<code>ARP</code>，具体以太网帧结构如下：<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">以太网帧结构：</span><br><span class="line">  | 目的地址<span class="comment">(6)</span> | 源地址<span class="comment">(6)</span> | <span class="number">0</span>x<span class="number">0806</span> | ARP请求/应答数据<span class="comment">(28)</span> + PAD填充字节<span class="comment">(18)</span> | CRC<span class="comment">(4)</span> |</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;其中以太网帧的<code>数据</code>部分是由<code>ARP请求/应答数据(28) + PAD填充字节(18)</code>组成，接下来要分析的是<code>ARP请求/应答数据(28)</code>这<code>28字节</code>的结构，具体的分组结构如下所示：<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ARP包结构：</span><br><span class="line">  | 硬件类型<span class="comment">(2)</span> | 协议类型<span class="comment">(2)</span> | 硬件地址长度<span class="comment">(1)</span> | 协议地址长度<span class="comment">(1)</span> | 操作<span class="comment">(2)</span> | 源MAC<span class="comment">(6)</span> | 源IP<span class="comment">(4)</span> | 目的MAC<span class="comment">(6)</span> | 目的IP<span class="comment">(4)</span> |</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><strong>硬件类型(2)</strong>：表示硬件地址的类型。<code>1</code>表示以太网地址</li>
+<li><strong>协议类型(2)</strong>：此字段和以太网帧头部的<code>类型</code>字段是一样的。<code>0x0800</code>——IP。<code>协议类型</code>和<code>硬件类型</code>可以表面ARP是在做<code>IP——MAC</code>之间的映射。</li>
+<li><strong>硬件地址长度(1)</strong>： 表明硬件地址的长度。以太网硬件地址(MAC)该字段值为<code>6</code>，表明以太网硬件地址(MAC)是占<code>6字节</code>/<code>48位</code>。</li>
+<li><strong>协议地址长度(1)</strong>：表明协议地址的长度。IP协议地址长度该字段值为<code>4</code>，表明IP协议地址占<code>4字节</code>/<code>32位</code></li>
+<li><strong>操作(2)</strong>：表明操作的类型。以太网帧的<code>类型</code>字段对于ARP请求/应答都是<code>0x0806</code>，所以需要通过ARP分组结构中的<code>操作</code>字段区分ARP请求/ARP应答<ul>
+<li>1——ARP请求</li>
+<li>2——ARP应答</li>
+<li>3——RARP请求</li>
+<li>4——RARP应答</li>
+</ul>
+</li>
+<li><strong>源MAC(6)</strong>：源端的MAC地址</li>
+<li><strong>源IP(4)</strong>：源端的IP地址</li>
+<li><strong>目的MAC(6)</strong>：目的设备的MAC地址。该字段的值和<em>以太网帧头部的</em><code>目的地址</code>在<code>ARP请求</code>时是不同的(尽管它们都表示硬件地址，但所填的值不同)。<br>  &emsp;当是<code>ARP请求</code>的时候(<code>操作</code>字段为<code>1</code>)<ul>
+<li>以太网帧头部的<code>目的地址(6)</code>字段值是<strong><code>FF:FF:FF:FF:FF</code></strong>(表明这是一个二层广播包，所有同网段的主机都会接收到该ARP请求包)</li>
+<li>ARP分组结构的<code>目的MAC(6)</code>字段值是<strong><code>00:00:00:00:00:00</code></strong>(表明ARP不知道目的MAC是多少，需要目的主机将自身MAC填入该字段)</li>
+</ul>
+</li>
+<li><strong>目的IP(4)</strong>：目的IP地址</li>
+</ul>
+<p>&emsp;所以包含ARP分组的完整以太网帧结构是这样的：<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">|目的地址<span class="comment">(6)</span>|源地址<span class="comment">(6)</span>|<span class="number">0</span>x<span class="number">0806</span>||  硬件类型<span class="comment">(2)</span>|协议类型<span class="comment">(2)</span>|硬件地址长度<span class="comment">(1)</span>|协议地址长度<span class="comment">(1)</span>|操作<span class="comment">(2)</span>|源MAC<span class="comment">(6)</span>|源IP<span class="comment">(4)</span>|目的MAC<span class="comment">(6)</span>|目的IP<span class="comment">(4)</span>  || + PAD填充字节<span class="comment">(18)</span>|CRC<span class="comment">(4)</span>|</span><br></pre></td></tr></table></figure></p>
+<h3 id="代理ARP"><strong>代理ARP</strong></h3><p>&emsp;如果ARP请求是试图解析非本网络的一台主机，那么连接两个网络的路由器会代替目的主机应答该ARP请求，路由器将自身的接口MAC地址回应给源主机，此过程就称之为<code>代理ARP</code>或<code>委托ARP</code>。路由器其实是“欺骗”了源主机，ARP响应中的MAC地址并发真正目的主机的MAC地址而是与源主机相连的路由器接口的MAC，路由器让源主机误以为路由器是目的主机。因为ARP请求是一个<strong>二层的广播包</strong>，而路由器是隔离广播的，也就是说ARP请求广播包正常情况下是无法穿过路由器继续前进的，路由器知道如何到达目的主机(路由表有路由记录)，所以“欺骗”源主机并接收之后的数据报，将这些数据报<strong>转发</strong>出去。<br>&emsp;举例说明<strong>代理ARP</strong>，如下所示：<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PC-A<span class="comment">(192.168.1.1/mac-a)</span>--------------<span class="comment">(192.168.1.2/mac-r1)</span> <span class="number">1</span>——Router——<span class="number">2</span> <span class="comment">(10.1.1.1/mac-r2)</span>-------------------<span class="comment">(10.1.1.2/mac-b)</span>PC-B</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>当PC-A发送<code>ARP请求</code>查询<em>10.1.1.2对应的MAC地址是多少</em>，ARP请求的广播包到达Router——1接口(一般情况下广播包就只能到达Router——1接口，不会经由Router——2再发出去)</li>
+<li>如果普通主机接收到非自身IP的ARP请求包时，都是做丢弃处理的。但Router开启了代理ARP的功能，查询自身路由表发现知道如何到达10.1.1.2</li>
+<li>Router对PC-A的<code>ARP请求</code>做出回应，发送一个<code>ARP响应</code>给PC-A，此ARP响应包内的映射关系为<strong><code>10.1.1.2——mac-r1</code></strong>(但实际上10.1.1.2对应的MAC应该是mac-b才对)</li>
+<li>PC-A接收到Router发送的<code>ARP响应</code>包，误以为<code>10.1.1.2</code>的MAC地址是<code>mac-r1</code>，于是将所有目的IP为<code>10.1.1.2</code>的数据都发到<code>Router——1</code>接口上。Router接收到数据后再转发给PC-B</li>
+</ul>
+<h3 id="免费ARP"><strong>免费ARP</strong></h3><p>&emsp;主机发送ARP请求查询IP对应的MAC，这个ARP请求就称之为<code>免费ARP</code>。免费ARP的作用主要有两个：</p>
+<ul>
+<li>通过免费ARP来确定IP是否被占用，是否有IP冲突的情况。主机在系统重启或网络服务重启的时候会发送免费ARP，询问自身IP对应的MAC是多少，当网络上有主机已经配置了相同的IP则会回应该免费ARP的询问，源主机接收到ARP回应就能确定该IP已经被使用。</li>
+<li>利用免费ARP更新arp表缓存。当主机发送免费ARP广播请求包时，本网络的所有主机都接收到该免费ARP。当发现目的IP不是自身IP时，主机会将该免费ARP丢弃，但在丢弃前会读取该免费ARP包内的源IP及源MAC，若发现和本机arp缓存表不同则更新映射。</li>
+</ul>
+<h3 id="ICMP"><strong>ICMP</strong></h3><p>&emsp;ICMP主要用于差错报文及其他消息的传递。ICMP报文通常被网络层或传输层使用，常用于将差错报文返回给客户进程，因为IP是不可靠的会出现丢包的情况，出现丢包现象的设备一般都会通过ICMP发送ICMP报文给源端，告诉出错的原因和问题等。<br>&emsp;ICMP报文封装在IP数据报内部，IP头部里的<code>协议(8位)</code>字段值为<code>1</code>就表示后面接的是ICMP报文：<br><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">| IP头部(20字节) | ICMP报文 |</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;ICMP报文的基本格式：<br><figure class="highlight vhdl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">| 类型(<span class="number">8</span><span class="typename">bit</span>) | 代码(<span class="number">8</span><span class="typename">bit</span>) | 检验和(<span class="number">16</span><span class="typename">bit</span>) |</span><br><span class="line">| <span class="comment">-----------------------------------------------------|</span></span><br><span class="line">| 不同类型和代码的内容				 |</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;ICMP报文类型：<br>ICMP报文类型很多，但最常用的是<code>0 0 回显应答</code>、<code>8 0 请求回显</code>，这两个类型主要用在ping中。</p>
+<p><center><br><img src="http://7xk64o.com1.z0.glb.clouddn.com/icmp-type.png" alt="icmp-type"><br></center><br>&emsp;ICMP差错报文必须包含该差错报文的<strong>IP首部(含<code>选项</code>)</strong>和IP首部后面的<strong>前8个字节</strong>，之所以要这样，是因为需要根据<strong>IP首部</strong>判断特定的<strong>协议</strong>、根据<strong>前8个字节</strong>判断用户进程(<strong>前8字节</strong>包含<strong>源端口</strong>和<strong>目标端口</strong>)<br>&emsp;以下情况不会产生ICMP差错报文，目的是为了防止广播风暴：</p>
+<ul>
+<li>ICMP差错报文，ICMP差错报文不会再产生差错报文来通知源端ICMP差错报文丢失(ICMP查询报文会产生ICMP差错报文)</li>
+<li>目的地址为广播或多播的IP数据报</li>
+<li>链路层广播的数据报</li>
+<li>非IP分片的第一片，因为只有第一片分片才包含<strong>前8字节</strong>所需的源端口和目的端口</li>
+<li>源地址不是单个主机的数据报，既源地址不能为全零、环回地址、广播地址和多播地址</li>
+</ul>
+<h2 id="IP路由"><strong>IP路由</strong></h2><p>&emsp;路由选路是IP最为重要的功能之一，系统会维护一张包含路由条目的路由表，通过查询路由表得出下一跳地址然后进行路由转发及选路。</p>
+<h3 id="路由更新方式"><strong>路由更新方式</strong></h3><p>&emsp;路由表更新的方式有如下三种：</p>
+<ul>
+<li>路由守护进程，运行着动态路由协议的用户进程，比如OSPF守护进程、RIP守护进程。</li>
+<li>route命令，可以通过route命令手动添加路由条目(静态路由就属于这种方式)。</li>
+<li>ICMP重定向，当收到ICMP重定向报文时，路由表也会被更新。</li>
+</ul>
+<p>&emsp;除了更新路由表外，可以通过<code>netstat -nr</code>命令查看路由表中的路由条目，当查看路由表时会看到不同的标志(flag)：</p>
+<ul>
+<li>U 该路由可用</li>
+<li>G 该路由是一个网关</li>
+<li>H 该路由是一个主机路由(直接到主机，目的地址是一个完整的主机地址)</li>
+<li>D 该路由是ICMP重定向报文创建的</li>
+<li>M 该路由被ICMP重定向报文修改</li>
+</ul>
+<h3 id="路由原理"><strong>路由原理</strong></h3><p>&emsp;路由原理其实之前也讲过，就是搜索路由表的优先顺序：</p>
+<ul>
+<li>搜索匹配主机地址的路由</li>
+<li>搜索匹配网络地址的路由</li>
+<li>搜索默认路由</li>
+</ul>
+<h3 id="ICMP重定向"><strong>ICMP重定向</strong></h3><p>&emsp;当路由器检测到某台主机使用非最优路由的时候，可以通过向该主机发送ICMP重定向报文，请求改变该主机的路由。(ICMP重定向报文只能由路由器生成，针对主机使用而不是路由器)<br>&emsp;ICMP重定向报文结构：<br><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">————————————</span><br><span class="line"><span class="string">|类型 5|代码 0~3|检验和|</span></span><br><span class="line">————————————</span><br><span class="line"><span class="string">|应该使用的路由器IP地址|</span></span><br><span class="line">———————————————</span><br><span class="line"><span class="string">|IP首部+原IP首部后的前8个字节|</span></span><br><span class="line">———————————————</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>类型——5，表示是ICMP重定向(详见之前的表格)</li>
+<li>代码——0~3，0——网络重定向、1——主机重定向、2——服务类型和网络重定向、3——服务类型和主机重定向</li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="IP网际协议"><strong>IP网际协议</strong></h2><p>&emsp;IP提供的是不可靠、无连接的数据报传输服务。</p>
+<ul>
+<li>不可靠：不能保证IP数据报能成功到达目的地，既可能<strong>丢包</strong>。可靠性需要由]]>
+    </summary>
+    
+      <category term="TCP/IP" scheme="http://yoursite.com/tags/TCP-IP/"/>
+    
+      <category term="TCP/IP" scheme="http://yoursite.com/categories/TCP-IP/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[重读《TCP/IP详解卷一》之链路层]]></title>
+    <link href="http://yoursite.com/2015/06/29/review-tcp-ip-1/"/>
+    <id>http://yoursite.com/2015/06/29/review-tcp-ip-1/</id>
+    <published>2015-06-29T14:42:43.000Z</published>
+    <updated>2015-08-03T14:42:32.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="链路层主要目的"><strong>链路层主要目的</strong></h2><p>&emsp;TCP/IP支持多种链路层协议，不同的网络硬件设备使用不同链路层协议，如：以太网协议、令牌环、FDDI和PPP等。链路层主要有三个目的：</p>
+<ul>
+<li>为IP模块发送和接受IP数据报</li>
+<li>为ARP模块发送ARP请求和接受ARP应答</li>
+<li>为RARP模块发送RARP请求和接受RARP应答</li>
+</ul>
+<h2 id="以太网"><strong>以太网</strong></h2><p>&emsp;以太网是目前TCP/IP在局域网中最主要的技术，采用CSMA/CD(带冲突检测的载波侦听多路接入)接入方法，地址为48bit(既MAC地址)。然而以太网是几家公司联合发布的一个技术标准，后来IEEE发布802标准(802.3针对CSMA/CD网络)。但实际上目前局域网中绝大多数都是以太网包，802.3的包有使用但极少。<strong>以太网帧结构和802.3帧结构是完全不同的</strong>，以下我主要记录以太网包相关的内容。</p>
+<h3 id="以太网帧结构"><strong>以太网帧结构</strong></h3><p>&emsp;以太网规定以太网帧中的<code>数据</code>长度在<strong><code>46~1500</code></strong>字节之间。最小不少于46字节，<strong>不足46字节的必须加入填充(PAD)字节</strong>；最大不得超过1500字节(1500既MTU)。所以一个正常的以太网帧长度应该在<strong>64~1518</strong>字节之间，由<code>帧头部+数据+帧尾校验</code>组成<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">| 目的地址<span class="comment">(6)</span> | 源地址<span class="comment">(6)</span> | 类型<span class="comment">(2)</span> | 数据<span class="comment">(46~1500)</span> | CRC<span class="comment">(4)</span> |</span><br></pre></td></tr></table></figure></p>
+<h3 id="以太网帧中的类型字段"><strong>以太网帧中的类型字段</strong></h3><p>&emsp;在以太网帧结构中有2字节的<code>类型</code>字段，其主要目的是为了标识上层协议类型。常见的有以下三种类型，更详细的类型参见<a href="https://en.wikipedia.org/wiki/EtherType#Examples" target="_blank" rel="external">这里</a></p>
+<ul>
+<li><p>IP协议——0x0800<br>  IP数据报在以太网帧中的类型字段以<code>0x0800</code>表示，数据部分大小依旧是<code>46~1500</code>字节</p>
+  <figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">| 目的地址<span class="comment">(6)</span> | 源地址<span class="comment">(6)</span> | <span class="number">0</span>x<span class="number">0800</span> | 数据<span class="comment">(46~1500)</span> | CRC<span class="comment">(4)</span> |</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>ARP协议——0x0806<br>  ARP的请求或应答包在以太网帧中的类型字段以<code>0x0806</code>表示，但数据部分ARP包只有<strong>28</strong>字节，不满足以太网规定的最小<strong>46</strong>字节，所以ARP包的数据部分会有<strong>18</strong>字节的PAD填充字节</p>
+  <figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">| 目的地址<span class="comment">(6)</span> | 源地址<span class="comment">(6)</span> | <span class="number">0</span>x<span class="number">0806</span> | ARP请求/应答数据<span class="comment">(28)</span> + PAD填充字节<span class="comment">(18)</span> | CRC<span class="comment">(4)</span> |</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>RARP协议——0x0835<br>  RARP和ARP差不多，数据部分也只有28字节，需要填充18字节</p>
+</li>
+</ul>
+<h2 id="环回接口(loopback)"><strong>环回接口(loopback)</strong></h2><p>&emsp;通常我们会把<code>127.0.0.1</code>分配给环回接口并命名为<code>localhost</code>，<strong>传给环回接口的IP包不能出现在任何网络上</strong>。环回接口是个比较特殊的接口，此接口会有些有趣或特殊的应用，比如LVS的DR模式中会将VIP配置在RealServer的<em>lo:0</em>环回设备上。<br>&emsp;以下三种情况环回接口处理数据包时，数据包直接经过环回接口驱动程序传入上层，数据包并没有经过网卡输出到以太网后再返回。所以当我们ping 127.0.0.1或本机IP地址时，数据包是直接通过环回驱动程序再回到上层。</p>
+<ul>
+<li>目的IP为环回接口地址。IP输出函数——&gt;环回驱动程序——&gt;IP输入函数</li>
+<li>目的IP为广播或多播地址。</li>
+<li>目的IP为本机接口IP地址。</li>
+</ul>
+<p>除以上三种情况外的目的IP数据包会通过ARP协议找到目的IP的MAC地址后进行发送到以太网</p>
+<h2 id="最大传输单元MTU、路径MTU"><strong>最大传输单元MTU、路径MTU</strong></h2><p>&emsp;数据帧中可容最大数据长度称为MTU，在不同帧结构中MTU是不同的，以太网的MTU是<code>1500字节</code>。我们可以通过<code>netstat -in</code>命令查看MTU信息<br>&emsp;当网络上两台主机通信时，会经过路由选路确定一条路径，在这条路径上可能会有不同的网络或设备的MTU。所谓的<strong>路径MTU</strong>则是在这条路径中<strong>最小</strong>的MTU。两台主机间的路径MTU并不一定是固定的，因为路径MTU取决于所选路径。<br>&emsp;由于链路层有MTU限制，所以当IP层要传的数据包大于MTU时，网络层则需要进行IP分片，而且由于路径上的MTU可能会不同，所以数据包可能会被进行多次分片。有关IP分片的详细内容会在网络层做详细介绍。<br>&emsp;大于MTU的包会有两种处理方式：</p>
+<ul>
+<li>直接丢弃。丢弃后会发送ICMP报文告诉源端包太大并通告自身的MTU</li>
+<li>重新分块后再发送</li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="链路层主要目的"><strong>链路层主要目的</strong></h2><p>&emsp;TCP/IP支持多种链路层协议，不同的网络硬件设备使用不同链路层协议，如：以太网协议、令牌环、FDDI和PPP等。链路层主要有三个目的：</p>
+<ul>
+<li>为IP]]>
+    </summary>
+    
+      <category term="TCP/IP" scheme="http://yoursite.com/tags/TCP-IP/"/>
+    
+      <category term="TCP/IP" scheme="http://yoursite.com/categories/TCP-IP/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[重读《TCP/IP详解卷一》之概述]]></title>
+    <link href="http://yoursite.com/2015/06/25/review-tcp-ip-0/"/>
+    <id>http://yoursite.com/2015/06/25/review-tcp-ip-0/</id>
+    <published>2015-06-25T14:28:41.000Z</published>
+    <updated>2015-07-26T12:52:46.000Z</updated>
+    <content type="html"><![CDATA[<p>&emsp;《TCP/IP详解卷一》此书在学校期间就已经读过，当时还是花了一定的精力和时间去读的。前段时间在看有关LVS方面的资料，其中涉及网络方面的知识，这让我发现自己关于TCP/IP方面的细节知识已经有点模糊。于是决定再重新仔细的阅读《TCP/IP详解卷一》这边经典书籍，顺便做个笔记记录，方便以后查阅。</p>
+<h2 id="分层"><strong>分层</strong></h2><p>有别于OSI七层模型，TCP/IP协议族分为四层：</p>
+<ul>
+<li>应用层：处理应用程序细节，例如：Telnet远程登录、FTP文件传输协议、HTTP协议等。信息单元称之为<strong>数据(data)</strong></li>
+<li>传输层：主要负责提供端对端通信，主要有两个不通的传输协议：TCP(传输控制协议)、UDP(用户数据报协议)。信息单元称之为<strong>段(segment)</strong></li>
+<li>网络层：负责处理分组在网络的活动，即路由寻址。网络层协议包括：IP协议、ICMP协议和IGMP协议。信息单元称之为<strong>包/分组(Packet)</strong></li>
+<li>链路层：主要包括设备驱动及网络设备接口，链路层协议：以太网、令牌环网、FDDI等。信息单元称之为<strong>帧(frame)</strong></li>
+</ul>
+<h2 id="IP地址"><strong>IP地址</strong></h2><p>IPv4地址长32bit，分成5类</p>
+<ul>
+<li>A类地址：0.0.0.~127.255.255.255，0-网络号(7位)-主机号(24位)</li>
+<li>B类地址：128.0.0.0~192.255.255.255，10-网络号(14位)-主机号(16位)</li>
+<li>C类地址：192.0.0.0~223.255.255.255，110-网络号(21位)-主机号(8位)</li>
+<li>D类地址：224.0.0.0~239.255.255.255，1110-多播组号(28位)</li>
+<li>E类地址：240.0.0.0~255.255.255.255，11110-保留(27位)</li>
+</ul>
+<p>保留地址(私有地址)：</p>
+<ul>
+<li>127.0.0.0/8</li>
+<li>10.0.0.0/8</li>
+<li>169.254.0.0/16</li>
+<li>172.16.0.0/12~172.31.0.0/12</li>
+<li>192.168.0.0/16</li>
+<li>E类地址(用于实验)</li>
+</ul>
+<h2 id="封装"><strong>封装</strong></h2><p>数据从<code>应用层——&gt;传输层——&gt;网络层——&gt;链路层</code>逐层传递时，每层都会对收到的数据添加首部信息/尾部信息</p>
+<ul>
+<li>应用层：用户数据</li>
+<li>传输层：用户数据+TCP首部                                    此数据单元(以TCP为例)称为——<strong>TCP报文(TCP segment)</strong></li>
+<li>网络层：用户数据+TCP首部+IP首部                            此数据单元称为——<strong>分组(packet)</strong></li>
+<li>链路层：以太网尾部+应用数据+TCP首部+IP首部+以太网首部    此数据单元称为——<strong>帧(frame)</strong>，由于以太网物理性质限制<code>46B&lt; 应用数据+TCP首部+IP首部&lt; 1500B</code></li>
+</ul>
+<h2 id="端口号"><strong>端口号</strong></h2><ul>
+<li>1~1023        知名服务端口(<code>/etc/services</code>查看常用熟知端口)</li>
+<li>1024~65535    随机端口(之所以最大端口号为65535是因为TCP/UDP头部采用<code>16bit</code>来标识端口，故最大为<code>2^16</code>)</li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>&emsp;《TCP/IP详解卷一》此书在学校期间就已经读过，当时还是花了一定的精力和时间去读的。前段时间在看有关LVS方面的资料，其中涉及网络方面的知识，这让我发现自己关于TCP/IP方面的细节知识已经有点模糊。于是决定再重新仔细的阅读《TCP/IP详解卷一》这边经典书籍]]>
+    </summary>
+    
+      <category term="TCP/IP" scheme="http://yoursite.com/tags/TCP-IP/"/>
+    
+      <category term="TCP/IP" scheme="http://yoursite.com/categories/TCP-IP/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Tmux使用录]]></title>
     <link href="http://yoursite.com/2015/06/20/tmux/"/>
     <id>http://yoursite.com/2015/06/20/tmux/</id>
     <published>2015-06-20T14:20:20.000Z</published>
-    <updated>2015-06-29T13:38:30.000Z</updated>
+    <updated>2015-08-15T02:12:35.000Z</updated>
     <content type="html"><![CDATA[<p>&emsp;<a href="https://tmux.github.io/" target="_blank" rel="external">tmux</a>是一款优秀且好用的终端复用工具，有点类似screen。之所以说好用是因为它支持全键盘操作，连屏幕复制都能直接通过键盘完成，以下是平时的一点使用记录。</p>
 <h2 id="安装"><strong>安装</strong></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ubuntu：sudo apt-get install tmux</span><br><span class="line">CentOS：yum install tmux</span><br></pre></td></tr></table></figure>
 <h2 id="基础概念"><strong>基础概念</strong></h2><p>&emsp;要用好tmux，需要先了解有关tmux的几个基础概念——会话(session)、窗口(window)和面板(pane)</p>
@@ -268,7 +704,7 @@
 <li>按<code>prefix ]</code>粘贴到光标所在处</li>
 </ul>
 <h2 id="tmux配置"><strong>tmux配置</strong></h2><p>&emsp;可通过以下命令查看所有终端的颜色：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;<span class="number">0</span>..<span class="number">255</span>&#125;;<span class="keyword">do</span> <span class="built_in">printf</span> <span class="string">"\x1b[38;5;<span class="variable">$&#123;i&#125;</span>mcolour<span class="variable">$&#123;i&#125;</span>\n"</span>; <span class="keyword">done</span></span><br></pre></td></tr></table></figure></p>
-<h3 id="我的tmux配置">我的tmux配置</h3><p>&emsp;tmux的配置文件为<code>~/.tmux.conf</code>，以下是我参考网上修改的配置文件，因为终端颜色显示问题最好先执行此命令<strong><code>echo &quot;alias tmux=&#39;tmux -2&#39;&quot; &gt;&gt; ~/.bashrc</code></strong><br><figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">##设置颜色</span></span><br><span class="line"><span class="keyword">set</span> -g <span class="keyword">default</span>-terminal <span class="string">"screen-256color"</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">##### 256 ######</span></span><br><span class="line"><span class="preprocessor"># default statusbar colors</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-bg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-fg colour34 <span class="preprocessor">#purple</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-attr <span class="keyword">default</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># default window title colors</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-fg colour244 <span class="preprocessor">#base0</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-bg <span class="keyword">default</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># active window title colors</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-current-fg colour88 <span class="preprocessor">#red</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-current-bg colour232 <span class="preprocessor">#black</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># pane border</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g pane-border-fg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g pane-active-border-fg colour196 <span class="preprocessor">#base01</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># message text</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g message-bg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g message-fg colour83 <span class="preprocessor">#green</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># pane number display</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g display-panes-active-colour colour33 <span class="preprocessor">#blue</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g display-panes-colour colour166 <span class="preprocessor">#orange</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># clock</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g clock-mode-colour colour64</span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-right <span class="string">"[#(hostname)] #(date +%H:%M' '%Y-%m-%d)"</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#设置前缀</span></span><br><span class="line"><span class="keyword">set</span> -g prefix C-o</span><br><span class="line"><span class="preprocessor">#解除Ctrl+b 与前缀的对应关系</span></span><br><span class="line">unbind C-b</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#复制</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g mode-keys vi</span><br><span class="line">bind-<span class="keyword">key</span> -t vi-copy <span class="comment">'v' begin-selection</span></span><br><span class="line">bind-<span class="keyword">key</span> -t vi-copy <span class="comment">'y' copy-selection</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#pane hjkl移动</span></span><br><span class="line">bind h <span class="keyword">select</span>-pane -L</span><br><span class="line">bind j <span class="keyword">select</span>-pane -D</span><br><span class="line">bind k <span class="keyword">select</span>-pane -U</span><br><span class="line">bind l <span class="keyword">select</span>-pane -R</span><br></pre></td></tr></table></figure></p>
+<h3 id="我的tmux配置"><strong>我的tmux配置</strong></h3><p>&emsp;tmux的配置文件为<code>~/.tmux.conf</code>，以下是我参考网上修改的配置文件，因为终端颜色显示问题最好先执行此命令<strong><code>echo &quot;alias tmux=&#39;tmux -2&#39;&quot; &gt;&gt; ~/.bashrc</code></strong><br><figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">##设置颜色</span></span><br><span class="line"><span class="keyword">set</span> -g <span class="keyword">default</span>-terminal <span class="string">"screen-256color"</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">##### 256 ######</span></span><br><span class="line"><span class="preprocessor"># default statusbar colors</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-bg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-fg colour34 <span class="preprocessor">#purple</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-attr <span class="keyword">default</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># default window title colors</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-fg colour244 <span class="preprocessor">#base0</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-bg <span class="keyword">default</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># active window title colors</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-current-fg colour88 <span class="preprocessor">#red</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-current-bg colour232 <span class="preprocessor">#black</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># pane border</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g pane-border-fg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g pane-active-border-fg colour196 <span class="preprocessor">#base01</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># message text</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g message-bg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g message-fg colour83 <span class="preprocessor">#green</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># pane number display</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g display-panes-active-colour colour33 <span class="preprocessor">#blue</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g display-panes-colour colour166 <span class="preprocessor">#orange</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># clock</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g clock-mode-colour colour64</span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-right <span class="string">"[#(hostname)] #(date +%H:%M' '%Y-%m-%d)"</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#设置前缀</span></span><br><span class="line"><span class="keyword">set</span> -g prefix C-o</span><br><span class="line"><span class="preprocessor">#解除Ctrl+b 与前缀的对应关系</span></span><br><span class="line">unbind C-b</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#复制</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g mode-keys vi</span><br><span class="line">bind-<span class="keyword">key</span> -t vi-copy <span class="comment">'v' begin-selection</span></span><br><span class="line">bind-<span class="keyword">key</span> -t vi-copy <span class="comment">'y' copy-selection</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#pane hjkl移动</span></span><br><span class="line">bind h <span class="keyword">select</span>-pane -L</span><br><span class="line">bind j <span class="keyword">select</span>-pane -D</span><br><span class="line">bind k <span class="keyword">select</span>-pane -U</span><br><span class="line">bind l <span class="keyword">select</span>-pane -R</span><br></pre></td></tr></table></figure></p>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>&emsp;<a href="https://tmux.github.io/" target="_blank" rel="external">tmux</a>是一款优秀且好用的终端复用工具，有点类似screen。之所以说好用是因为它支持全键盘操作，连屏幕复制都能直接通过键盘]]>

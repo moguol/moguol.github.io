@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" 重读《TCP/IP详解卷一》之概述 | Hexo " />
+	<meta name="twitter:title" content=" 重读《TCP/IP详解卷一》之概述 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" 重读《TCP/IP详解卷一》之概述 | Hexo ">
+	<meta property="og:description" content=" 重读《TCP/IP详解卷一》之概述 | Hexo " />
+	<meta name="twitter:description" content=" 重读《TCP/IP详解卷一》之概述 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2015/06/25/review-tcp-ip-0/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2015-06-25">2015-06-25</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/TCP-IP/">TCP/IP</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2015/06/25/review-tcp-ip-0/" itemprop="url"><span itemprop="name">重读《TCP/IP详解卷一》之概述</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<p>&emsp;《TCP/IP详解卷一》此书在学校期间就已经读过，当时还是花了一定的精力和时间去读的。前段时间在看有关LVS方面的资料，其中涉及网络方面的知识，这让我发现自己关于TCP/IP方面的细节知识已经有点模糊。于是决定再重新仔细的阅读《TCP/IP详解卷一》这边经典书籍，顺便做个笔记记录，方便以后查阅。</p>
+<h2 id="分层"><strong>分层</strong></h2><p>有别于OSI七层模型，TCP/IP协议族分为四层：</p>
+<ul>
+<li>应用层：处理应用程序细节，例如：Telnet远程登录、FTP文件传输协议、HTTP协议等。信息单元称之为<strong>数据(data)</strong></li>
+<li>传输层：主要负责提供端对端通信，主要有两个不通的传输协议：TCP(传输控制协议)、UDP(用户数据报协议)。信息单元称之为<strong>段(segment)</strong></li>
+<li>网络层：负责处理分组在网络的活动，即路由寻址。网络层协议包括：IP协议、ICMP协议和IGMP协议。信息单元称之为<strong>包/分组(Packet)</strong></li>
+<li>链路层：主要包括设备驱动及网络设备接口，链路层协议：以太网、令牌环网、FDDI等。信息单元称之为<strong>帧(frame)</strong></li>
+</ul>
+<h2 id="IP地址"><strong>IP地址</strong></h2><p>IPv4地址长32bit，分成5类</p>
+<ul>
+<li>A类地址：0.0.0.~127.255.255.255，0-网络号(7位)-主机号(24位)</li>
+<li>B类地址：128.0.0.0~192.255.255.255，10-网络号(14位)-主机号(16位)</li>
+<li>C类地址：192.0.0.0~223.255.255.255，110-网络号(21位)-主机号(8位)</li>
+<li>D类地址：224.0.0.0~239.255.255.255，1110-多播组号(28位)</li>
+<li>E类地址：240.0.0.0~255.255.255.255，11110-保留(27位)</li>
+</ul>
+<p>保留地址(私有地址)：</p>
+<ul>
+<li>127.0.0.0/8</li>
+<li>10.0.0.0/8</li>
+<li>169.254.0.0/16</li>
+<li>172.16.0.0/12~172.31.0.0/12</li>
+<li>192.168.0.0/16</li>
+<li>E类地址(用于实验)</li>
+</ul>
+<h2 id="封装"><strong>封装</strong></h2><p>数据从<code>应用层——&gt;传输层——&gt;网络层——&gt;链路层</code>逐层传递时，每层都会对收到的数据添加首部信息/尾部信息</p>
+<ul>
+<li>应用层：用户数据</li>
+<li>传输层：用户数据+TCP首部                                    此数据单元(以TCP为例)称为——<strong>TCP报文(TCP segment)</strong></li>
+<li>网络层：用户数据+TCP首部+IP首部                            此数据单元称为——<strong>分组(packet)</strong></li>
+<li>链路层：以太网尾部+应用数据+TCP首部+IP首部+以太网首部    此数据单元称为——<strong>帧(frame)</strong>，由于以太网物理性质限制<code>46B&lt; 应用数据+TCP首部+IP首部&lt; 1500B</code></li>
+</ul>
+<h2 id="端口号"><strong>端口号</strong></h2><ul>
+<li>1~1023        知名服务端口(<code>/etc/services</code>查看常用熟知端口)</li>
+<li>1024~65535    随机端口(之所以最大端口号为65535是因为TCP/UDP头部采用<code>16bit</code>来标识端口，故最大为<code>2^16</code>)</li>
+</ul>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/TCP-IP/">TCP/IP</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+					<a href="/2015/06/29/review-tcp-ip-1/" title="重读《TCP/IP详解卷一》之链路层">&larr; Prev</a>
+				
+
+				
+					<a href="/2015/06/20/tmux/" title="Tmux使用录">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>

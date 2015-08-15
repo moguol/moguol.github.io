@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" 重读《TCP/IP详解卷一》之网络层 | Hexo " />
+	<meta name="twitter:title" content=" 重读《TCP/IP详解卷一》之网络层 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" 重读《TCP/IP详解卷一》之网络层 | Hexo ">
+	<meta property="og:description" content=" 重读《TCP/IP详解卷一》之网络层 | Hexo " />
+	<meta name="twitter:description" content=" 重读《TCP/IP详解卷一》之网络层 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2015/07/04/review-tcp-ip-2/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2015-07-04">2015-07-04</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/TCP-IP/">TCP/IP</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2015/07/04/review-tcp-ip-2/" itemprop="url"><span itemprop="name">重读《TCP/IP详解卷一》之网络层</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<h2 id="IP网际协议"><strong>IP网际协议</strong></h2><p>&emsp;IP提供的是不可靠、无连接的数据报传输服务。</p>
+<ul>
+<li>不可靠：不能保证IP数据报能成功到达目的地，既可能<strong>丢包</strong>。可靠性需要由上层提供，如TCP的超时重传机制等。IP有一个简单的错误处理办法，当IP数据报被丢弃后，会发送ICMP消息告诉发送端错误情况。</li>
+<li>无连接：不维护任何后续数据报的状态信息。每个数据报都是相互独立的，独立进行路由选择，到达目的地的顺序和发送顺序可以不同。虽然IP是无连接的，但TCP是面向连接的。<br>举个例子，发送端TCP有四个数据包<code>0 1 2 3</code>，传给网络层，IP封装IP头部后将四个数据包发送出去；由于网络原因产生丢包或延时到达，在接收端只收到<code>0 1 3</code>三个数据包，由于IP是无连接的所以它不需要等<code>2</code>号包的到来就直接将三个数据包传给TCP。由于TCP是面向连接的，所以必须等到<code>2</code>号包的到达组装成完整的数据包后才能传入应用层。</li>
+</ul>
+<h2 id="IP头部分析"><strong>IP头部分析</strong></h2><p>&emsp;IP头部如图所示：</p>
+<p><center><br><img src="http://7xk64o.com1.z0.glb.clouddn.com/ip-header.png" alt="ip-header"><br></center><br>&emsp;普通的IP头部长<strong>20字节</strong>(不包含选项字段)</p>
+<ul>
+<li><strong>版本(4位)</strong>：常说的IPv4或IPv6</li>
+<li><strong>首部长度(4位)</strong>：IP头部最长为<strong>60字节</strong>(一般为<strong>20字节</strong>)。用4位表示长度，那么最大为<code>1111</code>转换成十进制为<code>15</code>，那么最大则为<code>15*4字节=60字节</code>。<br>  &emsp;需要注意的是：4个位里面，<code>0001</code>代表的不是数值1而是首部的1个单位长度，1个单位长度为32bit=4字节(如图所示一行为32bit)。所以首部长度表示首部占32bit字的数目，既首部长度能占多少行(每行32bit)。故一般IP头部长<strong>20字节</strong>，首部长度字段的值为<strong><code>5</code></strong>。</li>
+<li><strong>服务类型TOS(8位)</strong>：TOS(8bit)=优先权子字段(3bit[已弃用])+TOS子字段(4bit)+保留位(1bit)，服务类型字段主要可用在QOS上。<br>  &emsp;4bitTOS子字段分别代表：<code>1000</code>——最小延时、<code>0100</code>——最大吞吐量、<code>0010</code>——最高可靠性、<code>0001</code>——最小费用</li>
+<li><strong>总长度(16位)</strong>：指定整个IP数据报的长度(IP头部+数据)，单位为<strong>字节</strong>。由于<code>总长度</code>字段占<code>16</code>位，所以IP数据报的最长总长度为<code>2^16</code>既<code>65535</code>字节。</li>
+<li><strong>标识(16位)</strong>：唯一标识每个数据报。通常情况下每发一个数据报该字段加1。<br>  &emsp;在IP分片的时候，比如说一个包该标识字段为<code>1</code>，此包过大需要被分片，分成三个小包<code>1-1</code>、<code>1-2</code>、<code>1-3</code>，这三个小包的标识字段依旧是<code>1</code>，而后面的<code>1、2、3</code>则和接下来的字段相关。</li>
+<li><strong>标志(3位)</strong>：目前只用到2bit，第3位保留。<br>  &emsp;标志(3bit)=0+DF+MF    &emsp;&emsp;&emsp;&emsp;DF——Don’t Fragment    &emsp;&emsp;&emsp;&emsp;MF——More Fragment<br>  &emsp;<code>010</code>DF=1表示不允许分片(DF=1，若包过大则直接丢弃并用ICMP报文通知源端相关情况)；<code>DF=0</code>则表示允许分片<br>  &emsp;<code>001</code>MF=1表示后续还有分片；MF=0表示此分片包为若干分片的最后一个</li>
+<li><strong>片偏移(13位)</strong>：分片在原数据报中的相对位置。相对于原数据报起点，该分片从何处开始。片偏移都是以<strong>8字节</strong>为偏移单位，既除最后一片外，其余所有分片长度皆为8字节的整数倍。由于IP是无连接的，分片后的数据报可能乱序到达所以需要用片偏移对分片进行正确重组。<br>  &emsp;举例说明：一个数据报被分成<code>1 2 3</code>三个分片，<code>1</code>分片的长度80字节、<code>2</code>分片长度64字节、<code>3</code>分片长度10字节。<br>  &emsp;<code>1</code>分片的片偏移为<code>0</code><br>  &emsp;<code>2</code>分片的片偏移为<code>80</code>，在原数据报中，<code>2</code>分片从第<em>80</em>字节开始<br>  &emsp;<code>3</code>分片的片偏移为<code>144</code>(0+80+64)</li>
+<li><strong>TTL生存时间(8位)</strong>：设置数据报可经过的最多路由器数。经过一个路由器，TTL减一。当TTL=0时，数据报被丢弃并发送ICMP报文通知源端。<br>  &emsp;TTL占8bit，所以TTL最大值为<code>2^8</code>既<code>255</code>。TTL设置的意义在于防止网络出现环路时，数据报被无限的传递。</li>
+<li><strong>协议(8位)</strong>：表明上一层传输层用的协议类型。常见的协议及字段值如下所示：<br>  &emsp;TCP——6、UDP——17、ICMP——1、EGP——8、IGP——9、OSPF——89</li>
+<li><strong>首部检验和(16位)</strong>：IP头部的检验和</li>
+<li><strong>源地址(32位)</strong></li>
+<li><strong>目标地址(32位)</strong></li>
+<li><strong>选项</strong>：由于IP头部最大位<code>60字节</code>，以上的基础头部占用<code>20字节</code>，所以选项最多只有<code>40字节</code><br>  &emsp;选项位是一个可变长的字段，目前有如下这些定义：<ul>
+<li>安全和处理限制</li>
+<li>路径记录(记录每跳路由的IP)</li>
+<li>时间戳</li>
+<li>宽松源站路由</li>
+<li>严格源站路由</li>
+</ul>
+</li>
+</ul>
+<h2 id="IP路由选择"><strong>IP路由选择</strong></h2><p>&emsp;IP路由选择是<strong>逐跳</strong>进行的，所有的IP路由选择只为数据传输提供下一站路由的IP地址。IP路由选择需要注意以下两点：</p>
+<ul>
+<li>数据报中的<strong>目的IP</strong>始终是不变的(除非在IP头部<code>选项</code>中使用<code>源站路由</code>，目的IP才可能会被改变)。</li>
+<li>链路层的<strong>目的MAC</strong>始终都是在改变的(非直连路由)，并且是下一跳路由的MAC地址。(下一跳路由的MAC通过ARP协议获得)</li>
+</ul>
+<p>&emsp;IP路由选择的大致过程如下：</p>
+<ol>
+<li>检查IP头部的<code>TTL</code>值，若<code>TTL=0</code>则丢弃该数据报并发送ICMP报文通知源端</li>
+<li>搜索路由表，优先匹配主机，寻找能与目的IP完全匹配的条目。</li>
+<li>搜索路由表，匹配相同子网的条目，寻找能与目的网络号匹配的条目。</li>
+<li>搜索路由表，寻找默认路由条目。</li>
+<li>搜索路由表后都没有找到以上三种相关的条目，丢弃该数据报。</li>
+</ol>
+<p>&emsp;路由选择的顺序：<code>匹配主机——&gt;匹配子网——&gt;默认路由</code></p>
+<p>&emsp;IP路由根据连接情况可粗略分成两类：<code>直连路由</code>和<code>非直连路由</code></p>
+<ul>
+<li>直连路由的寻址<br>  源IP、目的IP、源MAC、目的MAC由始到终都是固定的，数据报不经过路由器</li>
+<li>非直连路由<br>  <code>源IP</code>、<code>源MAC</code>、<code>目的IP</code>都是不变的(IP头部非源站路由)，但其中需要经过若干个路由器，每经过一次IP路由选择得出<code>下一跳路由</code>后，<code>目的MAC</code>就被修改成该<code>下一跳路由</code>接口的MAC</li>
+</ul>
+<p>&emsp;直连路由的目的MAC就是目标主机的MAC，而非直连路由的目的MAC是经路由选择后下一跳接口的MAC</p>
+<h2 id="ARP"><strong>ARP</strong></h2><p>&emsp;ARP是为IP地址到对应的硬件地址(以太网中既MAC地址)之间提供动态映射的一种协议。</p>
+<h3 id="实例分析"><strong>实例分析</strong></h3><p>&emsp;书中举例一个FTP的例子，可以从这个例子中全局的理解TCP/IP一个整体的过程，例子图如下：</p>
+<p><center><br><img src="http://7xk64o.com1.z0.glb.clouddn.com/arp_example.png" alt="arp_example"><br></center><br><code>ftp bsdi</code></p>
+<ol>
+<li>应用层：FTP应用程序需要获取FTP服务器的IP地址，FTP应用程序发现输入的是一个域名于是调用DNS域名解析将域名解析成32bit的IP地址并将数据传给传输层</li>
+<li>传输层：由于FTP是使用TCP连接的，所以请求TCP进行三次握手建立连接，TCP将握手包封装好后传给网络层</li>
+<li>网络层：如果目的IP是直连网络那么数据报可直接送给目的主机；如果目的IP是非直连网络则按<code>IP路由选择</code>获取下一跳地址并将数据报转发。</li>
+<li>链路层(以太网)：有了目的IP后需要知道目的IP对应的MAC(直连是目的主机的MAC/非直连是下一跳的MAC)才能将数据报真正的传给目的主机。这就需要ARP做<code>IP——&gt;MAC</code>的解析。</li>
+<li>ARP解析过程<ul>
+<li>ARP发送一个二层的<strong>广播</strong>既<code>ARP广播请求包</code>，ARP广播包里的<strong>目的MAC</strong>为<code>FF:FF:FF:FF:FF:FF</code>全F，全网广播询问<code>目的IPxxx.xxx.x.x对应的MAC是多少</code>。本网段的所有主机都会收到此ARP广播包，然后根据广播包中的目的IP是否为自己的IP做出判断。如果目的IP不是自己的IP则丢弃该ARP广播包。</li>
+<li>目的主机发现该ARP广播包中的目的IP是自己的IP，于是向源IP发送一个<strong>单播</strong>的<code>ARP响应包</code>。该ARP响应包中包含了自己的MAC地址</li>
+</ul>
+</li>
+<li><ul>
+<li>如果是直连网络的话，源IP、源MAC、目的IP和目的MAC都齐全了并且建立连接后即可传输数据(数据的传输其实还是上述的过程)</li>
+<li>如果是非直连网络的话，目的MAC就是下一跳的MAC，将数据报转发给下一跳的设备，经过不断的IP路由选择，数据报最终到达目的主机(期间不断重复3/4/5步骤)。在非直连网络中，数据报中的<code>目的IP</code>始终是不变的(非源站路由)而<code>目的MAC</code>总是在变换是下一跳设备接口的MAC，IP地址用于逻辑选路，MAC地址才是真正决定数据报要传到哪个设备或主机上。</li>
+</ul>
+</li>
+</ol>
+<p>&emsp;假若ARP解析失败，无法获取目的IP的MAC，那么网络层封装的IP包是不会从主机接口发出去的。<br>&emsp;在收到<code>ARP应答</code>的时候，操作系统或网络设备等都会将查询到的<code>IP-MAC</code>对应关系缓存起来，所以一般情况下系统会维护一张<strong>ARP表</strong>以供快速查询。Linux系统可以通过命令<code>arp -a</code>或<code>cat /proc/net/arp</code>查看缓存的arp记录</p>
+<h3 id="ARP包结构"><strong>ARP包结构</strong></h3><p>&emsp;在<a href="">上一篇博客</a>中讲到以太网帧的结构，其中<code>类型</code>字段用来表示上层所用的协议，<strong><code>0x0806</code></strong>表示的是<code>ARP</code>，具体以太网帧结构如下：<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">以太网帧结构：</span><br><span class="line">  | 目的地址<span class="comment">(6)</span> | 源地址<span class="comment">(6)</span> | <span class="number">0</span>x<span class="number">0806</span> | ARP请求/应答数据<span class="comment">(28)</span> + PAD填充字节<span class="comment">(18)</span> | CRC<span class="comment">(4)</span> |</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;其中以太网帧的<code>数据</code>部分是由<code>ARP请求/应答数据(28) + PAD填充字节(18)</code>组成，接下来要分析的是<code>ARP请求/应答数据(28)</code>这<code>28字节</code>的结构，具体的分组结构如下所示：<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ARP包结构：</span><br><span class="line">  | 硬件类型<span class="comment">(2)</span> | 协议类型<span class="comment">(2)</span> | 硬件地址长度<span class="comment">(1)</span> | 协议地址长度<span class="comment">(1)</span> | 操作<span class="comment">(2)</span> | 源MAC<span class="comment">(6)</span> | 源IP<span class="comment">(4)</span> | 目的MAC<span class="comment">(6)</span> | 目的IP<span class="comment">(4)</span> |</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><strong>硬件类型(2)</strong>：表示硬件地址的类型。<code>1</code>表示以太网地址</li>
+<li><strong>协议类型(2)</strong>：此字段和以太网帧头部的<code>类型</code>字段是一样的。<code>0x0800</code>——IP。<code>协议类型</code>和<code>硬件类型</code>可以表面ARP是在做<code>IP——MAC</code>之间的映射。</li>
+<li><strong>硬件地址长度(1)</strong>： 表明硬件地址的长度。以太网硬件地址(MAC)该字段值为<code>6</code>，表明以太网硬件地址(MAC)是占<code>6字节</code>/<code>48位</code>。</li>
+<li><strong>协议地址长度(1)</strong>：表明协议地址的长度。IP协议地址长度该字段值为<code>4</code>，表明IP协议地址占<code>4字节</code>/<code>32位</code></li>
+<li><strong>操作(2)</strong>：表明操作的类型。以太网帧的<code>类型</code>字段对于ARP请求/应答都是<code>0x0806</code>，所以需要通过ARP分组结构中的<code>操作</code>字段区分ARP请求/ARP应答<ul>
+<li>1——ARP请求</li>
+<li>2——ARP应答</li>
+<li>3——RARP请求</li>
+<li>4——RARP应答</li>
+</ul>
+</li>
+<li><strong>源MAC(6)</strong>：源端的MAC地址</li>
+<li><strong>源IP(4)</strong>：源端的IP地址</li>
+<li><strong>目的MAC(6)</strong>：目的设备的MAC地址。该字段的值和<em>以太网帧头部的</em><code>目的地址</code>在<code>ARP请求</code>时是不同的(尽管它们都表示硬件地址，但所填的值不同)。<br>  &emsp;当是<code>ARP请求</code>的时候(<code>操作</code>字段为<code>1</code>)<ul>
+<li>以太网帧头部的<code>目的地址(6)</code>字段值是<strong><code>FF:FF:FF:FF:FF</code></strong>(表明这是一个二层广播包，所有同网段的主机都会接收到该ARP请求包)</li>
+<li>ARP分组结构的<code>目的MAC(6)</code>字段值是<strong><code>00:00:00:00:00:00</code></strong>(表明ARP不知道目的MAC是多少，需要目的主机将自身MAC填入该字段)</li>
+</ul>
+</li>
+<li><strong>目的IP(4)</strong>：目的IP地址</li>
+</ul>
+<p>&emsp;所以包含ARP分组的完整以太网帧结构是这样的：<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">|目的地址<span class="comment">(6)</span>|源地址<span class="comment">(6)</span>|<span class="number">0</span>x<span class="number">0806</span>||  硬件类型<span class="comment">(2)</span>|协议类型<span class="comment">(2)</span>|硬件地址长度<span class="comment">(1)</span>|协议地址长度<span class="comment">(1)</span>|操作<span class="comment">(2)</span>|源MAC<span class="comment">(6)</span>|源IP<span class="comment">(4)</span>|目的MAC<span class="comment">(6)</span>|目的IP<span class="comment">(4)</span>  || + PAD填充字节<span class="comment">(18)</span>|CRC<span class="comment">(4)</span>|</span><br></pre></td></tr></table></figure></p>
+<h3 id="代理ARP"><strong>代理ARP</strong></h3><p>&emsp;如果ARP请求是试图解析非本网络的一台主机，那么连接两个网络的路由器会代替目的主机应答该ARP请求，路由器将自身的接口MAC地址回应给源主机，此过程就称之为<code>代理ARP</code>或<code>委托ARP</code>。路由器其实是“欺骗”了源主机，ARP响应中的MAC地址并发真正目的主机的MAC地址而是与源主机相连的路由器接口的MAC，路由器让源主机误以为路由器是目的主机。因为ARP请求是一个<strong>二层的广播包</strong>，而路由器是隔离广播的，也就是说ARP请求广播包正常情况下是无法穿过路由器继续前进的，路由器知道如何到达目的主机(路由表有路由记录)，所以“欺骗”源主机并接收之后的数据报，将这些数据报<strong>转发</strong>出去。<br>&emsp;举例说明<strong>代理ARP</strong>，如下所示：<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PC-A<span class="comment">(192.168.1.1/mac-a)</span>--------------<span class="comment">(192.168.1.2/mac-r1)</span> <span class="number">1</span>——Router——<span class="number">2</span> <span class="comment">(10.1.1.1/mac-r2)</span>-------------------<span class="comment">(10.1.1.2/mac-b)</span>PC-B</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>当PC-A发送<code>ARP请求</code>查询<em>10.1.1.2对应的MAC地址是多少</em>，ARP请求的广播包到达Router——1接口(一般情况下广播包就只能到达Router——1接口，不会经由Router——2再发出去)</li>
+<li>如果普通主机接收到非自身IP的ARP请求包时，都是做丢弃处理的。但Router开启了代理ARP的功能，查询自身路由表发现知道如何到达10.1.1.2</li>
+<li>Router对PC-A的<code>ARP请求</code>做出回应，发送一个<code>ARP响应</code>给PC-A，此ARP响应包内的映射关系为<strong><code>10.1.1.2——mac-r1</code></strong>(但实际上10.1.1.2对应的MAC应该是mac-b才对)</li>
+<li>PC-A接收到Router发送的<code>ARP响应</code>包，误以为<code>10.1.1.2</code>的MAC地址是<code>mac-r1</code>，于是将所有目的IP为<code>10.1.1.2</code>的数据都发到<code>Router——1</code>接口上。Router接收到数据后再转发给PC-B</li>
+</ul>
+<h3 id="免费ARP"><strong>免费ARP</strong></h3><p>&emsp;主机发送ARP请求查询IP对应的MAC，这个ARP请求就称之为<code>免费ARP</code>。免费ARP的作用主要有两个：</p>
+<ul>
+<li>通过免费ARP来确定IP是否被占用，是否有IP冲突的情况。主机在系统重启或网络服务重启的时候会发送免费ARP，询问自身IP对应的MAC是多少，当网络上有主机已经配置了相同的IP则会回应该免费ARP的询问，源主机接收到ARP回应就能确定该IP已经被使用。</li>
+<li>利用免费ARP更新arp表缓存。当主机发送免费ARP广播请求包时，本网络的所有主机都接收到该免费ARP。当发现目的IP不是自身IP时，主机会将该免费ARP丢弃，但在丢弃前会读取该免费ARP包内的源IP及源MAC，若发现和本机arp缓存表不同则更新映射。</li>
+</ul>
+<h3 id="ICMP"><strong>ICMP</strong></h3><p>&emsp;ICMP主要用于差错报文及其他消息的传递。ICMP报文通常被网络层或传输层使用，常用于将差错报文返回给客户进程，因为IP是不可靠的会出现丢包的情况，出现丢包现象的设备一般都会通过ICMP发送ICMP报文给源端，告诉出错的原因和问题等。<br>&emsp;ICMP报文封装在IP数据报内部，IP头部里的<code>协议(8位)</code>字段值为<code>1</code>就表示后面接的是ICMP报文：<br><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">| IP头部(20字节) | ICMP报文 |</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;ICMP报文的基本格式：<br><figure class="highlight vhdl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">| 类型(<span class="number">8</span><span class="typename">bit</span>) | 代码(<span class="number">8</span><span class="typename">bit</span>) | 检验和(<span class="number">16</span><span class="typename">bit</span>) |</span><br><span class="line">| <span class="comment">-----------------------------------------------------|</span></span><br><span class="line">| 不同类型和代码的内容				 |</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;ICMP报文类型：<br>ICMP报文类型很多，但最常用的是<code>0 0 回显应答</code>、<code>8 0 请求回显</code>，这两个类型主要用在ping中。</p>
+<p><center><br><img src="http://7xk64o.com1.z0.glb.clouddn.com/icmp-type.png" alt="icmp-type"><br></center><br>&emsp;ICMP差错报文必须包含该差错报文的<strong>IP首部(含<code>选项</code>)</strong>和IP首部后面的<strong>前8个字节</strong>，之所以要这样，是因为需要根据<strong>IP首部</strong>判断特定的<strong>协议</strong>、根据<strong>前8个字节</strong>判断用户进程(<strong>前8字节</strong>包含<strong>源端口</strong>和<strong>目标端口</strong>)<br>&emsp;以下情况不会产生ICMP差错报文，目的是为了防止广播风暴：</p>
+<ul>
+<li>ICMP差错报文，ICMP差错报文不会再产生差错报文来通知源端ICMP差错报文丢失(ICMP查询报文会产生ICMP差错报文)</li>
+<li>目的地址为广播或多播的IP数据报</li>
+<li>链路层广播的数据报</li>
+<li>非IP分片的第一片，因为只有第一片分片才包含<strong>前8字节</strong>所需的源端口和目的端口</li>
+<li>源地址不是单个主机的数据报，既源地址不能为全零、环回地址、广播地址和多播地址</li>
+</ul>
+<h2 id="IP路由"><strong>IP路由</strong></h2><p>&emsp;路由选路是IP最为重要的功能之一，系统会维护一张包含路由条目的路由表，通过查询路由表得出下一跳地址然后进行路由转发及选路。</p>
+<h3 id="路由更新方式"><strong>路由更新方式</strong></h3><p>&emsp;路由表更新的方式有如下三种：</p>
+<ul>
+<li>路由守护进程，运行着动态路由协议的用户进程，比如OSPF守护进程、RIP守护进程。</li>
+<li>route命令，可以通过route命令手动添加路由条目(静态路由就属于这种方式)。</li>
+<li>ICMP重定向，当收到ICMP重定向报文时，路由表也会被更新。</li>
+</ul>
+<p>&emsp;除了更新路由表外，可以通过<code>netstat -nr</code>命令查看路由表中的路由条目，当查看路由表时会看到不同的标志(flag)：</p>
+<ul>
+<li>U 该路由可用</li>
+<li>G 该路由是一个网关</li>
+<li>H 该路由是一个主机路由(直接到主机，目的地址是一个完整的主机地址)</li>
+<li>D 该路由是ICMP重定向报文创建的</li>
+<li>M 该路由被ICMP重定向报文修改</li>
+</ul>
+<h3 id="路由原理"><strong>路由原理</strong></h3><p>&emsp;路由原理其实之前也讲过，就是搜索路由表的优先顺序：</p>
+<ul>
+<li>搜索匹配主机地址的路由</li>
+<li>搜索匹配网络地址的路由</li>
+<li>搜索默认路由</li>
+</ul>
+<h3 id="ICMP重定向"><strong>ICMP重定向</strong></h3><p>&emsp;当路由器检测到某台主机使用非最优路由的时候，可以通过向该主机发送ICMP重定向报文，请求改变该主机的路由。(ICMP重定向报文只能由路由器生成，针对主机使用而不是路由器)<br>&emsp;ICMP重定向报文结构：<br><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">————————————</span><br><span class="line"><span class="string">|类型 5|代码 0~3|检验和|</span></span><br><span class="line">————————————</span><br><span class="line"><span class="string">|应该使用的路由器IP地址|</span></span><br><span class="line">———————————————</span><br><span class="line"><span class="string">|IP首部+原IP首部后的前8个字节|</span></span><br><span class="line">———————————————</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>类型——5，表示是ICMP重定向(详见之前的表格)</li>
+<li>代码——0~3，0——网络重定向、1——主机重定向、2——服务类型和网络重定向、3——服务类型和主机重定向</li>
+</ul>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/TCP-IP/">TCP/IP</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+					<a href="/2015/07/16/review-tcp-ip-3/" title="重读《TCP/IP详解卷一》之链路层TCP">&larr; Prev</a>
+				
+
+				
+					<a href="/2015/06/29/review-tcp-ip-1/" title="重读《TCP/IP详解卷一》之链路层">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
