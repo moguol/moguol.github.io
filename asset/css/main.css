@@ -467,11 +467,12 @@ article li ul {
 .content pre,
 .content .highlight {
   background: #272822;
-  margin: 0 -20px;
+  margin: auto;
   padding: 15px 20px;
   border-style: solid;
   border-color: color-border;
   border-width: 1px 0;
+  border-radius: 8px;
   overflow: auto;
   color: #f8f8f2;
   line-height: 22.400000000000002px;
