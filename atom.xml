@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2015-08-30T14:07:55.000Z</updated>
+  <updated>2015-09-28T02:49:50.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,175 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[HAProxy]]></title>
+    <link href="http://yoursite.com/2015/09/28/haproxy/"/>
+    <id>http://yoursite.com/2015/09/28/haproxy/</id>
+    <published>2015-09-28T02:38:07.000Z</published>
+    <updated>2015-09-28T02:49:50.000Z</updated>
+    <content type="html"><![CDATA[<p>&emsp;HAProxy能用做负载均衡服务器，也可以用于做四层(TCP)、七层(HTTP)代理</p>
+<h2 id="HAProxy安装"><strong>HAProxy安装</strong></h2><p>&emsp;从<a href="http://www.haproxy.org/#down" target="_blank" rel="external">这里</a>下载HAProxy的源码包，此处用的是：</p>
+<ul>
+<li>CentOS6.4 64bit</li>
+<li>haproxy-1.5.14</li>
+</ul>
+<p>&emsp;确认内核版本<code>uname -r</code>(此机器内核信息：<code>2.6.32-358.el6.x86_64</code>)，编译参数<strong><code>TARGET</code></strong>可用值<br><figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby"> linux22     <span class="keyword">for</span> <span class="constant">Linux</span> <span class="number">2.2</span></span><br><span class="line"></span>-<span class="ruby"> linux24     <span class="keyword">for</span> <span class="constant">Linux</span> <span class="number">2.4</span> <span class="keyword">and</span> above (default)</span><br><span class="line"></span>-<span class="ruby"> linux24e    <span class="keyword">for</span> <span class="constant">Linux</span> <span class="number">2.4</span> with support <span class="keyword">for</span> a working epoll (&gt; <span class="number">0</span>.<span class="number">21</span>)</span><br><span class="line"></span>-<span class="ruby"> linux26     <span class="keyword">for</span> <span class="constant">Linux</span> <span class="number">2.6</span> <span class="keyword">and</span> above</span><br><span class="line"></span>-<span class="ruby"> linux2628   <span class="keyword">for</span> <span class="constant">Linux</span> <span class="number">2.6</span>.<span class="number">28</span>, <span class="number">3</span>.x, <span class="keyword">and</span> above (enables splice <span class="keyword">and</span> tproxy)</span><br><span class="line"></span>-<span class="ruby"> solaris     <span class="keyword">for</span> <span class="constant">Solaris</span> <span class="number">8</span> <span class="keyword">or</span> <span class="number">10</span> (others untested)</span><br><span class="line"></span>-<span class="ruby"> freebsd     <span class="keyword">for</span> <span class="constant">FreeBSD</span> <span class="number">5</span> to <span class="number">10</span> (others untested)</span><br><span class="line"></span>-<span class="ruby"> osx         <span class="keyword">for</span> <span class="constant">Mac</span> <span class="constant">OS</span>/<span class="constant">X</span></span><br><span class="line"></span>-<span class="ruby"> openbsd     <span class="keyword">for</span> <span class="constant">OpenBSD</span> <span class="number">3.1</span> to <span class="number">5.2</span> (others untested)</span><br><span class="line"></span>-<span class="ruby"> aix51       <span class="keyword">for</span> <span class="constant">AIX</span> <span class="number">5.1</span></span><br><span class="line"></span>-<span class="ruby"> aix52       <span class="keyword">for</span> <span class="constant">AIX</span> <span class="number">5.2</span></span><br><span class="line"></span>-<span class="ruby"> cygwin      <span class="keyword">for</span> <span class="constant">Cygwin</span></span><br><span class="line"></span>-<span class="ruby"> generic     <span class="keyword">for</span> any other <span class="constant">OS</span> <span class="keyword">or</span> version.</span><br><span class="line"></span>-<span class="ruby"> custom      to manually adjust every setting</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;确定<code>TARGET</code>参数后编译安装HAProxy<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">tar -zxf haproxy-1.5.14.tar.gz</span><br><span class="line"><span class="keyword">cd</span> haproxy-1.5.14</span><br><span class="line">make TARGET=linux26 PREFIX=/usr/<span class="keyword">local</span>/haproxy</span><br><span class="line">make install PREFIX=/usr/<span class="keyword">local</span>/haproxy</span><br><span class="line"><span class="keyword">mkdir</span> -p /usr/<span class="keyword">local</span>/haproxy/&#123;etc,<span class="keyword">log</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;如果不需要编译安装，可以使用<code>yum</code>进行安装(haproxy版本会比较旧)<br>&emsp;&emsp;<strong><code>yum -y install haproxy</code></strong></p>
+<h2 id="日志配置"><strong>日志配置</strong></h2><p>&emsp;HAProxy默认无日志输出功能，需要相关日志配置。在CentOS6.4中通过配置<code>rsyslog</code>实现记录日志功能</p>
+<ol>
+<li><p>创建<strong><code>/etc/rsyslog.d/haproxy.conf</code></strong>配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ModLoad</span> imudp</span><br><span class="line"><span class="variable">$UDPServerRun</span> <span class="number">514</span></span><br><span class="line"><span class="built_in">local</span>3.* /usr/<span class="built_in">local</span>/haproxy/<span class="built_in">log</span>/haproxy.log</span><br><span class="line">&amp; ~</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>$ModLoad imudp</strong>：imudp是模块名，支持UDP协议</li>
+<li><strong>$UDPServerRun 514</strong>：允许514端口接收使用UDP和TCP协议转发过来的日志，rsyslog默认在514端口监听UDP</li>
+<li><strong>local3</strong>：此为facility参数，描述提交的日志信息的应用程序或进程。如邮件、内核和FTP等，local0~7为用户自定义。详细请查看<a href="https://en.wikipedia.org/wiki/Syslog#Facility" target="_blank" rel="external">这里</a></li>
+<li><code>&amp; ~</code>：停止对日志消息的进一步处理，并且不要在本地写入。如果没有此重定向规则，日志消息会被重复写入到本地<code>/var/log/message</code>文件</li>
+</ul>
+</li>
+<li><p>修改rsyslog配置文件<strong><code>/etc/sysconfig/rsyslog</code></strong></p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">SYSLOGD_OPTIONS=<span class="value"><span class="string">"-c 2 -r -m 0"</span></span></span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>-c</code></strong>：指定模式，SYSLOGD_OPTIONS选项在rsyslog v3版本被弃用，需要使用切换到模式2</li>
+<li><strong><code>-r</code></strong>：接受远程日志</li>
+<li><strong><code>-m</code></strong>：标记时间戳，0表示禁用</li>
+</ul>
+</li>
+</ol>
+<h2 id="HAProxy配置"><strong>HAProxy配置</strong></h2><p>&emsp;HAProxy配置文件<strong><code>/usr/local/haproxy/etc/haproxy.cfg</code></strong>(若是<code>yum</code>安装则是<strong><code>/etc/haproxy/haproxy.cfg</code></strong>)<br>&emsp;HAProxy的配置文件主要由以下几个部分组成，官方1.5版本详细配置说明请查看<a href="http://www.haproxy.org/download/1.5/doc/configuration.txt" target="_blank" rel="external">这里</a></p>
+<ul>
+<li><strong>global</strong>：全局配置，配置涉及进程管理及安全相关内容。</li>
+<li><strong>defaults</strong>：默认参数配置，配置后的参数可用于<code>listen</code>、<code>frontend</code>、<code>backend</code></li>
+<li><strong>frontend</strong>：定义前端接受请求的监听节点</li>
+<li><strong>backend</strong>：定义后端服务器节点，类似于Nginx的<code>upstream</code></li>
+<li><strong>listen</strong>：关联<code>frontend</code>和<code>backend</code>组成一个完整的代理节点</li>
+</ul>
+<p>&emsp;接下来逐个分析每个部分的详细配置</p>
+<h3 id="global"><strong>global</strong></h3><p>&emsp;如上所述，<strong>global</strong>为全局配置参数，主要是进程管理及安全的参数。可设置的参数非常多，详细查看官方配置说明文档，这里仅说明较常用的几个参数</p>
+<ul>
+<li><strong>chroot</strong>：修改HAProxy的工作目录并在放弃权限之前执行 chroot()操作</li>
+<li><strong>daemon</strong>：以守护进程方式启动</li>
+<li><strong>log</strong>：定义日志。log ip facility [level]，Example：log 127.0.0.1 local3 info</li>
+<li><strong>nbproc</strong>：设置HAProxy启动进程数，默认一个进程。nbproc 1</li>
+<li><strong>uid</strong>：指定以UID用户运行HAProxy</li>
+<li><strong>maxconn</strong>：设置每个HAProxy进程能接受的最大并发数</li>
+<li><strong>debug</strong>：开启debug，生产环节禁用</li>
+<li><strong>quiet</strong>：启动HAProxy时不显示任何信息</li>
+</ul>
+<p>&emsp;常见<strong>global</strong>配置实例：<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">global</span><br><span class="line">    log <span class="number">127.0</span>.<span class="number">0.1</span> local3</span><br><span class="line">    maxconn <span class="number">4096</span></span><br><span class="line">    chroot /usr/local/haproxy</span><br><span class="line">    pidfile /usr/local/haproxy/haproxy<span class="class">.pid</span></span><br><span class="line">    uid <span class="number">99</span></span><br><span class="line">    gid <span class="number">99</span></span><br><span class="line">    daemon</span><br><span class="line">    <span class="id">#quiet</span></span><br><span class="line">    <span class="hexcolor">#deb</span>ug</span><br></pre></td></tr></table></figure></p>
+<h3 id="defaults"><strong>defaults</strong></h3><p>&emsp;<strong>defaults</strong>用于统一设置<code>listen</code>、<code>frontend</code>、<code>backend</code>的默认参数</p>
+<ul>
+<li><strong>log</strong>：设置日志，如果<strong>global</strong>已经配置好日志，就直接写<code>log global</code></li>
+<li><strong>mode</strong>：工作模式，<strong><code>mode {tcp|http|health}</code></strong>。设置HAProxy实例运行的模式或协议，<code>frontend</code>和<code>backend</code>需要运行在同一模式<ul>
+<li><code>tcp</code>：纯TCP工作模式，在client和server之间建立一个TCP连接代理，仅用作4层代理转发，常用于SSH、SMTP、POP3等代理。</li>
+<li><code>http</code>：HTTP工作模式，HAProxy能对客户端的7层请求进行分析进而过滤、处理及转发等动作。</li>
+<li><code>health</code>：health模式，对进入HAProxy的连接仅回复’OK’并关闭连接。</li>
+</ul>
+</li>
+<li><strong>option httplog [clf]</strong>：记录HTTP请求、会话状态和计时器。clf格式记录</li>
+<li><strong>option dontlognull</strong>：不记录null日志</li>
+<li><strong>option logasap</strong>：提前将 HTTP 请求记入日志，而不等待 HTTP 报文传输完毕</li>
+<li><strong>option forwardfor</strong>：在发往服务器的请求中插入<code>X-Forwarded-For</code>首部用于记录客户端的IP。<code>option forwardfor except 127.0.0.0/8</code>不记录本机转发日志</li>
+<li><strong>retries <integer></integer></strong>：设置对某个服务器连接失败后重试的次数</li>
+<li><strong>option redispatch</strong>：连接失败时重新分发会话</li>
+<li><strong>option http-keep-alive <time></time></strong>：设置http keepalive时间，既允许空闲连接的时间</li>
+<li><strong>option http-server-close</strong>：每次请求完毕后主动关闭http连接</li>
+<li><strong>timeout http-request <time></time></strong>：http请求超时时间</li>
+</ul>
+<p>&emsp;常见<strong>defaults</strong>配置实例：<br><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">defaults</span><br><span class="line">    <span class="command">log</span>     <span class="keyword">global</span></span><br><span class="line">    mode	http</span><br><span class="line">    option	httplog</span><br><span class="line">    option	dontlognull</span><br><span class="line">    retries	<span class="number">3</span></span><br><span class="line">    maxconn	<span class="number">2000</span></span><br><span class="line">    <span class="comment">#option forwardfor</span></span><br><span class="line">    <span class="comment">#option http-keep-alive 10s</span></span><br><span class="line">    <span class="comment">#timeout http-request 10s</span></span><br><span class="line">    <span class="keyword">timeout</span> connect <span class="number">5000</span></span><br><span class="line">    <span class="keyword">timeout</span> client <span class="number">50000</span></span><br><span class="line">    <span class="keyword">timeout</span> server <span class="number">50000</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="listen_frontend_backend"><strong>listen    frontend backend</strong></h3><p>&emsp;<code>listen</code>、<code>frontend</code>、<code>backend</code>通过实例详细解释相关参数以及用法</p>
+<h4 id="HAProxy状态统计"><strong>HAProxy状态统计</strong></h4><p>&emsp;<code>listen</code>常见用法<strong><code>listen &lt;name&gt; ip:port</code></strong>，也可以先只指定<code>listen &lt;name&gt;</code>然后在内部用<code>bind ip:port</code><br><figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">listen <span class="literal">status</span> *:<span class="number">8000</span>					<span class="comment">#绑定ip及port</span></span><br><span class="line">    stats <span class="literal">enable</span>						<span class="comment">#开启状态输出页面</span></span><br><span class="line">    stats hide-version					<span class="comment">#隐藏HAProxy版本号</span></span><br><span class="line">    stats uri   /haproxy?stats			<span class="comment">#访问url</span></span><br><span class="line">    stats realm  <span class="constant">H</span>AProxy\ <span class="constant">Statistics</span>		<span class="comment">#提示信息</span></span><br><span class="line">    stats auth  admin:<span class="literal">password</span>		<span class="comment">#验证的用户及密码</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="SMTP_代理"><strong>SMTP 代理</strong></h3><p>&emsp;利用HAProxy做简单的SMTP邮件代理<br><figure class="highlight vbscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">listen smtp *:<span class="number">25</span></span><br><span class="line">    <span class="built_in">log</span>  global</span><br><span class="line">    mode tcp	</span><br><span class="line">    <span class="keyword">option</span> tcplog</span><br><span class="line">    <span class="built_in">server</span> smtp <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span>:<span class="number">25</span> check</span><br></pre></td></tr></table></figure></p>
+<h3 id="HTTP代理+健康检测"><strong>HTTP代理+健康检测</strong></h3><p>&emsp;简单的HTTP代理及基础检测<br><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">listen http_proxy *:80</span><br><span class="line">    mode http</span><br><span class="line">    cookie SERVERID					<span class="comment">#允许cookie记录serverid</span></span><br><span class="line">    balance roundrobin				<span class="comment">#负载均衡算法</span></span><br><span class="line">    option forwardfor</span><br><span class="line">    option httplog clf				<span class="comment">#使用httplog并使用clf日志格式</span></span><br><span class="line">    option httpchk GET /index.html	<span class="comment">#健康检测，使用HTTP请求通过HTTP CODE判断健康状态，2xx 和 3xx 的响应码表示健康状态，其他响应码或无响应表示服务器故障。</span></span><br><span class="line">    <span class="comment">#option httpchk HEAD /index.jsp HTTP/1.1\r\nHost:\ www.test.com		#更精确的健康检测，对HTTP头部进行检测</span></span><br><span class="line">    server web1 192.168.1.1:80 cookie server_id_1<span class="instruction"> check</span><br><span class="line"></span>    server web2 192.168.1.2:80 cookie server_id_2<span class="instruction"> check </span>inter 500 rise 1 fall 2 backup</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;重点解释一下<code>server web2 192.168.1.2:80 cookie server_id_2 check inter 500 rise 1 fall 2</code></p>
+<ul>
+<li><strong>server web2 192.168.1.2:80</strong>：定义server的名称、IP及端口</li>
+<li><strong>cookie server_id_2</strong>：设定每个server的cookie serverid(前面已经允许cookie记录serverid)</li>
+<li><strong>check</strong>：启用健康检查</li>
+<li><strong>inter 500</strong>：检查的时间间隔，500毫秒</li>
+<li><strong>rise 1</strong>：server需要被检查X次正常后才认为可用</li>
+<li><strong>fall 2</strong>：server需要被检查X次失败后才认为不可用</li>
+<li><strong>backup</strong>：作为备份，类似Nginx upstream中的backup。web1不可用后才使用web2</li>
+<li><strong>weight</strong>：设置server权重，上面例子没用到</li>
+<li><strong>balance</strong>：指定HAProxy的负载均衡算法<ul>
+<li>roundrobin：基于权重的轮询算法。假若服务器处理时间均匀的情况下，此算法是最平衡及公平的，权重值动态调整，但每个后端服务器限制接受4095个活动链接</li>
+<li>static-rr：基于权重的轮询算法。和roundrobin类似，不同的是权重值为静态方法，不会进行动态调整，但后端服务器无连接限制</li>
+<li>leastconn：将新请求转发到最少连接数的后端服务器上。推荐在长会话中使用(LDAP/SQL/TSE)，短会话(HTTP)不太适合。算法是动态的，可在运行时调整权重</li>
+<li>first：此算法将所有请求都转发到backend的第一台服务器上，当该服务器达到最大连接数后则转发到下一台服务器。</li>
+<li>source：此算法将源IP进行hash，并由后端服务器的权重总数相除后决定转发。使得相同IP的请求能被转发到后端的同一台服务器上，但当后端服务器权重改变时很可能会重新分配转发。常用于基于TCP的无cookies场景</li>
+<li>uri：将URI左边部分(?之前)或整个URI进行hash，并由后端服务器的权重总数相除后决定转发。使得相同URI的请求能被转发到后端同一台服务器上，但当后端服务器权重改变时很可能会重新分配转发。常用于代理缓存或反病毒代理，此算法仅用于HTTP后端服务器场景</li>
+<li>url_param：通过检索HTTP GET请求中URL指定的参数进行转发。可使得具有相同URL参数的请求(如userid)能被转发到后端同一台服务器上，除非权重发生变化。</li>
+<li>hdr(header parament)：对HTTP HEADER进行检索决定转发。</li>
+<li>rdp-cookie：根据cookie锁定并hash每个TCP请求</li>
+</ul>
+</li>
+</ul>
+<h3 id="HTTP代理+ACL规则"><strong>HTTP代理+ACL规则</strong></h3><p>&emsp;不使用<code>listen</code>而是使用<code>frontend</code>和<code>backend</code>再加上ACL规则进行HTTP代理<br><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">frontend http_acl *:5000</span><br><span class="line">    mode http</span><br><span class="line">    option forwardfor</span><br><span class="line">    option httplog clf</span><br><span class="line">    acl<span class="keyword"> static</span>_resource path_beg -i /static /images</span><br><span class="line">    acl<span class="keyword"> static</span>_resource	path_end -i .jpg .gif .png</span><br><span class="line">    use_backend backend_res_server<span class="instruction"> if </span>static_resource</span><br><span class="line">    default_backend backend_app_server</span><br><span class="line"></span><br><span class="line">backend backend_res_server</span><br><span class="line">    balance roundrobin</span><br><span class="line">    server<span class="keyword"> static</span>_server_1.155 10.0.1.155:80<span class="instruction"> check</span><br><span class="line"></span></span><br><span class="line">backend backend_app_server</span><br><span class="line">    balance roundrobin</span><br><span class="line">    server ap<span class="variable">p1</span> 10.0.6.5:8888<span class="instruction"> check</span><br><span class="line"></span>    server ap<span class="variable">p2</span> 10.0.6.6:8888 check</span><br></pre></td></tr></table></figure></p>
+<p>逐个分析配置语句，之前提过的省略</p>
+<ul>
+<li><strong><code>frontend http_acl *:5000</code></strong>：创建名为<code>http_acl</code>的<code>frontend</code>，监听<code>5000</code>端口</li>
+<li><strong><code>acl static_resource path_end -i .jpg .gif .png</code></strong>：<ul>
+<li><code>acl static_resource</code>：创建ACL规则，此规则名为<code>static_resource</code></li>
+<li><code>path_beg/path_end -i .jpg</code>：匹配URL路径中开始/结束字符，例子中以<code>.jpg .gif .png</code>结束的字符，<code>-i</code>忽略大小写</li>
+</ul>
+</li>
+<li><strong><code>use_backend</code></strong>：指定满足ACL规则的后端服务器。<code>use_backend &lt;backend&gt; &lt;if | unless&gt; &lt;condition&gt;</code></li>
+<li><strong><code>default_backend</code></strong>：默认的后端服务器</li>
+<li><strong>backend <backend_name></backend_name></strong>：创建后端服务器组</li>
+</ul>
+<p>ACL规则还有很多应用，列举一些简单例子：</p>
+<ul>
+<li><code>acl acl_name hdr_reg(host) -i ^(www.google.com|www.google.com.hk)$</code> <ul>
+<li><code>hdr_reg(host)</code>：指定匹配HTTP HEADER中的<strong>host</strong>，<strong><code>hdr_reg</code></strong>使用正则匹配</li>
+</ul>
+</li>
+<li><code>acl acl_name hdr_dom(host) -i www.google.com</code>、<code>acl acl_name hdr(host) -i www.google.com</code><ul>
+<li><code>hdr_dom(host)/hdr(host)</code>：HTTP HEADER的域名匹配</li>
+</ul>
+</li>
+<li><code>acl acl_name hdr_cnt(Content-length) eq 0</code><ul>
+<li><code>hdr_cnt(Content-length)</code>：HTTP HEADER内容的<code>Content-length</code>等于0</li>
+</ul>
+</li>
+<li><code>acl acl_name url_sub -i acl_test</code><ul>
+<li><code>url_sub</code>：URL请求地址中包含<code>acl_test</code></li>
+</ul>
+</li>
+<li><code>acl acl_name url_dir -i acltest</code><ul>
+<li><code>url_dir</code>：URL路径中包含<code>acltest</code>，例如：<code>http://www.google.com.hk/acltest/chrome.png</code></li>
+<li><code>path_dir</code>：除<code>url_dir</code>外<code>path_dir</code>也可用于判断URL中路径</li>
+</ul>
+</li>
+</ul>
+<p>创建ACL规则后，便是使用规则</p>
+<ul>
+<li>跳转<ul>
+<li><code>redirect prefix http://www.google.com.hk code 301 if acl_name</code>：满足名为<code>acl_name</code>ACL规则的请求，301跳转到<code>http://www.google.com.hk</code>后续参数不变</li>
+</ul>
+</li>
+<li>选择<code>backend</code>服务器<ul>
+<li><code>use_backend backend_name if acl_name</code></li>
+</ul>
+</li>
+<li>阻止<ul>
+<li><code>block if acl_name1||acl_name2</code>：满足<code>acl_name1</code>或<code>acl_name2</code>的请求返回<code>403</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="req_+_rsp操作"><strong>req + rsp操作</strong></h3><p>&emsp;HAProxy还有一系列的<code>req</code>操作，这部分了解甚少，以后再补吧<br><code>reqadd reqallow reqdel reqdeny reqiallow reqidel reqideny reqipass reqirep reqisetbe reqitarpit reqpass reqrep</code><br><code>rspadd rspdel rspdeny rspidel rspideny rspirep rsprep</code></p>
+<h2 id="启动/重启"><strong>启动/重启</strong></h2><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#启动</span><br><span class="line"><span class="regexp">/usr/</span>local<span class="regexp">/haproxy/</span>sbin<span class="regexp">/haproxy -f /u</span>sr<span class="regexp">/local/</span>haproxy<span class="regexp">/etc/</span>haproxy.cfg</span><br><span class="line"></span><br><span class="line">#重启</span><br><span class="line"><span class="regexp">/usr/</span>local<span class="regexp">/haproxy/</span>sbin<span class="regexp">/haproxy -f /u</span>sr<span class="regexp">/local/</span>haproxy<span class="regexp">/etc/</span>haproxy.cfg -st `cat <span class="regexp">/usr/</span>local<span class="regexp">/haproxy/</span>haproxy.pid`</span><br></pre></td></tr></table></figure>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>&emsp;HAProxy能用做负载均衡服务器，也可以用于做四层(TCP)、七层(HTTP)代理</p>
+<h2 id="HAProxy安装"><strong>HAProxy安装</strong></h2><p>&emsp;从<a href="http://www.hapr]]>
+    </summary>
+    
+      <category term="haproxy" scheme="http://yoursite.com/tags/haproxy/"/>
+    
+      <category term="OPS" scheme="http://yoursite.com/categories/OPS/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[OpenVPN使用小记]]></title>
