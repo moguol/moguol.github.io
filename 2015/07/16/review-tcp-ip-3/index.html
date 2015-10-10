@@ -137,8 +137,8 @@
 <li><strong>序号(32位)</strong> &amp; <strong>确认序号(32位)</strong>：之所以会有两个序号是因为TCP是全双工的。<code>序号</code>用来表明发送方向上的字节流而<code>确认序号</code>用来表明接收方向上的字节流。<code>数据</code>中的一个字节占用一个序号，若<code>TCP数据</code>有100个字节则<code>序号</code>就<code>+100</code>。当<code>数据</code>为<code>0</code>时(无数据要传输只有IP首部和TCP首部)，只要<code>SYN</code>或<code>FIN</code>标志为<code>1</code>则<code>序号</code>就要<code>+1</code>(<code>ACK</code>位为<code>1</code>序号是不需要+1的)。<br>  &emsp;&emsp;<code>序号</code>和<code>确认序号</code>变化过程：<ul>
 <li>假定发送端的开始<code>序号</code>为<code>SN</code></li>
 <li>当发送端发送100字节数据，则<code>序号</code>变为<code>SN+100</code></li>
-<li>当接收端成功接收100字节数据后，则<code>确认序号</code>为<strong><code>SN+100+1</code></strong>(只有当<code>ACK</code>被置为<code>1</code>时，<code>确认序号</code>才有效)</li>
-<li>当发送端收到接收端发来的TCP段，查看<code>确认序号</code>为<code>SN+100+1</code>得知之前发送的100字节数据已经成功传输。</li>
+<li>当接收端成功接收100字节数据后，回复的<code>确认序号</code>为<strong><code>SN+100</code></strong>；若发送端发送的是<strong>SYN</strong>或<strong>FIN</strong>的包那么<code>确认序号</code>则变为<strong><code>SN+100+1</code></strong> (<code>SYN</code>/<code>FIN</code>占一个序号)</li>
+<li>当发送端收到接收端发来的TCP段，查看<code>确认序号</code>得知之前发送的100字节数据已经成功传输。</li>
 </ul>
 </li>
 <li><strong>首部长度(4位)</strong>：TCP的<code>首部长度</code>字节和IP的<code>首部长度</code>字节完全一致，既<code>TCP首部</code>最大能有<strong><code>60字节</code></strong>(包含<code>选项</code>)，一般正常的<code>TCP首部</code>和<code>IP首部</code>一样为<strong>20字节</strong></li>
