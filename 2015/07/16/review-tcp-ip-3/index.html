@@ -192,17 +192,17 @@
 </ul>
 <p>&emsp;下面来描述一下<code>滑动窗口</code>变化的一些过程：</p>
 <ul>
-<li>发送方发送完数据<code>1 2 3</code>后，接收方回复<code>ACK=4 window=6</code>，于是有了上图所示的情况，发送方准备再次发送<code>4</code>以后的数据。</li>
+<li>发送方发送完数据<code>1 2 3</code>后，接收方回复<code>ACK=3 window=6</code>，于是有了上图所示的情况，发送方准备再次发送<code>4</code>以后的数据。</li>
 <li>发送方发送<code>4 5 6</code>数据(发送方并不一定要一次性发送所有窗口大小的数据)，此时滑动窗口大小为<code>6</code>，窗口中的数据为<code>4-9</code>，<code>4 5 6</code>数据已发送但未确认，<code>7 8 9</code>可选择性尽快发送。</li>
-<li>接收方接受到<code>4 5 6</code>数据，根据自身缓冲区大小确定<strong>通告窗口</strong>大小并回复<code>ACK=7 window=X</code></li>
-<li>发送方接受到<code>ACK=7 window=X</code>的确认包，确定<code>4 5 6</code>已成功传输，<code>滑动窗口左边缘</code>向右移动到达数据<code>7</code>的位置，根据<code>ACK=7 window=X</code>调整<code>滑动窗口</code>的大小<ul>
-<li>若<code>ACK=7 window=3</code>，表明接收方确实已成功收到<code>4 5 6</code>数据但应用程序没有将数据从缓冲区读走，所以窗口大小为<code>3</code>(窗口缩小)。当前<code>滑动窗口</code>中的数据为<code>7 8 9</code></li>
-<li>若<code>ACK=7 window=6</code>，表明接收方成功收到<code>4 5 6</code>数据并被应用程序从缓冲区读走，窗口大小保持不变为<code>6</code>。<code>滑动窗口右边缘</code>向右滑动<code>3</code>到达数据<code>12</code>的位置。当前<code>滑动窗口</code>中的数据为<code>7-12</code></li>
+<li>接收方接受到<code>4 5 6</code>数据，根据自身缓冲区大小确定<strong>通告窗口</strong>大小并回复<code>ACK=6 window=X</code></li>
+<li>发送方接受到<code>ACK=6 window=X</code>的确认包，确定<code>4 5 6</code>已成功传输，<code>滑动窗口左边缘</code>向右移动到达数据<code>7</code>的位置，根据<code>ACK=6 window=X</code>调整<code>滑动窗口</code>的大小<ul>
+<li>若<code>ACK=6 window=3</code>，表明接收方确实已成功收到<code>4 5 6</code>数据但应用程序没有将数据从缓冲区读走，所以窗口大小为<code>3</code>(窗口缩小)。当前<code>滑动窗口</code>中的数据为<code>7 8 9</code></li>
+<li>若<code>ACK=6 window=6</code>，表明接收方成功收到<code>4 5 6</code>数据并被应用程序从缓冲区读走，窗口大小保持不变为<code>6</code>。<code>滑动窗口右边缘</code>向右滑动<code>3</code>到达数据<code>12</code>的位置。当前<code>滑动窗口</code>中的数据为<code>7-12</code></li>
 </ul>
 </li>
-<li>假定发送方收到的是<code>ACK=7 window=3</code>的确认包，当前<code>滑动窗口</code>的大小为<code>3</code>其中的数据只有<code>7 8 9</code>，此时发送方一次性将<code>7 8 9</code>全部发出</li>
-<li>接收方收到<code>7 8 9</code>数据，缓冲区被填满。于是接收方回复<code>ACK=10 window=0</code>，告诉发送方自身的缓冲区已满不要再发送数据了</li>
-<li>发送方收到<code>ACK=10 window=0</code>的确认包，确定<code>7 8 9</code>数据已成功传输，<code>滑动窗口左边缘</code>向右移动到达数据<code>10</code>的位置，发现接收方的窗口大小为<code>0</code>表示已不能再接受数据了，于是停止发送数据并等待。</li>
+<li>假定发送方收到的是<code>ACK=6 window=3</code>的确认包，当前<code>滑动窗口</code>的大小为<code>3</code>其中的数据只有<code>7 8 9</code>，此时发送方一次性将<code>7 8 9</code>全部发出</li>
+<li>接收方收到<code>7 8 9</code>数据，缓冲区被填满。于是接收方回复<code>ACK=9 window=0</code>，告诉发送方自身的缓冲区已满不要再发送数据了</li>
+<li>发送方收到<code>ACK=9 window=0</code>的确认包，确定<code>7 8 9</code>数据已成功传输，<code>滑动窗口左边缘</code>向右移动到达数据<code>10</code>的位置，发现接收方的窗口大小为<code>0</code>表示已不能再接受数据了，于是停止发送数据并等待。</li>
 <li>如果接收方缓冲区中的数据被读走，缓冲区有剩余空间，那么接收方会再次发送一个<code>ACK</code>包通告自己的窗口大小<code>window=X</code>。发送方收到此确认包后调整<code>滑动窗口</code>大小再发送数据，如此重复。</li>
 </ul>
 <h4 id="零窗口_与_糊涂窗口">零窗口 与 糊涂窗口</h4><p>&emsp;TCP使用<code>滑动窗口</code>来进行流量控制需要注意<strong>零窗口</strong>与<strong>糊涂窗口</strong>：</p>
