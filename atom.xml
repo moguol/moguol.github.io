@@ -348,7 +348,7 @@
     <link href="http://yoursite.com/2015/07/16/review-tcp-ip-3/"/>
     <id>http://yoursite.com/2015/07/16/review-tcp-ip-3/</id>
     <published>2015-07-16T12:41:29.000Z</published>
-    <updated>2015-10-13T14:02:36.000Z</updated>
+    <updated>2015-10-13T14:04:43.000Z</updated>
     <content type="html"><![CDATA[<h2 id="TCP传输控制协议"><strong>TCP传输控制协议</strong></h2><p>&emsp;TCP工作在传输层，提供一种面向连接的、可靠的字节流服务。面向连接表示在进行数据传输之前必须先建立一个<strong>TCP连接</strong>，这就有了之后要将的<strong>TCP三次握手</strong>。<br>&emsp;TCP传输的信息单元称之为<strong>段(segment)</strong>。TCP提供<strong>点对点</strong>的服务，不支持多播和组播(UDP支持广播和多播)。<br>&emsp;TCP提供确认重传机制，当TCP发送一个段(segment)后会启动一个定时器，超时后没有等到确认段则超时重传，所以说TCP为可靠的。<br>&emsp;TCP的可靠性还体现在数据校验上，TCP首部会有<code>检验和</code>字段会对<strong>TCP首部和数据</strong>进行检验(IP首部同样有<code>校验和</code>，但仅对<strong>IP首部</strong>进行校验不对其数据部分进行校验，数据的校验交给TCP完成)。<br>&emsp;TCP会对应用数据进行分割或填充，总是以TCP认为最合适的数据块大小进行发送。此外TCP还提供流量控制。</p>
 <h3 id="TCP首部结构"><strong>TCP首部结构</strong></h3><p>&emsp;TCP首部如下图所示：<br><img src="http://7xk64o.com1.z0.glb.clouddn.com/tcp-header.png" alt="tcp-header"><br>&emsp;TCP头部如果不包含<code>选项</code>通常是<strong>20字节</strong>(IP头部不含选项也是<strong>20字节</strong>)</p>
 <ul>
