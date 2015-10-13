@@ -152,12 +152,13 @@
 <li>FIN：发送端完成发送任务(主动断开TCP连接)</li>
 </ul>
 </li>
-<li><strong>窗口大小(16位)</strong>：申明窗口大小，用于TCP流量控制(滑动窗口流量控制)。主要作用是让接收端对发送端发送的数据进行控制。因为<code>窗口大小</code>字段占<code>16位</code>所以窗口大小最大为<code>65535</code>，但对于高速网络窗口太小，故在<code>TCP选项</code>中有<strong><code>窗口扩大因子</code></strong>用于扩大窗口大小。</li>
+<li><strong>窗口大小(16位)</strong>：申明窗口大小，用于TCP流量控制(滑动窗口流量控制)。主要作用是让接收端对发送端发送的数据进行控制。因为<code>窗口大小</code>字段占<code>16位</code>所以窗口大小最大为<code>65535</code>，但对于高速网络窗口太小，故在<code>TCP选项</code>中有<strong><code>窗口扩大因子</code></strong>用于扩大窗口大小，需要利用到此值来计算实际的窗口大小(具体见<strong>选项</strong>中的<strong>窗口扩大因子</strong>)。</li>
 <li><strong>校验和(16位)</strong>：TCP的校验和是包含<code>TCP首部</code>和<code>TCP数据</code>的校验。</li>
 <li><strong>紧急指针(16位)</strong>：当<code>URG</code>被置<code>1</code>时，此字段才有效，用于表明哪一段数据为紧急数据。</li>
-<li><strong>选项</strong>：<code>选项</code>字段最大为<code>40字节</code><ul>
-<li>MSS(Maximum Segment Size)：表明最长报文大小。告诉对方本端能接收的最大长度的段是多少。一般以太网的<code>MTU</code>为<code>1500</code>则TCP的<code>MSS</code>为<code>1460</code>(除去IP首部和TCP首部，1500-20-20)。通常都是在<code>SYN</code>中顺带声明<code>MSS</code>。若应用层交给TCP的数据超过<code>MSS</code>，TCP则会数据进行分割(让数据小于MSS后再传输)，故TCP很少会有IP分片而UDP则会较多IP分片(UDP不会对数据进行分割，应用层传大多数据给UDP，UDP直接加个UDP首部后直接传给IP)</li>
-<li>窗口扩大因子：用于扩大窗口大小。TCP首部中<code>窗口大小</code>字段占<code>16位</code>最大窗口大小为<code>65535</code>，但在高速网络中此大小可能不够用，需要用到<code>窗口扩大因子</code>选项来增大TCP的窗口大小以便更快的传输数据。</li>
+<li><strong>选项</strong>：<code>选项</code>字段最大为<code>40字节</code>。<code>选项</code>一般的结构是——<code>|kind(1byte)|length(1byte)|info(n byte)|</code>，不同的<code>kind</code>表示不同的作用，详见<a href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol#TCP_segment_structure" target="_blank" rel="external">TCP选项</a>。选着性挑常见的说明：<ul>
+<li><strong><code>kind=2</code>——最大报文段长度 MSS(Maximum Segment Size)</strong>：表明最长报文大小。告诉对方本端能接收的最大长度的段是多少。一般以太网的<code>MTU</code>为<code>1500</code>则TCP的<code>MSS</code>为<code>1460</code>(除去IP首部和TCP首部，1500-20-20)。通常都是在<code>SYN</code>中顺带声明<code>MSS</code>。若应用层交给TCP的数据超过<code>MSS</code>，TCP则会数据进行分割(让数据小于MSS后再传输)，故TCP很少会有IP分片而UDP则会较多IP分片(UDP不会对数据进行分割，应用层传大多数据给UDP，UDP直接加个UDP首部后直接传给IP)</li>
+<li><strong><code>kind=3</code>——窗口扩大因子 Window Scale</strong>：用于扩大窗口大小。TCP首部中<code>窗口大小</code>字段占<code>16位</code>最大窗口大小为<code>65535</code>，但在高速网络中此大小可能不够用，需要用到<code>窗口扩大因子</code>选项来增大TCP的窗口大小以便更快的传输数据。<br>  Window Scale中有声明一个<strong><code>Shift count</code></strong>，假设<code>Shift count=n</code>，那么：实际窗口大小 = <strong>窗口大小(16位)</strong> × 2^n</li>
+<li><strong><code>kind=4</code>——选择性确认 SACK(Selective Acknowledgment)</strong>：用于优化TCP传输性能。当TCP在传输数据时，如传输<code>1 2 3 4</code>，假若<code>1</code>报文丢失而<code>2 3 4</code>报文顺利到达，TCP会重传<code>1 2 3 4</code>。那么<code>2 3 4</code>就重复传输了从而导致性能降低，使用SACK能使得接收方告诉发送方<code>2 3 4</code>已收到仅重传<code>1</code>即可。<br>  Linux可通过修改<strong><code>/proc/sys/net/ipv4/tcp_window_scaling</code></strong>启用或关闭SACK。</li>
 </ul>
 </li>
 <li><strong>数据</strong>：TCP的<code>数据</code>部分是可选的，既TCP段是可以没有数据的，如三次握手的TCP段就没有<code>数据</code>。</li>
