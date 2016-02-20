@@ -842,7 +842,7 @@
     <link href="http://yoursite.com/2015/06/20/tmux/"/>
     <id>http://yoursite.com/2015/06/20/tmux/</id>
     <published>2015-06-20T14:20:20.000Z</published>
-    <updated>2016-02-17T14:48:29.000Z</updated>
+    <updated>2016-02-20T07:06:20.000Z</updated>
     <content type="html"><![CDATA[<p>&emsp;<a href="https://tmux.github.io/" target="_blank" rel="external">tmux</a>是一款优秀且好用的终端复用工具，有点类似screen。之所以说好用是因为它支持全键盘操作，连屏幕复制都能直接通过键盘完成，以下是平时的一点使用记录。</p>
 <h2 id="安装"><strong>安装</strong></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ubuntu：sudo apt-get install tmux</span><br><span class="line">CentOS：yum install tmux</span><br></pre></td></tr></table></figure>
 <h2 id="基础概念"><strong>基础概念</strong></h2><p>&emsp;要用好tmux，需要先了解有关tmux的几个基础概念——会话(session)、窗口(window)和面板(pane)</p>
@@ -1145,7 +1145,7 @@
     <link href="http://yoursite.com/2015/05/05/svn/"/>
     <id>http://yoursite.com/2015/05/05/svn/</id>
     <published>2015-05-05T07:15:49.000Z</published>
-    <updated>2016-02-20T07:36:34.000Z</updated>
+    <updated>2016-02-20T07:42:50.000Z</updated>
     <content type="html"><![CDATA[<h2 id="安装"><strong>安装</strong></h2><p>&emsp;SVN有两种运行方式：一种是基于Apache Http Server，另外一种是Subversion Standalone Server。以下主要以Apache方式为主。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install httpd httpd-devel subversion mod_dav_svn</span><br></pre></td></tr></table></figure></p>
 <p>&emsp;检查Apache的SVN模块<br><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@~]# <span class="keyword">ls</span> /etc/httpd/modules/|<span class="keyword">grep</span> svn</span><br><span class="line">mod_authz_svn.<span class="keyword">so</span></span><br><span class="line">mod_dav_svn.<span class="keyword">so</span></span><br></pre></td></tr></table></figure></p>
 <p>&emsp;检查SVN安装<br><figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[root@~]# svn --version</span><br><span class="line"></span><br><span class="line">svn, version <span class="number">1.6</span>.<span class="number">11</span> (r934486)</span><br><span class="line">   compiled Jul <span class="number">23</span> <span class="number">2015</span>, <span class="number">23</span>:<span class="number">48</span>:<span class="number">52</span></span><br><span class="line"></span><br><span class="line">Copyright (C) <span class="number">2000</span>-<span class="number">2009</span> CollabNet.</span><br><span class="line">Subversion <span class="keyword">is</span> open source software, see http:<span class="comment">//subversion.tigris.org/</span></span><br><span class="line">This product includes software developed <span class="keyword">by</span> CollabNet (http:<span class="comment">//www.Collab.Net/).</span></span><br><span class="line"></span><br><span class="line">The following repository access (RA) modules are available:</span><br><span class="line"></span><br><span class="line">* ra_neon : <span class="keyword">Module</span> <span class="keyword">for</span> accessing a repository via WebDAV protocol <span class="keyword">using</span> Neon.</span><br><span class="line">  - handles <span class="string">'http'</span> scheme</span><br><span class="line">  - handles <span class="string">'https'</span> scheme</span><br><span class="line">* ra_svn : <span class="keyword">Module</span> <span class="keyword">for</span> accessing a repository <span class="keyword">using</span> the svn network protocol.</span><br><span class="line">  - <span class="keyword">with</span> Cyrus SASL authentication</span><br><span class="line">  - handles <span class="string">'svn'</span> scheme</span><br><span class="line">* ra_local : <span class="keyword">Module</span> <span class="keyword">for</span> accessing a repository <span class="keyword">on</span> local disk.</span><br><span class="line">  - handles <span class="string">'file'</span> scheme</span><br></pre></td></tr></table></figure></p>
@@ -1192,7 +1192,7 @@
     
       <category term="svn" scheme="http://yoursite.com/tags/svn/"/>
     
-      <category term="ops" scheme="http://yoursite.com/categories/ops/"/>
+      <category term="OPS" scheme="http://yoursite.com/categories/OPS/"/>
     
   </entry>
   
