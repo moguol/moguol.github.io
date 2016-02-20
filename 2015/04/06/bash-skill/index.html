@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" Bash技巧零碎录 | Hexo " />
+	<meta name="twitter:title" content=" Bash技巧零碎录 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" Bash技巧零碎录 | Hexo ">
+	<meta property="og:description" content=" Bash技巧零碎录 | Hexo " />
+	<meta name="twitter:description" content=" Bash技巧零碎录 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2015/04/06/bash-skill/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ops/">ops</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2015-04-06">2015-04-06</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/linux/">linux</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2015/04/06/bash-skill/" itemprop="url"><span itemprop="name">Bash技巧零碎录</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<p>&emsp;主要记录一些Bash及Bash脚本的技巧，方便快速查阅。持续更新。。。。。。</p>
+<h3 id="Bash命令行快捷键"><strong>Bash命令行快捷键</strong></h3><ul>
+<li>Ctrl + a：移到行首</li>
+<li>Ctrl + e：移到行尾</li>
+<li>Ctrl + f：按字符向右移</li>
+<li>Ctrl + b：按字符向左移</li>
+<li>Ctrl + u：光标处删除至行首</li>
+<li>Ctrl + k：光标处删除至行尾</li>
+<li>Ctrl + w：光标处删除至单词字首</li>
+<li>Ctrl + h：删除光标前的字符(相当于Backspace键)</li>
+<li>Ctrl + r：逆向搜索历史命令记录</li>
+<li>Ctrl + p：历史命令中上一条</li>
+<li>Ctrl + n：历史命令中下一条</li>
+<li>Ctrl + l：清屏</li>
+<li>Ctrl + z：挂起命令</li>
+<li>Alt + .：上一命令的最后一个参数</li>
+<li>Alt + f：按单词向右移</li>
+<li>Alt + b：按单词向左移</li>
+<li>!!：执行上一条命令</li>
+</ul>
+<h3 id="echo"><strong>echo</strong></h3><ul>
+<li><p>echo忽略换行符</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#\n无效</span></span><br><span class="line"><span class="built_in">echo</span> -n <span class="string">"echo_test\n"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>echo字符串转义</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#转义\t</span></span><br><span class="line"><span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">'0\t1\t2'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>echo终端颜色<br>  &emsp;echo -e “\033[光标;前景;背景m 你要显示的内容 \033[0m”<br>  &emsp;例子：echo -e “\033[0;30;41m It’s cool \033[0m”</p>
+  <figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">光标代码  意义</span><br><span class="line"> <span class="number">0</span>               <span class="keyword">OFF</span></span><br><span class="line"> <span class="number">1</span>               高亮显示(粗体)</span><br><span class="line"> <span class="number">2</span>               亮度减半</span><br><span class="line"> <span class="number">4</span>               下划线</span><br><span class="line"> <span class="number">5</span>               闪烁</span><br><span class="line"> <span class="number">7</span>               反白显示</span><br><span class="line"> <span class="number">8</span>               不可见</span><br><span class="line"></span><br><span class="line">前景   背景  颜色</span><br><span class="line"> <span class="number">30</span>      <span class="number">40</span>      黑色</span><br><span class="line"> <span class="number">31</span>      <span class="number">41</span>      红色</span><br><span class="line"> <span class="number">32</span>      <span class="number">42</span>      绿色</span><br><span class="line"> <span class="number">33</span>      <span class="number">43</span>      黄色</span><br><span class="line"> <span class="number">34</span>      <span class="number">44</span>      蓝色</span><br><span class="line"> <span class="number">35</span>      <span class="number">45</span>      紫红色</span><br><span class="line"> <span class="number">36</span>      <span class="number">46</span>      青蓝色</span><br><span class="line"> <span class="number">37</span>      <span class="number">47</span>      白色</span><br></pre></td></tr></table></figure>
+<p>  &emsp;echo终端颜色汇总</p>
+  <center><br>  <img src="http://7xk64o.com1.z0.glb.clouddn.com/echo_color.png" alt="echo_color"><br>  </center>
+
+
+</li>
+</ul>
+<h3 id="变量"><strong>变量</strong></h3><h4 id="特殊变量"><strong>特殊变量</strong></h4><ul>
+<li>$*  所有的位置参数的字符串(所有位置参数为一个整体的字符串)</li>
+<li>$@  所有的位置参数的列表(每个位置参数为单独个体)</li>
+<li>$#  位置参数的数量</li>
+<li>$0  当前脚本的路径</li>
+<li>$$  当前进程的PID</li>
+<li>$?  上一个命令的退出码</li>
+<li>$_  上一个命令的最后一个参数</li>
+<li>$!  上一运行的后台进程的PID</li>
+<li>$-  当前的option flags</li>
+</ul>
+<h4 id="变量判断"><strong>变量判断</strong></h4><table>
+<thead>
+<tr>
+<th style="text-align:left">表达式</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">${ #var}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var</code>字符串长度</td>
+</tr>
+<tr>
+<td style="text-align:left">${var-default}/${var=default}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">若<code>var</code><strong>不存在</strong>则值为<code>=default</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var:-default}/${var:=default}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">当<code>var</code><strong>空</strong>或<strong>不存在</strong>时值为<code>default</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var+default}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">若<code>var</code><strong>存在</strong>则值为<code>default</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var:+default}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">当<code>var</code><strong>存在</strong>或<strong>空</strong>时则值为<code>default</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var?message}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">若<code>var</code><strong>不存在</strong>则打印message信息并以<code>exit 1</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var:?message}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">当<code>var</code><strong>不存在</strong>或<strong>空</strong>则打印message信息并以<code>exit 1</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="变量删除"><strong>变量删除</strong></h4><table>
+<thead>
+<tr>
+<th style="text-align:left">表达式</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">解释</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">${var#pattern}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">从<code>var</code>左边开始删除<strong>最小匹配</strong><code>pattern</code>的字符串</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var=&#39;/usr/bin/vim&#39;</code> <code>${var#/*/}</code> <code>bin/vim</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var##pattern}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">从<code>var</code>左边开始删除<strong>最长匹配</strong><code>pattern</code>的字符串</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var=&#39;/usr/bin/vim&#39;</code>     <code>${var#/*/}</code>        <code>vim</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var%pattern}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">从<code>var</code>右边开始删除<strong>最小匹配</strong><code>pattern</code>的字符串</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">${var%%pattern}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">从<code>var</code>右边开始删除<strong>最长匹配</strong><code>pattern</code>的字符串</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="变量截取"><strong>变量截取</strong></h4><p>&emsp;Bash变量的位置从<strong><code>0</code></strong>开始标记，<code>abc</code>——&gt;a(0)b(1)c(2)</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">表达式</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">解释</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">${var:pos}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">在<code>var</code>中截取从位置<code>pos</code>开始到最后的字符串(包含<code>pos</code>)</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var=&#39;12345&#39;</code> <code>${var:4}</code> <code>5</code> (从位置为4开始截取[包括位置4])</td>
+</tr>
+<tr>
+<td style="text-align:left">${var:pos:len}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">在<code>var</code>中截取从位置<code>pos</code>开始截取长度为<code>len</code>的字符串(包含<code>pos</code>)</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var=&#39;12345&#39;</code> <code>${var:1:3}</code> <code>234</code> (从位置1开始截取长度为3的字符串[包含位置1])</td>
+</tr>
+</tbody>
+</table>
+<h4 id="变量替换"><strong>变量替换</strong></h4><table>
+<thead>
+<tr>
+<th style="text-align:left">表达式</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">解释</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">${var/pattern/replace}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">从<code>var</code>中<strong>最长匹配</strong><code>pattern</code>并用<code>replace</code>将其替换(仅替换第一次出现的<code>pattern</code>)</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var=&#39;123_test_456_test&#39;</code> <code>${var/test/replace}</code> <code>123_replace_456_test</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var//pattern/replace}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">从<code>var</code>中<strong>最长匹配</strong><code>pattern</code>并用<code>replace</code>将其全部替换</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var=&#39;123_test_456_test&#39;</code> <code>${var//test/replace}</code> <code>123_replace_456_replace</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="普通数组及关联数组"><strong>普通数组及关联数组</strong></h3><h4 id="普通数组"><strong>普通数组</strong></h4><ul>
+<li><p><strong>创建</strong></p>
+  <figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">array=(<span class="constant">one</span> <span class="constant">two</span> <span class="constant">three</span> <span class="constant">four</span> <span class="constant">five</span>)</span><br><span class="line"></span><br><span class="line">array[<span class="number">0</span>]=<span class="string">"one"</span>、array[<span class="number">1</span>]=<span class="string">"two"</span> ......</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>获取数值</strong></p>
+<ul>
+<li><p>获取具体元素数值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;array[0]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取所有元素数值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;array[@]&#125;</span>	/	<span class="built_in">echo</span> <span class="variable">$&#123;array[*]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p><strong>获取数组长度</strong></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[@]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>获取索引</strong></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;!array[@]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="关联数组"><strong>关联数组</strong></h4><p>&emsp;关联数组需要<strong>Bash</strong>版本高于<strong><code>4.0</code></strong>才支持</p>
+<ul>
+<li><p><strong>创建</strong></p>
+  <figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">declare -A as_array</span><br><span class="line">as_array=([index0]=<span class="constant">one</span> [index1]=<span class="constant">two</span> [index2]=<span class="constant">three</span> [index3]=<span class="constant">four</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>获取数值</strong></p>
+<ul>
+<li><p>获取具体元素数值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;as_array[index0]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取所有元素数值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;as_array[@]&#125;</span>	/	<span class="built_in">echo</span> <span class="variable">$&#123;as_array[*]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p><strong>获取数组长度</strong></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#as_array[@]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>获取索引</strong></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;!as_array[@]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="Alias"><strong>Alias</strong></h3><ul>
+<li><p><strong>alias接收命令行参数</strong><br>  <code>alias</code>设置别名命令时是无法通过命令行接收参数的，但可以通过构建函数实现此功能</p>
+  <figure class="highlight ocaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alias psg=<span class="symbol">'psg</span><span class="literal">()</span>&#123; ps aux|grep <span class="string">"$1"</span>; &#125;;psg'</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>alias中<code>&#39;&#39;</code>内引用<code>&#39;&#39;</code></strong><br>  &emsp;转义——‘\’’</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">alias</span> xgrep=<span class="string">'awk -F":" '</span>\<span class="string">''</span>&#123;<span class="built_in">print</span> \<span class="variable">$1</span>&#125;<span class="string">'\'</span><span class="string">' '</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>消除alias</strong><br>  &emsp;在命令行中，有时想要不使用<code>alias</code>别名命令而是使用原生命令，可强制取消<code>alias</code>别名命令</p>
+  <figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">\rm</span> file_name</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="进程替换"><strong>进程替换</strong></h3><p>&emsp;进程替换(<code>&gt;(command)</code> <code>&lt;(command)</code>)和命令替换(<code>$()</code>)类似，将一个进程的输出转给另一个进程<br>&emsp;使用进程替换需要<code>Bash</code>支持，进程替换是<strong>非POSIX兼容</strong>的。使用了进程替换的脚本需要用<code>bash script_name.sh</code>而不能用<code>sh script_name.sh</code>执行。尽管<code>/bin/sh</code>是<code>/bin/bash</code>的软链接，当使用<code>sh</code>执行脚本时，就会启用<strong>POSIX兼容</strong>，进程替换是<strong>非POSIX兼容</strong>的。<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">read</span> SSH_HOST SSH_USER SSH_PWD SSH_PORT&lt; &lt;(echo <span class="string">"<span class="variable">$eachLine</span>"</span>|awk <span class="string">'&#123;print <span class="variable">$1</span>,<span class="variable">$2</span>,<span class="variable">$3</span>,<span class="variable">$4</span>&#125;'</span>)</span><br></pre></td></tr></table></figure></p>
+<h3 id="Dig"><strong>Dig</strong></h3><p>&emsp;<strong><code>dig</code></strong>命令主要用于查询DNS相关内容<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 域名解析</span></span><br><span class="line"><span class="variable">$&gt;</span> dig www.google.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定域名服务器查询</span></span><br><span class="line"><span class="variable">$&gt;</span> dig www.google.com <span class="variable">@ns1</span>.dnspod.net</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定查询类型</span></span><br><span class="line"><span class="variable">$&gt;</span> dig -t mx gmail.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 反向查询</span></span><br><span class="line"><span class="variable">$&gt;</span> dig -x <span class="number">216.58</span>.<span class="number">221.100</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用TCP方式查询</span></span><br><span class="line"><span class="variable">$&gt;</span> dig +tcp www.google.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 追踪dig查询过程</span></span><br><span class="line"><span class="variable">$&gt;</span> dig +trace www.google.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 精简dig结果</span></span><br><span class="line"><span class="variable">$&gt;</span> dig +short www.google.com</span><br></pre></td></tr></table></figure></p>
+<h3 id="dd"><strong>dd</strong></h3><p>&emsp;生成指定大小文件<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">dd</span> <span class="keyword">if</span>=/dev/zero of=test<span class="class">.img</span> bs=<span class="number">1</span>M count=<span class="number">1000</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><code>if</code>：输入文件</li>
+<li><code>of</code>：输出文件</li>
+<li><code>bs</code>：块大小<ul>
+<li><strong><code>c</code></strong>：字节(1B)</li>
+<li><strong><code>w</code></strong>：字(2B)</li>
+<li><strong><code>b</code></strong>：块(512B)</li>
+<li><strong><code>k</code></strong>：千字节(1024B)</li>
+<li><strong><code>M</code></strong>：兆字节(1024KB)</li>
+<li><strong><code>G</code></strong>：吉字节(1024MB)</li>
+</ul>
+</li>
+<li><code>count</code>：块数</li>
+</ul>
+<h3 id="curl"><strong>curl</strong></h3><ul>
+<li><p><strong>保存页面</strong></p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -o google<span class="class">.html</span> http:<span class="comment">//www.google.com</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>静默输出</strong><br>  &emsp;不输出错误消息及执行过程</p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -s <span class="string">http:</span><span class="comment">//www.google.com</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>POST JSON数据</strong><br>  &emsp;<strong><code>-X</code></strong>——指定方法<br>  &emsp;<strong><code>-H</code></strong>——指定HTTP HEADER<br>  &emsp;<strong><code>-d</code></strong>——指定数据</p>
+  <figure class="highlight scilab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST -H <span class="string">"Content-Type: application/json"</span> -d <span class="string">'&#123;"</span>status<span class="string">":500,"</span>msg<span class="string">":"</span>fail<span class="string">","</span>code<span class="string">":'</span>$<span class="transposed_variable">CODE'</span>,<span class="string">"appid"</span>:<span class="string">"'</span>$<span class="transposed_variable">APPID'</span><span class="string">","</span>reqCode<span class="string">":"</span><span class="string">'$REQCODE'</span><span class="string">"&#125;'</span> http:<span class="comment">//example.com/api</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>跟踪重定向</strong></p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -L <span class="string">http:</span><span class="comment">//example.com</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>获取HTTP HEADER</strong></p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -I <span class="string">http:</span><span class="comment">//example.com</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>认证</strong></p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -u <span class="string">username:</span>passowrd <span class="string">http:</span><span class="comment">//example.com</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="route"><strong>route</strong></h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 显示路由表</span></span><br><span class="line"><span class="title">route</span> -n</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加默认路由</span></span><br><span class="line">route add default gw [eth0|<span class="number">192.168.1.1</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加一条到达192.168.2.0网络的路由，指定网络掩码为255.255.255.0,数据包通过网络接口eth0      </span></span><br><span class="line">route add -net <span class="number">192.168.2.0</span> netmask <span class="number">255.255.255.0</span> dev eth0</span><br><span class="line">route add -net <span class="number">192.168.2.0</span>/<span class="number">24</span> dev eth0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 所有去往192.57.66.200主机的数据包发往网关地址192.168.2.1</span></span><br><span class="line">route add -host <span class="number">192.57.66.200</span> gw <span class="number">192.168.2.1</span>                    </span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加一条到达192.57.66.0网络的路由，指定网络掩码为255.255.255.0,数据包通过网关地址192.168.2.1</span></span><br><span class="line">route add -net <span class="number">192.57.66.0</span> netmask <span class="number">255.255.255.0</span> gw <span class="number">192.168.2.1</span> </span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除到主机192.168.1.11的路由</span></span><br><span class="line">route del –host <span class="number">192.168.1.11</span> dev eth0</span><br></pre></td></tr></table></figure>
+<h3 id="rsync"><strong>rsync</strong></h3><ul>
+<li><p><strong>rsync拉取同步</strong></p>
+  <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="regexp">/usr/</span>bin<span class="regexp">/rsync -azv --delete rsync_user@rsync_ip::rsync_module /</span>path<span class="regexp">/to/</span>dest_dir<span class="regexp">/ --password-file=/</span>path<span class="regexp">/to/</span>password.<span class="keyword">file</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>--delete</code></strong><br>  将目标处多余的删除，既使得目标与源的文件完全一致，慎用此参数。</li>
+<li><strong><code>-a</code></strong><br>  归档模式，表示以递归方式传输文件，并保持所有文件属性，等于-rlptgoD</li>
+<li><strong><code>-z</code></strong><br>  对备份的文件在传输时进行压缩处理</li>
+<li><strong><code>-v</code></strong><br>  详细模式输出</li>
+<li><strong><code>-n</code></strong><br>  查看哪些文件将被传输，并非实际传输，即<code>--dry-run</code></li>
+</ul>
+</li>
+<li><p><strong>rsync推送同步</strong></p>
+  <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="regexp">/usr/</span>bin<span class="regexp">/rsync -azv --delete /</span>path<span class="regexp">/to/</span>source_dir<span class="regexp">/  rsync_user@rsync_ip::rsync_module --password-file=/</span>path<span class="regexp">/to/</span>password.<span class="keyword">file</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>排除目录</strong></p>
+  <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="regexp">/usr/</span>bin<span class="regexp">/rsync -azv --delete --exclude='/</span>paht<span class="regexp">/to/</span>exclude_dir1<span class="regexp">/' --exclude='/</span>path<span class="regexp">/to/</span>exclude_dir2<span class="regexp">/' rsync_user@rsync_ip::rsync_module /</span>path<span class="regexp">/to/</span>dest_dir<span class="regexp">/ --password-file=/</span>path<span class="regexp">/to/</span>password.<span class="keyword">file</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>rsync断点续传</strong><br>  &emsp;让rsync使用ssh协议，代替scp并实现断点续传功能</p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsync -P --rsh=<span class="string">'ssh -p2222'</span> ssh_user@ssh_ip:file_name<span class="class">.tar</span><span class="class">.gz</span> /tmp</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>rsync过滤规则</strong><br>  &emsp;指定rsync只同步某类型文件并保持文件所在的目录结构</p>
+  <figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 只同步jpg文件(递归同步，即子目录下的所有jpg文件也同步)(-! */ 匹配所有非目录文件)</span></span><br><span class="line">/usr/bin/rsync -azv --<span class="literal">include</span>=<span class="string">"*.jpg"</span> --filter=<span class="string">"-! */"</span> appNginx@<span class="number">10.0</span>.<span class="number">1.153</span>::www /tmp/www_rsync/ --<span class="literal">password</span>-<span class="keyword">file</span>=/etc/rsyncd/rsync.pwd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 只同步jpg、png文件(递归同步，即子目录下的所有jpg、png文件也同步)</span></span><br><span class="line">/usr/bin/rsync -azv -f <span class="string">'+ *.jpg'</span> -f <span class="string">'+ *.png'</span> -f <span class="string">'+ */'</span> -f <span class="string">'- *'</span> appNginx@<span class="number">10.0</span>.<span class="number">1.153</span>::www /tmp/www_rsync/ --<span class="literal">password</span>-<span class="keyword">file</span>=/etc/rsyncd/rsync.pwd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 只同步jpg文件(递归同步，即子目录下的所有jpg文件也同步)</span></span><br><span class="line">/usr/bin/rsync -azv --<span class="literal">include</span>=<span class="string">"*.jpg"</span>  --<span class="literal">include</span>=<span class="string">"*.png"</span> --<span class="literal">include</span>=<span class="string">"*/"</span> --<span class="literal">exclude</span>=<span class="string">"*"</span> appNginx@<span class="number">10.0</span>.<span class="number">1.153</span>::www /tmp/www_rsync/ --<span class="literal">password</span>-<span class="keyword">file</span>=/etc/rsyncd/rsync.pwd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 只同步jpg文件(非递归同步，仅仅同步该目录的jpg文件，目录下的子目录不会同步也不会创建)</span></span><br><span class="line">/usr/bin/rsync -azv --<span class="literal">include</span>=<span class="string">"*.jpg"</span>  --<span class="literal">exclude</span>=<span class="string">"*"</span> appNginx@<span class="number">10.0</span>.<span class="number">1.153</span>::www /tmp/www_rsync/ --<span class="literal">password</span>-<span class="keyword">file</span>=/etc/rsyncd/rsync.pwd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 只同步jpg文件(非递归同步，仅仅同步该目录的jpg文件，目录下的子目录不会同步也不会创建) </span></span><br><span class="line">/usr/bin/rsync -azv -f <span class="string">'+ *.jpg'</span> -f <span class="string">'+ *.png'</span> -f <span class="string">'- *'</span> appNginx@<span class="number">10.0</span>.<span class="number">1.153</span>::www /tmp/www_rsync/ --<span class="literal">password</span>-<span class="keyword">file</span>=/etc/rsyncd/rsync.pwd</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="grep"><strong>grep</strong></h3><figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#利用grep提取IP地址</span></span><br><span class="line">grep -<span class="type">Po</span> <span class="string">"(\d+\.)(\d+\.)(\d+\.)\d+"</span></span><br><span class="line">grep -<span class="type">Po</span> <span class="string">"(\d+)(\.\d+)&#123;3&#125;"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#grep perl正则</span></span><br><span class="line">echo <span class="string">"sd,1563k%135"</span>|grep -<span class="type">Po</span> '(?&lt;=,).*(?=%)'</span><br><span class="line"></span><br><span class="line"><span class="comment">#获取日志http状态码</span></span><br><span class="line">grep -<span class="type">Po</span> '(?&lt;=<span class="type">HTTP</span>/<span class="number">1</span>.[<span class="number">01</span>]<span class="string">" )(\d&#123;3&#125;)(?= )'</span></span><br></pre></td></tr></table></figure>
+<h3 id="sed"><strong>sed</strong></h3><figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#在State所在行前添加一行空白行</span></span><br><span class="line">sed -i <span class="string">'/State/i  \\'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#在匹配式样“regex”的行之前插入一空行</span></span><br><span class="line">sed <span class="string">'/regex/&#123;x;p;x;&#125;'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#在匹配式样“regex”的行之后插入一空行</span></span><br><span class="line">sed <span class="string">'/regex/G'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#在匹配式样“regex”的行之前和之后各插入一空行</span></span><br><span class="line">sed <span class="string">'/regex/&#123;x;p;x;G;&#125;'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#在每行后添加空行</span></span><br><span class="line">sed -i G</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#在每个字符后添加空格(abc—&gt;a b c )</span></span><br><span class="line">sed -r <span class="string">'s/(.)/\1 /g'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#sed获取文件行数</span></span><br><span class="line">sed -n <span class="string">'$='</span> filename                        </span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#sed替换多个关键字为一个</span></span><br><span class="line">sed -i -r <span class="string">'s/2|3|4/test/g'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#在文件行首添加行号</span></span><br><span class="line">sed = test.txt | sed <span class="string">'N;s/\n/ /'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#仅为非空白行在行首添加行号</span></span><br><span class="line">sed /./= test.txt | sed <span class="string">'N;s/\n/ /'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#单词首字母大写</span></span><br><span class="line">echo $mogltest|sed <span class="string">'s/\b[a-z]/\U&amp;/'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#大写转小写</span></span><br><span class="line">echo <span class="string">"ABC"</span>|sed <span class="string">'s/[A-Z]/\l&amp;/g'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#sed正则匹配'或'需要对|做转义\|</span></span><br><span class="line">sed <span class="string">'/one\|two\|three/ s/^/#/'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#多个，替换成一个，(正则+需要转义)</span></span><br><span class="line">sed <span class="string">'s/,\+/,/g'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#全文本替换\n</span></span><br><span class="line">sed <span class="string">':a N;$! ba;s/\n/ /g'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#sed递归替换</span></span><br><span class="line">grep -rl <span class="string">'test'</span> dir/ | xargs sed -i <span class="string">'s/test/mogl/g'</span></span><br></pre></td></tr></table></figure>
+<h3 id="awk"><strong>awk</strong></h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#awk去除重复行</span></span><br><span class="line"><span class="title">awk</span> <span class="string">'!a[<span class="variable">$0</span>]++'</span> filename</span><br><span class="line"></span><br><span class="line"><span class="comment">#pattern为要替换的模式;substitute为要替换为什么形式;field可选，表示替换范围，默认为整行，可指定$2、$3(gsub 多次替换)</span></span><br><span class="line">awk  <span class="string">'sub(/pattern/, substitute, [field])'</span></span><br><span class="line">awk <span class="string">'/access_log/ &#123;sub(/access.log/, "", <span class="variable">$2</span>);print <span class="variable">$2</span>&#125;'</span> appmgr.conf	删除<span class="variable">$2</span>的<span class="string">"access.log"</span>字符串并打印剩余的<span class="variable">$2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#在file1中的key前插入file2文本的内容</span></span><br><span class="line">awk <span class="string">'/key/&#123;system("cat file2")&#125;1'</span> file1</span><br><span class="line"></span><br><span class="line"><span class="comment">#在file1中的key后插入file2文本的内容(sed '/key/r file2' file1)</span></span><br><span class="line">awk <span class="string">'1;/key/&#123;system("cat file2")&#125;'</span> file1</span><br><span class="line"></span><br><span class="line"><span class="comment">#shell中用awk比较浮点数大小</span></span><br><span class="line">awk -va=<span class="number">0</span>.<span class="number">5</span> -vb=<span class="number">0</span>.<span class="number">7</span> <span class="string">'BEGIN&#123;print (a&gt;b)?"0":"1"&#125;'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#统计TCP状态信息</span></span><br><span class="line">netstat -anl|awk <span class="string">'/^tcp/ &#123;s[<span class="variable">$NF</span>]++&#125; END&#123;for(a in s) print a,s[a]&#125;'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#统计每个IP访问量</span></span><br><span class="line">netstat -anl|awk -F<span class="string">'[ :]+'</span> <span class="string">'/^tcp/ &amp;&amp; <span class="variable">$6</span>!~/0.0.0.0/ &amp;&amp; <span class="variable">$6</span>~/[0-9]\.[0-9]/ &#123;ip[<span class="variable">$6</span>]++&#125; END&#123;for(a in ip) print ip[a],a&#125;'</span>|sort -nr</span><br><span class="line"></span><br><span class="line"><span class="comment">#统计进程数前十</span></span><br><span class="line">ps aux|awk <span class="string">'&#123;a[<span class="variable">$NF</span>]++&#125; END&#123;for(i in a) print a[i],i&#125;'</span>|sort -nr|column -t|head</span><br><span class="line"></span><br><span class="line"><span class="comment">#awk正则引用外部变量及单引号内引用外部变量</span></span><br><span class="line">aaa=<span class="string">"abc"</span>;<span class="title">awk</span> <span class="string">'/'</span><span class="string">"<span class="variable">$aaa</span>"</span><span class="string">'/ &#123;print "'</span><span class="variable">$aaa</span><span class="string">'"&#125;'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="comment">#当正则引用外部变量仅需单引号不可有双引号，即可/'$eachItem'/，不可/"'$eachItem'"/</span></span><br><span class="line">awk <span class="string">'/check_command/ &amp;&amp; /'</span><span class="variable">$eachItem</span><span class="string">'/ &amp;&amp; !/#/ &#123;print NR&#125;'</span> <span class="variable">$NAGIOS_FILE</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#分隔符为'[]'需写成"-F'[][]+'"或"-F '[\\[\\]]+'"</span></span><br><span class="line">awk -F<span class="string">'[][]+'</span> <span class="string">'!/#/ &amp;&amp; /command\[/ &#123;print <span class="variable">$2</span>&#125;'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="comment">#awk转小写(大写toupper())</span></span><br><span class="line">echo <span class="string">"ABC"</span>|awk <span class="string">'&#123;print tolower(<span class="variable">$2</span>)&#125;'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#shell引用awk内的变量/awk向shell传递变量</span></span><br><span class="line">eval $(awk <span class="string">'BEGIN&#123;for(i=1;i&lt;7;i++) &#123;printf("D%s=%s\n", i,i)&#125;&#125;'</span>)</span><br><span class="line">eval $(awk <span class="string">'&#123;printf("var1=%s; var2=%s; var3=%s;",<span class="variable">$1</span>,<span class="variable">$2</span>,<span class="variable">$3</span>)&#125;'</span> abc.txt)</span><br><span class="line">eval $(awk <span class="string">'BEGIN&#123;print "var1='</span>str1<span class="string">';var2='</span>str2<span class="string">'"&#125;'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#awk实现矩阵互换(filename有5行数据)</span></span><br><span class="line">for i in `echo <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span>`;<span class="title">do</span> awk <span class="string">'&#123;printf $'</span><span class="variable">$i</span><span class="string">'"\t"&#125;END&#123;print ""&#125;'</span> filename ;<span class="title">done</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#awk使用正则表达式</span></span><br><span class="line">awk --re-interval <span class="string">'/\&lt;a&#123;2,3&#125;\&gt;/'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="comment">#awk调用sort排序</span></span><br><span class="line">awk <span class="string">'&#123;ip[<span class="variable">$1</span>]++&#125; END&#123;for(a in ip) print ip[a],a|"sort -nr"&#125;'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="comment">#awk统计数组长度</span></span><br><span class="line">awk <span class="string">'&#123;ip[<span class="variable">$1</span>]&#125; END&#123;print length(ip)&#125;'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="comment">#awk空格替换成_，大写转成小写</span></span><br><span class="line">echo <span class="string">'a  b c'</span>|awk <span class="string">'&#123;gsub(/ +/,"_",<span class="variable">$0</span>);print tolower(<span class="variable">$0</span>)&#125;'</span></span><br></pre></td></tr></table></figure>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/bash/">bash</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+					<a href="/2015/05/05/svn/" title="SVN记录">&larr; Prev</a>
+				
+
+				
+					<a href="/2015/03/22/build-blog/" title="建站记">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>

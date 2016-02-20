@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" SVN记录 | Hexo " />
+	<meta name="twitter:title" content=" SVN记录 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" SVN记录 | Hexo ">
+	<meta property="og:description" content=" SVN记录 | Hexo " />
+	<meta name="twitter:description" content=" SVN记录 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2015/05/05/svn/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/ops/">ops</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2015-05-05">2015-05-05</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/ops/">ops</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2015/05/05/svn/" itemprop="url"><span itemprop="name">SVN记录</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<h2 id="安装"><strong>安装</strong></h2><p>&emsp;SVN有两种运行方式：一种是基于Apache Http Server，另外一种是Subversion Standalone Server。以下主要以Apache方式为主。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install httpd httpd-devel subversion mod_dav_svn</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;检查Apache的SVN模块<br><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@~]# <span class="keyword">ls</span> /etc/httpd/modules/|<span class="keyword">grep</span> svn</span><br><span class="line">mod_authz_svn.<span class="keyword">so</span></span><br><span class="line">mod_dav_svn.<span class="keyword">so</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;检查SVN安装<br><figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[root@~]# svn --version</span><br><span class="line"></span><br><span class="line">svn, version <span class="number">1.6</span>.<span class="number">11</span> (r934486)</span><br><span class="line">   compiled Jul <span class="number">23</span> <span class="number">2015</span>, <span class="number">23</span>:<span class="number">48</span>:<span class="number">52</span></span><br><span class="line"></span><br><span class="line">Copyright (C) <span class="number">2000</span>-<span class="number">2009</span> CollabNet.</span><br><span class="line">Subversion <span class="keyword">is</span> open source software, see http:<span class="comment">//subversion.tigris.org/</span></span><br><span class="line">This product includes software developed <span class="keyword">by</span> CollabNet (http:<span class="comment">//www.Collab.Net/).</span></span><br><span class="line"></span><br><span class="line">The following repository access (RA) modules are available:</span><br><span class="line"></span><br><span class="line">* ra_neon : <span class="keyword">Module</span> <span class="keyword">for</span> accessing a repository via WebDAV protocol <span class="keyword">using</span> Neon.</span><br><span class="line">  - handles <span class="string">'http'</span> scheme</span><br><span class="line">  - handles <span class="string">'https'</span> scheme</span><br><span class="line">* ra_svn : <span class="keyword">Module</span> <span class="keyword">for</span> accessing a repository <span class="keyword">using</span> the svn network protocol.</span><br><span class="line">  - <span class="keyword">with</span> Cyrus SASL authentication</span><br><span class="line">  - handles <span class="string">'svn'</span> scheme</span><br><span class="line">* ra_local : <span class="keyword">Module</span> <span class="keyword">for</span> accessing a repository <span class="keyword">on</span> local disk.</span><br><span class="line">  - handles <span class="string">'file'</span> scheme</span><br></pre></td></tr></table></figure></p>
+<h2 id="配置"><strong>配置</strong></h2><p>&emsp;需要对<code>Apache</code>和<code>SVN</code>进行配置</p>
+<ul>
+<li><p>SVN配置<br>  &emsp;使用<strong><code>svnadmin</code></strong>命令创建项目</p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir -<span class="tag">p</span> /www/svn</span><br><span class="line">cd /www/svn</span><br><span class="line">svnadmin create pycode</span><br><span class="line">chown apache<span class="class">.apache</span> -R pycode/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Apache配置<br>  &emsp;配置文件：<strong>/etc/httpd/conf.d/subversion.conf</strong></p>
+  <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;VirtualHost *:8888&gt;</span></span><br><span class="line">	<span class="keyword"><span class="common">ServerName</span></span> moglsvn.com</span><br><span class="line">	<span class="tag">&lt;Location /svn &gt;</span></span><br><span class="line">		<span class="comment">#Options Indexes FollowSymLinks</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">#启用WebDAV的SVN</span></span><br><span class="line">		<span class="keyword">DAV</span> svn</span><br><span class="line"></span><br><span class="line">		<span class="comment">#若目录下有多个版本库则使用SVNParentPath，只有一个时可使用SVNPath</span></span><br><span class="line">		<span class="keyword">SVNParentPath</span> /www/svn/</span><br><span class="line">		<span class="comment">#SVNPath /www/svn/project_name</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">#允许显示父目录</span></span><br><span class="line">		<span class="keyword">SVNListParentPath</span> <span class="literal">on</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">#开启验证</span></span><br><span class="line">		<span class="keyword">AuthType</span> Basic</span><br><span class="line">		<span class="keyword">AuthName</span> <span class="string">"pxe_tmp svn"</span></span><br><span class="line">		<span class="keyword">AuthUserFile</span> /www/svn/svnconfig/passwd</span><br><span class="line">		<span class="keyword">AuthzSVNAccessFile</span> /www/svn/svnconfig/authz</span><br><span class="line">		<span class="keyword">Require</span> valid-user</span><br><span class="line">	<span class="tag">&lt;/Location&gt;</span></span><br><span class="line"><span class="tag">&lt;/VirtualHost&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建SVN用户<br>  &emsp;首次创建需要<code>-c</code>参数，后续添加用户必须去掉<code>-c</code>参数否则会先清空文件再创建!<br>  &emsp;<code>svnconfig</code>目录下有<code>passwd</code>和<code>authz</code>文件，<code>passwd</code>文件记录用户及密码、<code>authz</code>为权限控制文件</p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="regexp">/www/</span>svn/svnconfig</span><br><span class="line">htpasswd -c <span class="regexp">/www/</span>svn<span class="regexp">/svnconfig/</span>passwd username</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>权限分配<br>  &emsp;编辑<code>/www/svn/svnconfig/authz</code>配置文件，设定分组以及目录权限<br>  &emsp;<code>* =</code>表示未授权用户禁止访问</p>
+  <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[groups]</span><br><span class="line">admin = mogl,admin</span><br><span class="line"><span class="keyword">test</span> = <span class="keyword">test</span></span><br><span class="line"></span><br><span class="line">[pycode:/]</span><br><span class="line">@<span class="keyword">test</span> = <span class="literal">r</span></span><br><span class="line"><span class="comment">* =</span></span><br><span class="line"></span><br><span class="line">[shellcode:/]</span><br><span class="line">@admin = rw</span><br><span class="line"><span class="comment">* =</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="启动服务"><strong>启动服务</strong></h2><p>&emsp;配置完后启动Apache即可访问<br><figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/httpd <span class="built_in">start</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;假若没安装apache而是使用Subversion Standalone Server方式则需要启动<strong>svnserver</strong>，Subversion Standalone Server方式每次修改配置文件后都需要重启<code>svnserver</code><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">svnserve <span class="operator">-d</span> -r /www/svn/</span><br></pre></td></tr></table></figure></p>
+<h2 id="SVN操作"><strong>SVN操作</strong></h2><p>&emsp;使用命令方式操作SVN</p>
+<h4 id="创建分支"><strong>创建分支</strong></h4><p>&emsp;如果使用了apache，<code>checkout</code>地址可为http方式且<strong>不需要运行<code>svnserver</code></strong>；如果没使用apache则<strong>必须运行<code>svnserver</code></strong></p>
+<ul>
+<li><p>http方式</p>
+  <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">svn checkout <span class="symbol">http:</span>/<span class="regexp">/10.0.2.31:8888/svn</span><span class="regexp">/pycode/</span></span><br><span class="line"><span class="comment">#简写</span></span><br><span class="line">svn co <span class="symbol">http:</span>/<span class="regexp">/10.0.2.31:8888/svn</span><span class="regexp">/pycode/</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>svnserver方式</p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">svn checkout <span class="string">svn:</span><span class="comment">//10.0.2.31/svntest</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="提交代码"><strong>提交代码</strong></h4><p>&emsp;分支创建后，修改代码需要提交到SVN服务器上。<code>-m</code>为说明<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">svn</span> commit -m <span class="string">'svninit.py commit checkout'</span> svninit.py</span><br><span class="line"><span class="comment">#简写</span></span><br><span class="line">svn ci -m <span class="string">'svninit.py commit checkout'</span> svninit.py</span><br></pre></td></tr></table></figure></p>
+<h4 id="导入"><strong>导入</strong></h4><p>&emsp;假若项目开始前没有版本管理，现在需要接入到SVN进行版本管理就需要用到<code>import</code>导入<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">svn <span class="keyword">import</span> <span class="regexp">/local/</span>path<span class="regexp">/project_name/</span> <span class="keyword">file</span>:<span class="comment">///www/svn/project_name -m 'new project import to svn'</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="新增文件"><strong>新增文件</strong></h4><p>&emsp;当有新文件产生需要提交时，必须先<code>add</code>再<code>commit</code><br><figure class="highlight ocaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">svn add file1.txt</span><br><span class="line">svn ci -m <span class="symbol">'add</span> <span class="keyword">new</span> file1.txt' file1.txt</span><br></pre></td></tr></table></figure></p>
+<h4 id="更新文件"><strong>更新文件</strong></h4><p>&emsp;当SVN服务器的代码文件有更新变动时，想要本地代码达到最新状态则需要<code>update</code>。但如果本地文件更新变动后如果没有<code>commit</code>，当执行<code>update</code>并不会覆盖本地文件，所以本地代码更新后务必<code>commit</code>提交到SVN服务器<br><figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#递归更新目录下的文件</span></span><br><span class="line">svn <span class="keyword">update</span></span><br><span class="line"><span class="comment">#只该更新文件</span></span><br><span class="line">svn <span class="keyword">update</span> <span class="keyword">filename</span></span><br><span class="line"><span class="comment">#简写</span></span><br><span class="line">svn up</span><br><span class="line"></span><br><span class="line"><span class="comment">#更新到指定版本</span></span><br><span class="line">svn up -r <span class="number">2</span> <span class="keyword">filename</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="删除文件"><strong>删除文件</strong></h4><p>&emsp;删除文件和新增文件类型，都是先本地操作后提交SVN(必须提交否则SVN服务器无变动)<br><figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">svn delete <span class="keyword">filename</span></span><br><span class="line">svn ci -m <span class="string">'delete filename by username'</span> <span class="keyword">filename</span></span><br><span class="line"><span class="comment">#简写</span></span><br><span class="line">svn del</span><br></pre></td></tr></table></figure></p>
+<h4 id="查看信息"><strong>查看信息</strong></h4><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">svn</span> log</span><br><span class="line">svn <span class="built_in">info</span></span><br></pre></td></tr></table></figure>
+<h4 id="比较差异"><strong>比较差异</strong></h4><p>&emsp;比较版本2和版本1之间的差别<br><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">svn</span> <span class="tag">diff</span> <span class="tag">-r</span> 2<span class="pseudo">:1</span></span><br><span class="line"><span class="tag">svn</span> <span class="tag">diff</span> <span class="tag">-r</span> 2<span class="pseudo">:1</span> <span class="tag">filename</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;为<code>diff</code>添加颜色<br><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> colordiff</span><br><span class="line">vim ~/.subversion/config</span><br><span class="line">diff-cmd = colordiff</span><br></pre></td></tr></table></figure></p>
+<h4 id="恢复"><strong>恢复</strong></h4><p>&emsp;假若在本地编辑代码后，没有<code>commit</code>，需要取消所有的本地编辑则可用<code>revert</code>操作<br><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">svn revert filename</span><br><span class="line"><span class="comment">#恢复整个目录</span></span><br><span class="line">svn revert <span class="comment">--recursive</span></span><br></pre></td></tr></table></figure></p>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/svn/">svn</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+					<a href="/2015/05/23/autossh/" title="Autossh反向连接">&larr; Prev</a>
+				
+
+				
+					<a href="/2015/04/06/bash-skill/" title="Bash技巧零碎录">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>

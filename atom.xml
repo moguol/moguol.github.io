@@ -842,7 +842,7 @@
     <link href="http://yoursite.com/2015/06/20/tmux/"/>
     <id>http://yoursite.com/2015/06/20/tmux/</id>
     <published>2015-06-20T14:20:20.000Z</published>
-    <updated>2015-11-11T14:12:21.000Z</updated>
+    <updated>2016-02-17T14:48:29.000Z</updated>
     <content type="html"><![CDATA[<p>&emsp;<a href="https://tmux.github.io/" target="_blank" rel="external">tmux</a>是一款优秀且好用的终端复用工具，有点类似screen。之所以说好用是因为它支持全键盘操作，连屏幕复制都能直接通过键盘完成，以下是平时的一点使用记录。</p>
 <h2 id="安装"><strong>安装</strong></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ubuntu：sudo apt-get install tmux</span><br><span class="line">CentOS：yum install tmux</span><br></pre></td></tr></table></figure>
 <h2 id="基础概念"><strong>基础概念</strong></h2><p>&emsp;要用好tmux，需要先了解有关tmux的几个基础概念——会话(session)、窗口(window)和面板(pane)</p>
@@ -1101,12 +1101,12 @@
 <h2 id="重启保持会话(session)"><strong>重启保持会话(session)</strong></h2><p>&emsp;tmux自身有会话保存功能，只要机器不重启就能保存会话，一旦机器重启会话便会丢失。如果想重启仍保持会话则需要额外的插件，这里使用的是<a href="https://github.com/tmux-plugins/tmux-resurrect" target="_blank" rel="external">tmux-resurrect</a>和<a href="https://github.com/tmux-plugins/tmux-continuum" target="_blank" rel="external">tmux-continuum</a>。使用此插件tmux版本需要在<strong><code>1.9</code></strong>以上，Ubuntu14.04默认安装的是<strong><code>1.8</code></strong>版本，所以先对tmux进行升级。也可自行进行编译安装，<a href="https://tmux.github.io/" target="_blank" rel="external">tmux下载地址</a></p>
 <h4 id="Ubuntu14-04升级tmux到2-0版本"><strong>Ubuntu14.04升级tmux到2.0版本</strong></h4><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y python-software-properties software-properties-common</span><br><span class="line">sudo<span class="instruction"> add-apt-repository </span>-y ppa:pi-rho/dev</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y tmux=2.0-1~ppa1~t</span><br><span class="line"></span><br><span class="line"><span class="comment">#查看tmux版本</span></span><br><span class="line">tmux -V</span><br></pre></td></tr></table></figure>
 <h4 id="安装tmxu-resurrect插件"><strong>安装tmxu-resurrect插件</strong></h4><p>&emsp;此插件是用来保存tmux的会话，安装后按快捷键<strong><code>prefix+Ctrl+s</code></strong>保存会话，<strong>tmux-resurrect</strong>会将会话以文本方式保存在<code>~/.tmux/resurrect</code>目录中。按<strong><code>prefix+Ctrl+r</code></strong>还原。<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir ~/<span class="class">.tmux</span> &amp;&amp; cd ~/<span class="class">.tmux</span></span><br><span class="line">git clone https:<span class="comment">//github.com/tmux-plugins/tmux-resurrect.git</span></span><br><span class="line">echo <span class="string">'run-shell ~/.tmux/tmux-resurrect/resurrect.tmux'</span> &gt;&gt; ~/<span class="class">.tmux</span><span class="class">.conf</span></span><br></pre></td></tr></table></figure></p>
-<h4 id="安装tmux-continuum插件"><strong>安装tmux-continuum插件</strong></h4><p>&emsp;此插件会自动完成保存和还原会话的功能，无需手动执行。默认每隔<strong><code>15分钟</code></strong>对会话进行一次保存。<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cd ~/<span class="class">.tmux</span></span><br><span class="line">git clone https:<span class="comment">//github.com/tmux-plugins/tmux-continuum.git</span></span><br><span class="line">echo <span class="string">'run-shell ~/.tmux/tmux-continuum/continuum.tmux'</span> &gt;&gt; ~/<span class="class">.tmux</span><span class="class">.conf</span></span><br><span class="line">echo <span class="string">"set -g @continuum-restore 'on'"</span> &gt;&gt; ~/<span class="class">.tmux</span><span class="class">.conf</span></span><br><span class="line"></span><br><span class="line">#若想调整自动保存时间间隔，可将此设置添加到~/<span class="class">.tmux</span><span class="class">.conf</span>下(改为<span class="number">60</span>分钟自动保存一次)。更多设置查看项目网页</span><br><span class="line">set -g @continuum-save-interval <span class="string">'60'</span></span><br><span class="line"></span><br><span class="line">#若安装插件前已启用tmux，则需重载配置文件</span><br><span class="line">tmux source-file ~/<span class="class">.tmux</span><span class="class">.conf</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="安装tmux-continuum插件"><strong>安装tmux-continuum插件</strong></h4><p>&emsp;此插件会自动完成保存和还原会话的功能，无需手动执行。默认每隔<strong><code>15分钟</code></strong>对会话进行一次保存。<br>&emsp;目前我还是选择手动保存和恢复会话，暂时没有使用此插件<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cd ~/<span class="class">.tmux</span></span><br><span class="line">git clone https:<span class="comment">//github.com/tmux-plugins/tmux-continuum.git</span></span><br><span class="line">echo <span class="string">'run-shell ~/.tmux/tmux-continuum/continuum.tmux'</span> &gt;&gt; ~/<span class="class">.tmux</span><span class="class">.conf</span></span><br><span class="line">echo <span class="string">"set -g @continuum-restore 'on'"</span> &gt;&gt; ~/<span class="class">.tmux</span><span class="class">.conf</span></span><br><span class="line"></span><br><span class="line">#若想调整自动保存时间间隔，可将此设置添加到~/<span class="class">.tmux</span><span class="class">.conf</span>下(改为<span class="number">60</span>分钟自动保存一次)。更多设置查看项目网页</span><br><span class="line">set -g @continuum-save-interval <span class="string">'60'</span></span><br><span class="line"></span><br><span class="line">#若安装插件前已启用tmux，则需重载配置文件</span><br><span class="line">tmux source-file ~/<span class="class">.tmux</span><span class="class">.conf</span></span><br></pre></td></tr></table></figure></p>
 <h2 id="SSH_Tips"><strong>SSH Tips</strong></h2><p>&emsp;对于需要登录多台机器进行操作的用户来说，Windows有诸如<strong>Xshell</strong>等SSH连接管理工具，当远程登录多台机器的时候会有预先填好的标签方便识别每台机器。Linux平台上本来就可通过终端进行远程登录，所以这类软件较少，比较好用的是<a href="https://sites.google.com/site/davidtv/" target="_blank" rel="external">PAC Manager</a>。但其实使用<strong>Tmux</strong>就可以完成类<strong>Xshell</strong>的便签功能，在SSH远程登录的时候修改Tmux的Window Name就能很好的用于识别多台机器。<br>&emsp;个人的做法是先配完SSH无密码登录，然后做<code>alias</code>别名命令，最后是修改Tmux的Window Name。可根据个人需求就行修改，在此仅说说我个人的做法。将<code>tmux_rename_window</code>函数写入到<code>~/.bashrc</code>并配置好<code>alias</code>命令。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">tmux_rename_window</span></span>() &#123;</span><br><span class="line">    wname=<span class="string">"<span class="variable">$1</span>"</span></span><br><span class="line">    sship=$(<span class="built_in">echo</span> <span class="string">"<span class="variable">$wname</span>"</span>|grep -Po <span class="string">"(\d+\.)&#123;3&#125;\d+$"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> [ <span class="string">"<span class="variable">$(ps -p $(ps -p $$ -o ppid=)</span> -o comm=)"</span> = <span class="string">"tmux"</span> ]; <span class="keyword">then</span></span><br><span class="line">        tmux rename-window -t<span class="variable">$&#123;TMUX_PANE&#125;</span> <span class="string">"<span class="variable">$&#123;wname&#125;</span>"</span></span><br><span class="line">        <span class="built_in">command</span> ssh root@<span class="variable">$&#123;sship&#125;</span></span><br><span class="line">        tmux <span class="built_in">set</span>-window-option automatic-rename <span class="string">"on"</span> <span class="number">1</span>&gt;/dev/null</span><br><span class="line">    <span class="keyword">fi</span>  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">alias</span> nagios.<span class="number">192.16</span>.<span class="number">1.1</span>=<span class="string">'tmux_rename_window nagios.192.16.1.1'</span></span><br></pre></td></tr></table></figure></p>
 <p>&emsp;当想登录<code>192.168.1.1</code>这台部署了<code>nagiso</code>的机器时，终端上输入<code>nagios.192.16.1.1</code>后会将Tmux的Window Name修改成<code>nagios.192.16.1.1</code>并SSH到<code>192.168.1.1</code>机器上去。</p>
 <p>&emsp;当SSH远程登录多台机器后可以使用<code>prefix w</code>列出所有窗口方便按照Window Name进行快速选择机器进行操作。</p>
 <h2 id="tmux配置"><strong>tmux配置</strong></h2><p>&emsp;可通过以下命令查看所有终端的颜色：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;<span class="number">0</span>..<span class="number">255</span>&#125;;<span class="keyword">do</span> <span class="built_in">printf</span> <span class="string">"\x1b[38;5;<span class="variable">$&#123;i&#125;</span>mcolour<span class="variable">$&#123;i&#125;</span>\n"</span>; <span class="keyword">done</span></span><br></pre></td></tr></table></figure></p>
-<h3 id="我的tmux配置"><strong>我的tmux配置</strong></h3><p>&emsp;tmux的配置文件为<code>~/.tmux.conf</code>，以下是我参考网上修改的配置文件，因为终端颜色显示问题最好先执行此命令<strong><code>echo &quot;alias tmux=&#39;tmux -2&#39;&quot; &gt;&gt; ~/.bashrc</code></strong><br><figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">##设置颜色</span></span><br><span class="line"><span class="keyword">set</span> -g <span class="keyword">default</span>-terminal <span class="string">"screen-256color"</span></span><br><span class="line"><span class="preprocessor">#set -g default-terminal "xterm"</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">##### 256 ######</span></span><br><span class="line"><span class="preprocessor"># default statusbar colors</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-bg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-fg colour34 <span class="preprocessor">#purple</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-attr <span class="keyword">default</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># default window title colors</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-fg colour244 <span class="preprocessor">#base0</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-bg <span class="keyword">default</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># active window title colors</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-current-fg colour88 <span class="preprocessor">#red</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-current-bg colour232 <span class="preprocessor">#black</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># pane border</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g pane-border-fg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g pane-active-border-fg colour196 <span class="preprocessor">#base01</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># message text</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g message-bg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g message-fg colour83 <span class="preprocessor">#green</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># pane number display</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g display-panes-active-colour colour33 <span class="preprocessor">#blue</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g display-panes-colour colour166 <span class="preprocessor">#orange</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># clock</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g clock-mode-colour colour64</span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-right <span class="string">"[#(hostname)] #(date +%H:%M' '%Y-%m-%d)"</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#设置前缀</span></span><br><span class="line"><span class="keyword">set</span> -g prefix C-o</span><br><span class="line"><span class="preprocessor">#解除Ctrl+b 与前缀的对应关系</span></span><br><span class="line">unbind C-b</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#复制</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g mode-keys vi</span><br><span class="line">bind-<span class="keyword">key</span> -t vi-copy <span class="comment">'v' begin-selection</span></span><br><span class="line">bind-<span class="keyword">key</span> -t vi-copy <span class="comment">'y' copy-selection</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#pane hjkl移动</span></span><br><span class="line">bind h <span class="keyword">select</span>-pane -L</span><br><span class="line">bind j <span class="keyword">select</span>-pane -D</span><br><span class="line">bind k <span class="keyword">select</span>-pane -U</span><br><span class="line">bind l <span class="keyword">select</span>-pane -R</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#系统粘贴</span></span><br><span class="line">bind o run-shell <span class="string">"tmux saveb - | xsel -i -b"</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#绑定'prefix ;'到'跳转到上个活动的窗口处'</span></span><br><span class="line">bind-<span class="keyword">key</span> \; last-window</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#窗口列表在状态栏居中 </span></span><br><span class="line"><span class="preprocessor">#set -g status-justify centre</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#tmux-resurrect and tmux-continuum</span></span><br><span class="line">run-shell ~/.tmux/tmux-resurrect/resurrect.tmux</span><br><span class="line">run-shell ~/.tmux/tmux-continuum/continuum.tmux</span><br><span class="line"><span class="keyword">set</span> -g @continuum-restore <span class="comment">'on'</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="我的tmux配置"><strong>我的tmux配置</strong></h3><p>&emsp;tmux的配置文件为<code>~/.tmux.conf</code>，以下是我参考网上修改的配置文件，因为终端颜色显示问题最好先执行此命令<strong><code>echo &quot;alias tmux=&#39;tmux -2&#39;&quot; &gt;&gt; ~/.bashrc</code></strong><br><figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">##设置颜色</span></span><br><span class="line"><span class="preprocessor">#set -g default-terminal "screen-256color"</span></span><br><span class="line"><span class="keyword">set</span> -g <span class="keyword">default</span>-terminal <span class="string">"xterm-256color"</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">##设置windowlist背景前景色</span></span><br><span class="line"><span class="keyword">set</span> -wg mode-style bg=green,fg=black</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">##### 256 ######</span></span><br><span class="line"><span class="preprocessor"># default statusbar colors</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-bg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-fg colour34 <span class="preprocessor">#purple</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-attr <span class="keyword">default</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># default window title colors</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-fg colour244 <span class="preprocessor">#base0</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-bg <span class="keyword">default</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># active window title colors</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-current-fg colour88 <span class="preprocessor">#red</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g window-status-current-bg colour232 <span class="preprocessor">#black</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># pane border</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g pane-border-fg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g pane-active-border-fg colour196 <span class="preprocessor">#base01</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># message text</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g message-bg colour235 <span class="preprocessor">#base02</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g message-fg colour83 <span class="preprocessor">#green</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># pane number display</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g display-panes-active-colour colour33 <span class="preprocessor">#blue</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g display-panes-colour colour166 <span class="preprocessor">#orange</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># clock</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g clock-mode-colour colour64</span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -g status-right <span class="string">"[#(hostname)] #(date +%H:%M' '%Y-%m-%d)"</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#设置前缀</span></span><br><span class="line"><span class="keyword">set</span> -g prefix C-o</span><br><span class="line"><span class="preprocessor">#解除Ctrl+b 与前缀的对应关系</span></span><br><span class="line">unbind C-b</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#复制</span></span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -g mode-keys vi</span><br><span class="line">bind-<span class="keyword">key</span> -t vi-copy <span class="comment">'v' begin-selection</span></span><br><span class="line">bind-<span class="keyword">key</span> -t vi-copy <span class="comment">'y' copy-selection</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#pane hjkl移动</span></span><br><span class="line">bind h <span class="keyword">select</span>-pane -L</span><br><span class="line">bind j <span class="keyword">select</span>-pane -D</span><br><span class="line">bind k <span class="keyword">select</span>-pane -U</span><br><span class="line">bind l <span class="keyword">select</span>-pane -R</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#系统粘贴</span></span><br><span class="line"><span class="preprocessor">#Ctrl+o将tmux粘贴板中的内容复制到系统剪切板中</span></span><br><span class="line">bind o run-shell <span class="string">"tmux saveb - | xsel -i -b"</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#运行鼠标模式</span></span><br><span class="line"><span class="preprocessor">#set-window-option -g mode-mouse on</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#绑定'prefix ;'到'跳转到上个活动的窗口处'</span></span><br><span class="line">bind-<span class="keyword">key</span> \; last-window</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#窗口列表在状态栏居中 </span></span><br><span class="line"><span class="preprocessor">#set -g status-justify centre</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#tmux-resurrect and tmux-continuum</span></span><br><span class="line">run-shell ~/.tmux/tmux-resurrect/resurrect.tmux</span><br><span class="line"><span class="preprocessor">#run-shell ~/.tmux/tmux-continuum/continuum.tmux</span></span><br><span class="line"><span class="preprocessor">#set -g @continuum-restore 'on'</span></span><br></pre></td></tr></table></figure></p>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>&emsp;<a href="https://tmux.github.io/" target="_blank" rel="external">tmux</a>是一款优秀且好用的终端复用工具，有点类似screen。之所以说好用是因为它支持全键盘操作，连屏幕复制都能直接通过键盘]]>
@@ -1135,6 +1135,448 @@
     </summary>
     
       <category term="autossh" scheme="http://yoursite.com/tags/autossh/"/>
+    
+      <category term="linux" scheme="http://yoursite.com/categories/linux/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[SVN记录]]></title>
+    <link href="http://yoursite.com/2015/05/05/svn/"/>
+    <id>http://yoursite.com/2015/05/05/svn/</id>
+    <published>2015-05-05T07:15:49.000Z</published>
+    <updated>2016-02-20T07:36:34.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="安装"><strong>安装</strong></h2><p>&emsp;SVN有两种运行方式：一种是基于Apache Http Server，另外一种是Subversion Standalone Server。以下主要以Apache方式为主。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install httpd httpd-devel subversion mod_dav_svn</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;检查Apache的SVN模块<br><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@~]# <span class="keyword">ls</span> /etc/httpd/modules/|<span class="keyword">grep</span> svn</span><br><span class="line">mod_authz_svn.<span class="keyword">so</span></span><br><span class="line">mod_dav_svn.<span class="keyword">so</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;检查SVN安装<br><figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[root@~]# svn --version</span><br><span class="line"></span><br><span class="line">svn, version <span class="number">1.6</span>.<span class="number">11</span> (r934486)</span><br><span class="line">   compiled Jul <span class="number">23</span> <span class="number">2015</span>, <span class="number">23</span>:<span class="number">48</span>:<span class="number">52</span></span><br><span class="line"></span><br><span class="line">Copyright (C) <span class="number">2000</span>-<span class="number">2009</span> CollabNet.</span><br><span class="line">Subversion <span class="keyword">is</span> open source software, see http:<span class="comment">//subversion.tigris.org/</span></span><br><span class="line">This product includes software developed <span class="keyword">by</span> CollabNet (http:<span class="comment">//www.Collab.Net/).</span></span><br><span class="line"></span><br><span class="line">The following repository access (RA) modules are available:</span><br><span class="line"></span><br><span class="line">* ra_neon : <span class="keyword">Module</span> <span class="keyword">for</span> accessing a repository via WebDAV protocol <span class="keyword">using</span> Neon.</span><br><span class="line">  - handles <span class="string">'http'</span> scheme</span><br><span class="line">  - handles <span class="string">'https'</span> scheme</span><br><span class="line">* ra_svn : <span class="keyword">Module</span> <span class="keyword">for</span> accessing a repository <span class="keyword">using</span> the svn network protocol.</span><br><span class="line">  - <span class="keyword">with</span> Cyrus SASL authentication</span><br><span class="line">  - handles <span class="string">'svn'</span> scheme</span><br><span class="line">* ra_local : <span class="keyword">Module</span> <span class="keyword">for</span> accessing a repository <span class="keyword">on</span> local disk.</span><br><span class="line">  - handles <span class="string">'file'</span> scheme</span><br></pre></td></tr></table></figure></p>
+<h2 id="配置"><strong>配置</strong></h2><p>&emsp;需要对<code>Apache</code>和<code>SVN</code>进行配置</p>
+<ul>
+<li><p>SVN配置<br>  &emsp;使用<strong><code>svnadmin</code></strong>命令创建项目</p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir -<span class="tag">p</span> /www/svn</span><br><span class="line">cd /www/svn</span><br><span class="line">svnadmin create pycode</span><br><span class="line">chown apache<span class="class">.apache</span> -R pycode/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Apache配置<br>  &emsp;配置文件：<strong>/etc/httpd/conf.d/subversion.conf</strong></p>
+  <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;VirtualHost *:8888&gt;</span></span><br><span class="line">	<span class="keyword"><span class="common">ServerName</span></span> moglsvn.com</span><br><span class="line">	<span class="tag">&lt;Location /svn &gt;</span></span><br><span class="line">		<span class="comment">#Options Indexes FollowSymLinks</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">#启用WebDAV的SVN</span></span><br><span class="line">		<span class="keyword">DAV</span> svn</span><br><span class="line"></span><br><span class="line">		<span class="comment">#若目录下有多个版本库则使用SVNParentPath，只有一个时可使用SVNPath</span></span><br><span class="line">		<span class="keyword">SVNParentPath</span> /www/svn/</span><br><span class="line">		<span class="comment">#SVNPath /www/svn/project_name</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">#允许显示父目录</span></span><br><span class="line">		<span class="keyword">SVNListParentPath</span> <span class="literal">on</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">#开启验证</span></span><br><span class="line">		<span class="keyword">AuthType</span> Basic</span><br><span class="line">		<span class="keyword">AuthName</span> <span class="string">"pxe_tmp svn"</span></span><br><span class="line">		<span class="keyword">AuthUserFile</span> /www/svn/svnconfig/passwd</span><br><span class="line">		<span class="keyword">AuthzSVNAccessFile</span> /www/svn/svnconfig/authz</span><br><span class="line">		<span class="keyword">Require</span> valid-user</span><br><span class="line">	<span class="tag">&lt;/Location&gt;</span></span><br><span class="line"><span class="tag">&lt;/VirtualHost&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建SVN用户<br>  &emsp;首次创建需要<code>-c</code>参数，后续添加用户必须去掉<code>-c</code>参数否则会先清空文件再创建!<br>  &emsp;<code>svnconfig</code>目录下有<code>passwd</code>和<code>authz</code>文件，<code>passwd</code>文件记录用户及密码、<code>authz</code>为权限控制文件</p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir <span class="regexp">/www/</span>svn/svnconfig</span><br><span class="line">htpasswd -c <span class="regexp">/www/</span>svn<span class="regexp">/svnconfig/</span>passwd username</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>权限分配<br>  &emsp;编辑<code>/www/svn/svnconfig/authz</code>配置文件，设定分组以及目录权限<br>  &emsp;<code>* =</code>表示未授权用户禁止访问</p>
+  <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[groups]</span><br><span class="line">admin = mogl,admin</span><br><span class="line"><span class="keyword">test</span> = <span class="keyword">test</span></span><br><span class="line"></span><br><span class="line">[pycode:/]</span><br><span class="line">@<span class="keyword">test</span> = <span class="literal">r</span></span><br><span class="line"><span class="comment">* =</span></span><br><span class="line"></span><br><span class="line">[shellcode:/]</span><br><span class="line">@admin = rw</span><br><span class="line"><span class="comment">* =</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="启动服务"><strong>启动服务</strong></h2><p>&emsp;配置完后启动Apache即可访问<br><figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/httpd <span class="built_in">start</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;假若没安装apache而是使用Subversion Standalone Server方式则需要启动<strong>svnserver</strong>，Subversion Standalone Server方式每次修改配置文件后都需要重启<code>svnserver</code><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">svnserve <span class="operator">-d</span> -r /www/svn/</span><br></pre></td></tr></table></figure></p>
+<h2 id="SVN操作"><strong>SVN操作</strong></h2><p>&emsp;使用命令方式操作SVN</p>
+<h4 id="创建分支"><strong>创建分支</strong></h4><p>&emsp;如果使用了apache，<code>checkout</code>地址可为http方式且<strong>不需要运行<code>svnserver</code></strong>；如果没使用apache则<strong>必须运行<code>svnserver</code></strong></p>
+<ul>
+<li><p>http方式</p>
+  <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">svn checkout <span class="symbol">http:</span>/<span class="regexp">/10.0.2.31:8888/svn</span><span class="regexp">/pycode/</span></span><br><span class="line"><span class="comment">#简写</span></span><br><span class="line">svn co <span class="symbol">http:</span>/<span class="regexp">/10.0.2.31:8888/svn</span><span class="regexp">/pycode/</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>svnserver方式</p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">svn checkout <span class="string">svn:</span><span class="comment">//10.0.2.31/svntest</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="提交代码"><strong>提交代码</strong></h4><p>&emsp;分支创建后，修改代码需要提交到SVN服务器上。<code>-m</code>为说明<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">svn</span> commit -m <span class="string">'svninit.py commit checkout'</span> svninit.py</span><br><span class="line"><span class="comment">#简写</span></span><br><span class="line">svn ci -m <span class="string">'svninit.py commit checkout'</span> svninit.py</span><br></pre></td></tr></table></figure></p>
+<h4 id="导入"><strong>导入</strong></h4><p>&emsp;假若项目开始前没有版本管理，现在需要接入到SVN进行版本管理就需要用到<code>import</code>导入<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">svn <span class="keyword">import</span> <span class="regexp">/local/</span>path<span class="regexp">/project_name/</span> <span class="keyword">file</span>:<span class="comment">///www/svn/project_name -m 'new project import to svn'</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="新增文件"><strong>新增文件</strong></h4><p>&emsp;当有新文件产生需要提交时，必须先<code>add</code>再<code>commit</code><br><figure class="highlight ocaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">svn add file1.txt</span><br><span class="line">svn ci -m <span class="symbol">'add</span> <span class="keyword">new</span> file1.txt' file1.txt</span><br></pre></td></tr></table></figure></p>
+<h4 id="更新文件"><strong>更新文件</strong></h4><p>&emsp;当SVN服务器的代码文件有更新变动时，想要本地代码达到最新状态则需要<code>update</code>。但如果本地文件更新变动后如果没有<code>commit</code>，当执行<code>update</code>并不会覆盖本地文件，所以本地代码更新后务必<code>commit</code>提交到SVN服务器<br><figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#递归更新目录下的文件</span></span><br><span class="line">svn <span class="keyword">update</span></span><br><span class="line"><span class="comment">#只该更新文件</span></span><br><span class="line">svn <span class="keyword">update</span> <span class="keyword">filename</span></span><br><span class="line"><span class="comment">#简写</span></span><br><span class="line">svn up</span><br><span class="line"></span><br><span class="line"><span class="comment">#更新到指定版本</span></span><br><span class="line">svn up -r <span class="number">2</span> <span class="keyword">filename</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="删除文件"><strong>删除文件</strong></h4><p>&emsp;删除文件和新增文件类型，都是先本地操作后提交SVN(必须提交否则SVN服务器无变动)<br><figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">svn delete <span class="keyword">filename</span></span><br><span class="line">svn ci -m <span class="string">'delete filename by username'</span> <span class="keyword">filename</span></span><br><span class="line"><span class="comment">#简写</span></span><br><span class="line">svn del</span><br></pre></td></tr></table></figure></p>
+<h4 id="查看信息"><strong>查看信息</strong></h4><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">svn</span> log</span><br><span class="line">svn <span class="built_in">info</span></span><br></pre></td></tr></table></figure>
+<h4 id="比较差异"><strong>比较差异</strong></h4><p>&emsp;比较版本2和版本1之间的差别<br><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">svn</span> <span class="tag">diff</span> <span class="tag">-r</span> 2<span class="pseudo">:1</span></span><br><span class="line"><span class="tag">svn</span> <span class="tag">diff</span> <span class="tag">-r</span> 2<span class="pseudo">:1</span> <span class="tag">filename</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;为<code>diff</code>添加颜色<br><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> colordiff</span><br><span class="line">vim ~/.subversion/config</span><br><span class="line">diff-cmd = colordiff</span><br></pre></td></tr></table></figure></p>
+<h4 id="恢复"><strong>恢复</strong></h4><p>&emsp;假若在本地编辑代码后，没有<code>commit</code>，需要取消所有的本地编辑则可用<code>revert</code>操作<br><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">svn revert filename</span><br><span class="line"><span class="comment">#恢复整个目录</span></span><br><span class="line">svn revert <span class="comment">--recursive</span></span><br></pre></td></tr></table></figure></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="安装"><strong>安装</strong></h2><p>&emsp;SVN有两种运行方式：一种是基于Apache Http Server，另外一种是Subversion Standalone Server。以下主要以Apache方式为主。<br><figur]]>
+    </summary>
+    
+      <category term="svn" scheme="http://yoursite.com/tags/svn/"/>
+    
+      <category term="ops" scheme="http://yoursite.com/categories/ops/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Bash技巧零碎录]]></title>
+    <link href="http://yoursite.com/2015/04/06/bash-skill/"/>
+    <id>http://yoursite.com/2015/04/06/bash-skill/</id>
+    <published>2015-04-06T15:34:01.000Z</published>
+    <updated>2016-02-07T09:36:53.000Z</updated>
+    <content type="html"><![CDATA[<p>&emsp;主要记录一些Bash及Bash脚本的技巧，方便快速查阅。持续更新。。。。。。</p>
+<h3 id="Bash命令行快捷键"><strong>Bash命令行快捷键</strong></h3><ul>
+<li>Ctrl + a：移到行首</li>
+<li>Ctrl + e：移到行尾</li>
+<li>Ctrl + f：按字符向右移</li>
+<li>Ctrl + b：按字符向左移</li>
+<li>Ctrl + u：光标处删除至行首</li>
+<li>Ctrl + k：光标处删除至行尾</li>
+<li>Ctrl + w：光标处删除至单词字首</li>
+<li>Ctrl + h：删除光标前的字符(相当于Backspace键)</li>
+<li>Ctrl + r：逆向搜索历史命令记录</li>
+<li>Ctrl + p：历史命令中上一条</li>
+<li>Ctrl + n：历史命令中下一条</li>
+<li>Ctrl + l：清屏</li>
+<li>Ctrl + z：挂起命令</li>
+<li>Alt + .：上一命令的最后一个参数</li>
+<li>Alt + f：按单词向右移</li>
+<li>Alt + b：按单词向左移</li>
+<li>!!：执行上一条命令</li>
+</ul>
+<h3 id="echo"><strong>echo</strong></h3><ul>
+<li><p>echo忽略换行符</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#\n无效</span></span><br><span class="line"><span class="built_in">echo</span> -n <span class="string">"echo_test\n"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>echo字符串转义</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#转义\t</span></span><br><span class="line"><span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">'0\t1\t2'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>echo终端颜色<br>  &emsp;echo -e “\033[光标;前景;背景m 你要显示的内容 \033[0m”<br>  &emsp;例子：echo -e “\033[0;30;41m It’s cool \033[0m”</p>
+  <figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">光标代码  意义</span><br><span class="line"> <span class="number">0</span>               <span class="keyword">OFF</span></span><br><span class="line"> <span class="number">1</span>               高亮显示(粗体)</span><br><span class="line"> <span class="number">2</span>               亮度减半</span><br><span class="line"> <span class="number">4</span>               下划线</span><br><span class="line"> <span class="number">5</span>               闪烁</span><br><span class="line"> <span class="number">7</span>               反白显示</span><br><span class="line"> <span class="number">8</span>               不可见</span><br><span class="line"></span><br><span class="line">前景   背景  颜色</span><br><span class="line"> <span class="number">30</span>      <span class="number">40</span>      黑色</span><br><span class="line"> <span class="number">31</span>      <span class="number">41</span>      红色</span><br><span class="line"> <span class="number">32</span>      <span class="number">42</span>      绿色</span><br><span class="line"> <span class="number">33</span>      <span class="number">43</span>      黄色</span><br><span class="line"> <span class="number">34</span>      <span class="number">44</span>      蓝色</span><br><span class="line"> <span class="number">35</span>      <span class="number">45</span>      紫红色</span><br><span class="line"> <span class="number">36</span>      <span class="number">46</span>      青蓝色</span><br><span class="line"> <span class="number">37</span>      <span class="number">47</span>      白色</span><br></pre></td></tr></table></figure>
+<p>  &emsp;echo终端颜色汇总</p>
+  <center><br>  <img src="http://7xk64o.com1.z0.glb.clouddn.com/echo_color.png" alt="echo_color"><br>  </center>
+
+
+</li>
+</ul>
+<h3 id="变量"><strong>变量</strong></h3><h4 id="特殊变量"><strong>特殊变量</strong></h4><ul>
+<li>$*  所有的位置参数的字符串(所有位置参数为一个整体的字符串)</li>
+<li>$@  所有的位置参数的列表(每个位置参数为单独个体)</li>
+<li>$#  位置参数的数量</li>
+<li>$0  当前脚本的路径</li>
+<li>$$  当前进程的PID</li>
+<li>$?  上一个命令的退出码</li>
+<li>$_  上一个命令的最后一个参数</li>
+<li>$!  上一运行的后台进程的PID</li>
+<li>$-  当前的option flags</li>
+</ul>
+<h4 id="变量判断"><strong>变量判断</strong></h4><table>
+<thead>
+<tr>
+<th style="text-align:left">表达式</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">${ #var}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var</code>字符串长度</td>
+</tr>
+<tr>
+<td style="text-align:left">${var-default}/${var=default}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">若<code>var</code><strong>不存在</strong>则值为<code>=default</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var:-default}/${var:=default}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">当<code>var</code><strong>空</strong>或<strong>不存在</strong>时值为<code>default</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var+default}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">若<code>var</code><strong>存在</strong>则值为<code>default</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var:+default}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">当<code>var</code><strong>存在</strong>或<strong>空</strong>时则值为<code>default</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var?message}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">若<code>var</code><strong>不存在</strong>则打印message信息并以<code>exit 1</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var:?message}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">当<code>var</code><strong>不存在</strong>或<strong>空</strong>则打印message信息并以<code>exit 1</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="变量删除"><strong>变量删除</strong></h4><table>
+<thead>
+<tr>
+<th style="text-align:left">表达式</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">解释</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">${var#pattern}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">从<code>var</code>左边开始删除<strong>最小匹配</strong><code>pattern</code>的字符串</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var=&#39;/usr/bin/vim&#39;</code> <code>${var#/*/}</code> <code>bin/vim</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var##pattern}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">从<code>var</code>左边开始删除<strong>最长匹配</strong><code>pattern</code>的字符串</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var=&#39;/usr/bin/vim&#39;</code>     <code>${var#/*/}</code>        <code>vim</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var%pattern}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">从<code>var</code>右边开始删除<strong>最小匹配</strong><code>pattern</code>的字符串</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">${var%%pattern}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">从<code>var</code>右边开始删除<strong>最长匹配</strong><code>pattern</code>的字符串</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="变量截取"><strong>变量截取</strong></h4><p>&emsp;Bash变量的位置从<strong><code>0</code></strong>开始标记，<code>abc</code>——&gt;a(0)b(1)c(2)</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">表达式</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">解释</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">${var:pos}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">在<code>var</code>中截取从位置<code>pos</code>开始到最后的字符串(包含<code>pos</code>)</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var=&#39;12345&#39;</code> <code>${var:4}</code> <code>5</code> (从位置为4开始截取[包括位置4])</td>
+</tr>
+<tr>
+<td style="text-align:left">${var:pos:len}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">在<code>var</code>中截取从位置<code>pos</code>开始截取长度为<code>len</code>的字符串(包含<code>pos</code>)</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var=&#39;12345&#39;</code> <code>${var:1:3}</code> <code>234</code> (从位置1开始截取长度为3的字符串[包含位置1])</td>
+</tr>
+</tbody>
+</table>
+<h4 id="变量替换"><strong>变量替换</strong></h4><table>
+<thead>
+<tr>
+<th style="text-align:left">表达式</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">解释</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">${var/pattern/replace}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">从<code>var</code>中<strong>最长匹配</strong><code>pattern</code>并用<code>replace</code>将其替换(仅替换第一次出现的<code>pattern</code>)</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var=&#39;123_test_456_test&#39;</code> <code>${var/test/replace}</code> <code>123_replace_456_test</code></td>
+</tr>
+<tr>
+<td style="text-align:left">${var//pattern/replace}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">从<code>var</code>中<strong>最长匹配</strong><code>pattern</code>并用<code>replace</code>将其全部替换</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"><code>var=&#39;123_test_456_test&#39;</code> <code>${var//test/replace}</code> <code>123_replace_456_replace</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="普通数组及关联数组"><strong>普通数组及关联数组</strong></h3><h4 id="普通数组"><strong>普通数组</strong></h4><ul>
+<li><p><strong>创建</strong></p>
+  <figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">array=(<span class="constant">one</span> <span class="constant">two</span> <span class="constant">three</span> <span class="constant">four</span> <span class="constant">five</span>)</span><br><span class="line"></span><br><span class="line">array[<span class="number">0</span>]=<span class="string">"one"</span>、array[<span class="number">1</span>]=<span class="string">"two"</span> ......</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>获取数值</strong></p>
+<ul>
+<li><p>获取具体元素数值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;array[0]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取所有元素数值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;array[@]&#125;</span>	/	<span class="built_in">echo</span> <span class="variable">$&#123;array[*]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p><strong>获取数组长度</strong></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[@]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>获取索引</strong></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;!array[@]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="关联数组"><strong>关联数组</strong></h4><p>&emsp;关联数组需要<strong>Bash</strong>版本高于<strong><code>4.0</code></strong>才支持</p>
+<ul>
+<li><p><strong>创建</strong></p>
+  <figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">declare -A as_array</span><br><span class="line">as_array=([index0]=<span class="constant">one</span> [index1]=<span class="constant">two</span> [index2]=<span class="constant">three</span> [index3]=<span class="constant">four</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>获取数值</strong></p>
+<ul>
+<li><p>获取具体元素数值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;as_array[index0]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取所有元素数值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;as_array[@]&#125;</span>	/	<span class="built_in">echo</span> <span class="variable">$&#123;as_array[*]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p><strong>获取数组长度</strong></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#as_array[@]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>获取索引</strong></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;!as_array[@]&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="Alias"><strong>Alias</strong></h3><ul>
+<li><p><strong>alias接收命令行参数</strong><br>  <code>alias</code>设置别名命令时是无法通过命令行接收参数的，但可以通过构建函数实现此功能</p>
+  <figure class="highlight ocaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alias psg=<span class="symbol">'psg</span><span class="literal">()</span>&#123; ps aux|grep <span class="string">"$1"</span>; &#125;;psg'</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>alias中<code>&#39;&#39;</code>内引用<code>&#39;&#39;</code></strong><br>  &emsp;转义——‘\’’</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">alias</span> xgrep=<span class="string">'awk -F":" '</span>\<span class="string">''</span>&#123;<span class="built_in">print</span> \<span class="variable">$1</span>&#125;<span class="string">'\'</span><span class="string">' '</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>消除alias</strong><br>  &emsp;在命令行中，有时想要不使用<code>alias</code>别名命令而是使用原生命令，可强制取消<code>alias</code>别名命令</p>
+  <figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">\rm</span> file_name</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="进程替换"><strong>进程替换</strong></h3><p>&emsp;进程替换(<code>&gt;(command)</code> <code>&lt;(command)</code>)和命令替换(<code>$()</code>)类似，将一个进程的输出转给另一个进程<br>&emsp;使用进程替换需要<code>Bash</code>支持，进程替换是<strong>非POSIX兼容</strong>的。使用了进程替换的脚本需要用<code>bash script_name.sh</code>而不能用<code>sh script_name.sh</code>执行。尽管<code>/bin/sh</code>是<code>/bin/bash</code>的软链接，当使用<code>sh</code>执行脚本时，就会启用<strong>POSIX兼容</strong>，进程替换是<strong>非POSIX兼容</strong>的。<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">read</span> SSH_HOST SSH_USER SSH_PWD SSH_PORT&lt; &lt;(echo <span class="string">"<span class="variable">$eachLine</span>"</span>|awk <span class="string">'&#123;print <span class="variable">$1</span>,<span class="variable">$2</span>,<span class="variable">$3</span>,<span class="variable">$4</span>&#125;'</span>)</span><br></pre></td></tr></table></figure></p>
+<h3 id="Dig"><strong>Dig</strong></h3><p>&emsp;<strong><code>dig</code></strong>命令主要用于查询DNS相关内容<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 域名解析</span></span><br><span class="line"><span class="variable">$&gt;</span> dig www.google.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定域名服务器查询</span></span><br><span class="line"><span class="variable">$&gt;</span> dig www.google.com <span class="variable">@ns1</span>.dnspod.net</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定查询类型</span></span><br><span class="line"><span class="variable">$&gt;</span> dig -t mx gmail.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 反向查询</span></span><br><span class="line"><span class="variable">$&gt;</span> dig -x <span class="number">216.58</span>.<span class="number">221.100</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用TCP方式查询</span></span><br><span class="line"><span class="variable">$&gt;</span> dig +tcp www.google.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 追踪dig查询过程</span></span><br><span class="line"><span class="variable">$&gt;</span> dig +trace www.google.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 精简dig结果</span></span><br><span class="line"><span class="variable">$&gt;</span> dig +short www.google.com</span><br></pre></td></tr></table></figure></p>
+<h3 id="dd"><strong>dd</strong></h3><p>&emsp;生成指定大小文件<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">dd</span> <span class="keyword">if</span>=/dev/zero of=test<span class="class">.img</span> bs=<span class="number">1</span>M count=<span class="number">1000</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><code>if</code>：输入文件</li>
+<li><code>of</code>：输出文件</li>
+<li><code>bs</code>：块大小<ul>
+<li><strong><code>c</code></strong>：字节(1B)</li>
+<li><strong><code>w</code></strong>：字(2B)</li>
+<li><strong><code>b</code></strong>：块(512B)</li>
+<li><strong><code>k</code></strong>：千字节(1024B)</li>
+<li><strong><code>M</code></strong>：兆字节(1024KB)</li>
+<li><strong><code>G</code></strong>：吉字节(1024MB)</li>
+</ul>
+</li>
+<li><code>count</code>：块数</li>
+</ul>
+<h3 id="curl"><strong>curl</strong></h3><ul>
+<li><p><strong>保存页面</strong></p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -o google<span class="class">.html</span> http:<span class="comment">//www.google.com</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>静默输出</strong><br>  &emsp;不输出错误消息及执行过程</p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -s <span class="string">http:</span><span class="comment">//www.google.com</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>POST JSON数据</strong><br>  &emsp;<strong><code>-X</code></strong>——指定方法<br>  &emsp;<strong><code>-H</code></strong>——指定HTTP HEADER<br>  &emsp;<strong><code>-d</code></strong>——指定数据</p>
+  <figure class="highlight scilab"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST -H <span class="string">"Content-Type: application/json"</span> -d <span class="string">'&#123;"</span>status<span class="string">":500,"</span>msg<span class="string">":"</span>fail<span class="string">","</span>code<span class="string">":'</span>$<span class="transposed_variable">CODE'</span>,<span class="string">"appid"</span>:<span class="string">"'</span>$<span class="transposed_variable">APPID'</span><span class="string">","</span>reqCode<span class="string">":"</span><span class="string">'$REQCODE'</span><span class="string">"&#125;'</span> http:<span class="comment">//example.com/api</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>跟踪重定向</strong></p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -L <span class="string">http:</span><span class="comment">//example.com</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>获取HTTP HEADER</strong></p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -I <span class="string">http:</span><span class="comment">//example.com</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>认证</strong></p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -u <span class="string">username:</span>passowrd <span class="string">http:</span><span class="comment">//example.com</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="route"><strong>route</strong></h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 显示路由表</span></span><br><span class="line"><span class="title">route</span> -n</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加默认路由</span></span><br><span class="line">route add default gw [eth0|<span class="number">192.168.1.1</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加一条到达192.168.2.0网络的路由，指定网络掩码为255.255.255.0,数据包通过网络接口eth0      </span></span><br><span class="line">route add -net <span class="number">192.168.2.0</span> netmask <span class="number">255.255.255.0</span> dev eth0</span><br><span class="line">route add -net <span class="number">192.168.2.0</span>/<span class="number">24</span> dev eth0</span><br><span class="line"></span><br><span class="line"><span class="comment"># 所有去往192.57.66.200主机的数据包发往网关地址192.168.2.1</span></span><br><span class="line">route add -host <span class="number">192.57.66.200</span> gw <span class="number">192.168.2.1</span>                    </span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加一条到达192.57.66.0网络的路由，指定网络掩码为255.255.255.0,数据包通过网关地址192.168.2.1</span></span><br><span class="line">route add -net <span class="number">192.57.66.0</span> netmask <span class="number">255.255.255.0</span> gw <span class="number">192.168.2.1</span> </span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除到主机192.168.1.11的路由</span></span><br><span class="line">route del –host <span class="number">192.168.1.11</span> dev eth0</span><br></pre></td></tr></table></figure>
+<h3 id="rsync"><strong>rsync</strong></h3><ul>
+<li><p><strong>rsync拉取同步</strong></p>
+  <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="regexp">/usr/</span>bin<span class="regexp">/rsync -azv --delete rsync_user@rsync_ip::rsync_module /</span>path<span class="regexp">/to/</span>dest_dir<span class="regexp">/ --password-file=/</span>path<span class="regexp">/to/</span>password.<span class="keyword">file</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>--delete</code></strong><br>  将目标处多余的删除，既使得目标与源的文件完全一致，慎用此参数。</li>
+<li><strong><code>-a</code></strong><br>  归档模式，表示以递归方式传输文件，并保持所有文件属性，等于-rlptgoD</li>
+<li><strong><code>-z</code></strong><br>  对备份的文件在传输时进行压缩处理</li>
+<li><strong><code>-v</code></strong><br>  详细模式输出</li>
+<li><strong><code>-n</code></strong><br>  查看哪些文件将被传输，并非实际传输，即<code>--dry-run</code></li>
+</ul>
+</li>
+<li><p><strong>rsync推送同步</strong></p>
+  <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="regexp">/usr/</span>bin<span class="regexp">/rsync -azv --delete /</span>path<span class="regexp">/to/</span>source_dir<span class="regexp">/  rsync_user@rsync_ip::rsync_module --password-file=/</span>path<span class="regexp">/to/</span>password.<span class="keyword">file</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>排除目录</strong></p>
+  <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="regexp">/usr/</span>bin<span class="regexp">/rsync -azv --delete --exclude='/</span>paht<span class="regexp">/to/</span>exclude_dir1<span class="regexp">/' --exclude='/</span>path<span class="regexp">/to/</span>exclude_dir2<span class="regexp">/' rsync_user@rsync_ip::rsync_module /</span>path<span class="regexp">/to/</span>dest_dir<span class="regexp">/ --password-file=/</span>path<span class="regexp">/to/</span>password.<span class="keyword">file</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>rsync断点续传</strong><br>  &emsp;让rsync使用ssh协议，代替scp并实现断点续传功能</p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsync -P --rsh=<span class="string">'ssh -p2222'</span> ssh_user@ssh_ip:file_name<span class="class">.tar</span><span class="class">.gz</span> /tmp</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>rsync过滤规则</strong><br>  &emsp;指定rsync只同步某类型文件并保持文件所在的目录结构</p>
+  <figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 只同步jpg文件(递归同步，即子目录下的所有jpg文件也同步)(-! */ 匹配所有非目录文件)</span></span><br><span class="line">/usr/bin/rsync -azv --<span class="literal">include</span>=<span class="string">"*.jpg"</span> --filter=<span class="string">"-! */"</span> appNginx@<span class="number">10.0</span>.<span class="number">1.153</span>::www /tmp/www_rsync/ --<span class="literal">password</span>-<span class="keyword">file</span>=/etc/rsyncd/rsync.pwd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 只同步jpg、png文件(递归同步，即子目录下的所有jpg、png文件也同步)</span></span><br><span class="line">/usr/bin/rsync -azv -f <span class="string">'+ *.jpg'</span> -f <span class="string">'+ *.png'</span> -f <span class="string">'+ */'</span> -f <span class="string">'- *'</span> appNginx@<span class="number">10.0</span>.<span class="number">1.153</span>::www /tmp/www_rsync/ --<span class="literal">password</span>-<span class="keyword">file</span>=/etc/rsyncd/rsync.pwd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 只同步jpg文件(递归同步，即子目录下的所有jpg文件也同步)</span></span><br><span class="line">/usr/bin/rsync -azv --<span class="literal">include</span>=<span class="string">"*.jpg"</span>  --<span class="literal">include</span>=<span class="string">"*.png"</span> --<span class="literal">include</span>=<span class="string">"*/"</span> --<span class="literal">exclude</span>=<span class="string">"*"</span> appNginx@<span class="number">10.0</span>.<span class="number">1.153</span>::www /tmp/www_rsync/ --<span class="literal">password</span>-<span class="keyword">file</span>=/etc/rsyncd/rsync.pwd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 只同步jpg文件(非递归同步，仅仅同步该目录的jpg文件，目录下的子目录不会同步也不会创建)</span></span><br><span class="line">/usr/bin/rsync -azv --<span class="literal">include</span>=<span class="string">"*.jpg"</span>  --<span class="literal">exclude</span>=<span class="string">"*"</span> appNginx@<span class="number">10.0</span>.<span class="number">1.153</span>::www /tmp/www_rsync/ --<span class="literal">password</span>-<span class="keyword">file</span>=/etc/rsyncd/rsync.pwd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 只同步jpg文件(非递归同步，仅仅同步该目录的jpg文件，目录下的子目录不会同步也不会创建) </span></span><br><span class="line">/usr/bin/rsync -azv -f <span class="string">'+ *.jpg'</span> -f <span class="string">'+ *.png'</span> -f <span class="string">'- *'</span> appNginx@<span class="number">10.0</span>.<span class="number">1.153</span>::www /tmp/www_rsync/ --<span class="literal">password</span>-<span class="keyword">file</span>=/etc/rsyncd/rsync.pwd</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="grep"><strong>grep</strong></h3><figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#利用grep提取IP地址</span></span><br><span class="line">grep -<span class="type">Po</span> <span class="string">"(\d+\.)(\d+\.)(\d+\.)\d+"</span></span><br><span class="line">grep -<span class="type">Po</span> <span class="string">"(\d+)(\.\d+)&#123;3&#125;"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#grep perl正则</span></span><br><span class="line">echo <span class="string">"sd,1563k%135"</span>|grep -<span class="type">Po</span> '(?&lt;=,).*(?=%)'</span><br><span class="line"></span><br><span class="line"><span class="comment">#获取日志http状态码</span></span><br><span class="line">grep -<span class="type">Po</span> '(?&lt;=<span class="type">HTTP</span>/<span class="number">1</span>.[<span class="number">01</span>]<span class="string">" )(\d&#123;3&#125;)(?= )'</span></span><br></pre></td></tr></table></figure>
+<h3 id="sed"><strong>sed</strong></h3><figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#在State所在行前添加一行空白行</span></span><br><span class="line">sed -i <span class="string">'/State/i  \\'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#在匹配式样“regex”的行之前插入一空行</span></span><br><span class="line">sed <span class="string">'/regex/&#123;x;p;x;&#125;'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#在匹配式样“regex”的行之后插入一空行</span></span><br><span class="line">sed <span class="string">'/regex/G'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#在匹配式样“regex”的行之前和之后各插入一空行</span></span><br><span class="line">sed <span class="string">'/regex/&#123;x;p;x;G;&#125;'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#在每行后添加空行</span></span><br><span class="line">sed -i G</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#在每个字符后添加空格(abc—&gt;a b c )</span></span><br><span class="line">sed -r <span class="string">'s/(.)/\1 /g'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#sed获取文件行数</span></span><br><span class="line">sed -n <span class="string">'$='</span> filename                        </span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#sed替换多个关键字为一个</span></span><br><span class="line">sed -i -r <span class="string">'s/2|3|4/test/g'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#在文件行首添加行号</span></span><br><span class="line">sed = test.txt | sed <span class="string">'N;s/\n/ /'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#仅为非空白行在行首添加行号</span></span><br><span class="line">sed /./= test.txt | sed <span class="string">'N;s/\n/ /'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#单词首字母大写</span></span><br><span class="line">echo $mogltest|sed <span class="string">'s/\b[a-z]/\U&amp;/'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#大写转小写</span></span><br><span class="line">echo <span class="string">"ABC"</span>|sed <span class="string">'s/[A-Z]/\l&amp;/g'</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#sed正则匹配'或'需要对|做转义\|</span></span><br><span class="line">sed <span class="string">'/one\|two\|three/ s/^/#/'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#多个，替换成一个，(正则+需要转义)</span></span><br><span class="line">sed <span class="string">'s/,\+/,/g'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#全文本替换\n</span></span><br><span class="line">sed <span class="string">':a N;$! ba;s/\n/ /g'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#sed递归替换</span></span><br><span class="line">grep -rl <span class="string">'test'</span> dir/ | xargs sed -i <span class="string">'s/test/mogl/g'</span></span><br></pre></td></tr></table></figure>
+<h3 id="awk"><strong>awk</strong></h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#awk去除重复行</span></span><br><span class="line"><span class="title">awk</span> <span class="string">'!a[<span class="variable">$0</span>]++'</span> filename</span><br><span class="line"></span><br><span class="line"><span class="comment">#pattern为要替换的模式;substitute为要替换为什么形式;field可选，表示替换范围，默认为整行，可指定$2、$3(gsub 多次替换)</span></span><br><span class="line">awk  <span class="string">'sub(/pattern/, substitute, [field])'</span></span><br><span class="line">awk <span class="string">'/access_log/ &#123;sub(/access.log/, "", <span class="variable">$2</span>);print <span class="variable">$2</span>&#125;'</span> appmgr.conf	删除<span class="variable">$2</span>的<span class="string">"access.log"</span>字符串并打印剩余的<span class="variable">$2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#在file1中的key前插入file2文本的内容</span></span><br><span class="line">awk <span class="string">'/key/&#123;system("cat file2")&#125;1'</span> file1</span><br><span class="line"></span><br><span class="line"><span class="comment">#在file1中的key后插入file2文本的内容(sed '/key/r file2' file1)</span></span><br><span class="line">awk <span class="string">'1;/key/&#123;system("cat file2")&#125;'</span> file1</span><br><span class="line"></span><br><span class="line"><span class="comment">#shell中用awk比较浮点数大小</span></span><br><span class="line">awk -va=<span class="number">0</span>.<span class="number">5</span> -vb=<span class="number">0</span>.<span class="number">7</span> <span class="string">'BEGIN&#123;print (a&gt;b)?"0":"1"&#125;'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#统计TCP状态信息</span></span><br><span class="line">netstat -anl|awk <span class="string">'/^tcp/ &#123;s[<span class="variable">$NF</span>]++&#125; END&#123;for(a in s) print a,s[a]&#125;'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#统计每个IP访问量</span></span><br><span class="line">netstat -anl|awk -F<span class="string">'[ :]+'</span> <span class="string">'/^tcp/ &amp;&amp; <span class="variable">$6</span>!~/0.0.0.0/ &amp;&amp; <span class="variable">$6</span>~/[0-9]\.[0-9]/ &#123;ip[<span class="variable">$6</span>]++&#125; END&#123;for(a in ip) print ip[a],a&#125;'</span>|sort -nr</span><br><span class="line"></span><br><span class="line"><span class="comment">#统计进程数前十</span></span><br><span class="line">ps aux|awk <span class="string">'&#123;a[<span class="variable">$NF</span>]++&#125; END&#123;for(i in a) print a[i],i&#125;'</span>|sort -nr|column -t|head</span><br><span class="line"></span><br><span class="line"><span class="comment">#awk正则引用外部变量及单引号内引用外部变量</span></span><br><span class="line">aaa=<span class="string">"abc"</span>;<span class="title">awk</span> <span class="string">'/'</span><span class="string">"<span class="variable">$aaa</span>"</span><span class="string">'/ &#123;print "'</span><span class="variable">$aaa</span><span class="string">'"&#125;'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="comment">#当正则引用外部变量仅需单引号不可有双引号，即可/'$eachItem'/，不可/"'$eachItem'"/</span></span><br><span class="line">awk <span class="string">'/check_command/ &amp;&amp; /'</span><span class="variable">$eachItem</span><span class="string">'/ &amp;&amp; !/#/ &#123;print NR&#125;'</span> <span class="variable">$NAGIOS_FILE</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#分隔符为'[]'需写成"-F'[][]+'"或"-F '[\\[\\]]+'"</span></span><br><span class="line">awk -F<span class="string">'[][]+'</span> <span class="string">'!/#/ &amp;&amp; /command\[/ &#123;print <span class="variable">$2</span>&#125;'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="comment">#awk转小写(大写toupper())</span></span><br><span class="line">echo <span class="string">"ABC"</span>|awk <span class="string">'&#123;print tolower(<span class="variable">$2</span>)&#125;'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#shell引用awk内的变量/awk向shell传递变量</span></span><br><span class="line">eval $(awk <span class="string">'BEGIN&#123;for(i=1;i&lt;7;i++) &#123;printf("D%s=%s\n", i,i)&#125;&#125;'</span>)</span><br><span class="line">eval $(awk <span class="string">'&#123;printf("var1=%s; var2=%s; var3=%s;",<span class="variable">$1</span>,<span class="variable">$2</span>,<span class="variable">$3</span>)&#125;'</span> abc.txt)</span><br><span class="line">eval $(awk <span class="string">'BEGIN&#123;print "var1='</span>str1<span class="string">';var2='</span>str2<span class="string">'"&#125;'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#awk实现矩阵互换(filename有5行数据)</span></span><br><span class="line">for i in `echo <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span>`;<span class="title">do</span> awk <span class="string">'&#123;printf $'</span><span class="variable">$i</span><span class="string">'"\t"&#125;END&#123;print ""&#125;'</span> filename ;<span class="title">done</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#awk使用正则表达式</span></span><br><span class="line">awk --re-interval <span class="string">'/\&lt;a&#123;2,3&#125;\&gt;/'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="comment">#awk调用sort排序</span></span><br><span class="line">awk <span class="string">'&#123;ip[<span class="variable">$1</span>]++&#125; END&#123;for(a in ip) print ip[a],a|"sort -nr"&#125;'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="comment">#awk统计数组长度</span></span><br><span class="line">awk <span class="string">'&#123;ip[<span class="variable">$1</span>]&#125; END&#123;print length(ip)&#125;'</span> test.txt</span><br><span class="line"></span><br><span class="line"><span class="comment">#awk空格替换成_，大写转成小写</span></span><br><span class="line">echo <span class="string">'a  b c'</span>|awk <span class="string">'&#123;gsub(/ +/,"_",<span class="variable">$0</span>);print tolower(<span class="variable">$0</span>)&#125;'</span></span><br></pre></td></tr></table></figure>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>&emsp;主要记录一些Bash及Bash脚本的技巧，方便快速查阅。持续更新。。。。。。</p>
+<h3 id="Bash命令行快捷键"><strong>Bash命令行快捷键</strong></h3><ul>
+<li>Ctrl + a：移到行首</li>
+<li>Ctrl]]>
+    </summary>
+    
+      <category term="bash" scheme="http://yoursite.com/tags/bash/"/>
     
       <category term="linux" scheme="http://yoursite.com/categories/linux/"/>
     
@@ -1193,11 +1635,11 @@
     <link href="http://yoursite.com/2015/03/12/About-this-blog/"/>
     <id>http://yoursite.com/2015/03/12/About-this-blog/</id>
     <published>2015-03-12T11:21:04.000Z</published>
-    <updated>2015-03-22T14:01:56.000Z</updated>
-    <content type="html"><![CDATA[<p>&emsp;此博客主要用于个人记录，记录笔记、生活新发现等。崇尚简约风格，目前没有以后估计也不会有诸如评论系统、友情链接等东西。<br>若有什么问题需要联系请E-mail我——fatesai#gmail.com<br><em>2015-03-12 by 小mo</em></p>
+    <updated>2016-02-17T15:22:45.000Z</updated>
+    <content type="html"><![CDATA[<p>&emsp;此博客主要用于个人记录，记录笔记、生活新发现等。崇尚简约风格，目前没有以后估计也不会有诸如评论系统、友情链接等东西。主要是网上评论太方便、简单，导致许多人完全不加思考胡乱喷一通，实在惹人厌烦。<br>若有什么问题需要联系请E-mail我——fatesai#gmail.com<br><em>2015-03-12 by 小mo</em></p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>&emsp;此博客主要用于个人记录，记录笔记、生活新发现等。崇尚简约风格，目前没有以后估计也不会有诸如评论系统、友情链接等东西。<br>若有什么问题需要联系请E-mail我——fatesai#gmail.com<br><em>2015-03-12 by 小mo</em></]]>
+    <![CDATA[<p>&emsp;此博客主要用于个人记录，记录笔记、生活新发现等。崇尚简约风格，目前没有以后估计也不会有诸如评论系统、友情链接等东西。主要是网上评论太方便、简单，导致许多人完全不加思考胡乱喷一通，实在惹人厌烦。<br>若有什么问题需要联系请E-mail我——fatesai#gma]]>
     </summary>
     
       <category term="blog" scheme="http://yoursite.com/tags/blog/"/>
