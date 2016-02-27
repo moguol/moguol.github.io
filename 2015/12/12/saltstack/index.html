@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" Saltstack实录 | Hexo " />
+	<meta name="twitter:title" content=" Saltstack实录 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" Saltstack实录 | Hexo ">
+	<meta property="og:description" content=" Saltstack实录 | Hexo " />
+	<meta name="twitter:description" content=" Saltstack实录 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2015/12/12/saltstack/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2015-12-12">2015-12-12</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/OPS/">OPS</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2015/12/12/saltstack/" itemprop="url"><span itemprop="name">Saltstack实录</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<h2 id="Saltstack安装"><strong>Saltstack安装</strong></h2><p>&emsp;各Linux版本安装详见<a href="https://docs.saltstack.com/en/latest/topics/installation/" target="_blank" rel="external">官方安装文档</a>。<br>&emsp;以下都是在<strong><code>CentOS 6.4 64bit</code></strong>系统上进行。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> rpm --import <span class="symbol">https:</span>/<span class="regexp">/repo.saltstack.com/yum</span><span class="regexp">/redhat/</span><span class="number">6</span>/x86_64/latest/<span class="constant">SALTSTACK-GPG-KEY.</span>pub</span><br><span class="line"></span><br><span class="line">/etc/yum.repos.d/saltstack.repo</span><br><span class="line">[saltstack-repo]</span><br><span class="line">name=<span class="constant">SaltStack </span>repo <span class="keyword">for</span> <span class="constant">RHEL/CentOS </span><span class="variable">$releasever</span></span><br><span class="line">baseurl=<span class="symbol">https:</span>/<span class="regexp">/repo.saltstack.com/yum</span><span class="regexp">/redhat/</span><span class="variable">$releasever</span>/<span class="variable">$basearch</span>/latest</span><br><span class="line">enabled=<span class="number">1</span></span><br><span class="line">gpgcheck=<span class="number">1</span></span><br><span class="line">gpgkey=<span class="symbol">https:</span>/<span class="regexp">/repo.saltstack.com/yum</span><span class="regexp">/redhat/</span><span class="variable">$releasever</span>/<span class="variable">$basearch</span>/latest/<span class="constant">SALTSTACK-GPG-KEY.</span>pub</span><br><span class="line"></span><br><span class="line"><span class="comment">#选择需要的安装</span></span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-master</span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-minion</span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-ssh</span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-syndic</span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-cloud</span><br></pre></td></tr></table></figure>
+<h4 id="安装问题集"><strong>安装问题集</strong></h4><ol>
+<li><p>缺少psutil模块<br> AttributeError: ‘module’ object has no attribute ‘get_sysinfo’</p>
+ <figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$&gt; pip <span class="keyword">install</span> psutil</span><br><span class="line"><span class="comment">#若提示python版本过低则</span></span><br><span class="line">   $&gt; pip <span class="keyword">install</span> psutil --upgrade</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>IPV6地址不可达导致无法安装<br> 关闭IPv6</p>
+<ul>
+<li><p>永久关闭<br>  修改<strong><code>/etc/sysctl.conf</code></strong>配置文件，加入如下内容</p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="id">#shutdown</span> IPv6</span><br><span class="line">net<span class="class">.ipv6</span><span class="class">.conf</span><span class="class">.all</span><span class="class">.disable_ipv6</span> = <span class="number">1</span></span><br><span class="line">net<span class="class">.ipv6</span><span class="class">.conf</span><span class="class">.default</span><span class="class">.disable_ipv6</span> = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">#生效配置</span><br><span class="line">$&gt; sysctl -p</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>临时关闭</p>
+  <figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo <span class="number">1</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv6/conf/all/disable_ipv6</span><br><span class="line">echo <span class="number">1</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv6/conf/default/disable_ipv6</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="Saltstack配置"><strong>Saltstack配置</strong></h2><h4 id="salt-master_配置"><strong>salt-master 配置</strong></h4><p>&emsp;salt-master监听端口：</p>
+<ul>
+<li>4505(publish_port)<br>  salt的消息发布系统</li>
+<li>4506(ret_port)<br>  salt客户端与服务端通信的端口</li>
+</ul>
+<p>&emsp;默认配置文件：<strong>/etc/salt/master</strong><br>&emsp;<strong>nodegroups</strong>定义规则：</p>
+<ul>
+<li>G — Grains glob匹配，例如：G@os:Ubuntu</li>
+<li>E — minion 正则表达式匹配，例如：E@web\d+.(dev|qa|prod).loc</li>
+<li>P — Grains PCRE 正则表达式匹配，例如：P@os:(RedHat|Fedora|CentOS)</li>
+<li>L — minion 列表匹配，例如：L@minion1.example.com,minion3.domain.com or bl*.domain.com</li>
+<li>I — Pillar glob单个匹配，例如：I@pdata:foobar</li>
+<li>S — 子网/IP 匹配，例如：S@192.168.1.0/24 or S@192.168.1.100</li>
+<li>R — Range cluster客户端范围匹配，例如： R@%foo.bar</li>
+<li>D — minion data匹配，例如：D@key:value</li>
+</ul>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span>: <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span></span><br><span class="line"><span class="comment">#自动通过salt-minion认证</span></span><br><span class="line">auto_accept: <span class="constant">True</span></span><br><span class="line">log_file: /var/wwwlog/saltstack/master.log</span><br><span class="line">key_logfile: /etc/<span class="literal">salt</span>/key</span><br><span class="line">nodegroups:</span><br><span class="line">  centos7: <span class="string">'L@centos7.10.0.2.222'</span></span><br><span class="line">  tool: <span class="string">'L@tserver.10.0.6.5,tclient.10.0.6.6'</span></span><br><span class="line">  all: <span class="string">'N@tool or N@centos7'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#启动salt-master</span></span><br><span class="line">$&gt; /etc/init.d/<span class="literal">salt</span>-master <span class="literal">start</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;按照nodegroups分组批量管理(新增nodegroups定义后<strong>不需要重启</strong>salt-master)<br><figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$&gt; salt –<span class="keyword">N</span> tool test.ping</span><br><span class="line"></span><br><span class="line">tclient<span class="number">.10</span><span class="number">.0</span><span class="number">.6</span><span class="number">.6</span>:</span><br><span class="line">    <span class="keyword">True</span></span><br><span class="line">tserver<span class="number">.10</span><span class="number">.0</span><span class="number">.6</span><span class="number">.5</span>:</span><br><span class="line">    <span class="keyword">True</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="salt-minion_配置"><strong>salt-minion　配置</strong></h4><p>&emsp;默认配置文件：<strong>/etc/salt/minion</strong><br>&emsp;salt-minion的<strong><code>id</code></strong>比较重要，可用于salt-master指定nodegroups分组等用途。<br><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">master</span>: <span class="string">10.0.2.233</span></span><br><span class="line"><span class="attribute">id</span>: <span class="string">tserver.10.0.6.5</span></span><br><span class="line"><span class="attribute">log_file</span>: <span class="string">/var/wwwlog/saltstack/minion.log</span></span><br><span class="line"><span class="attribute">key_logfile</span>: <span class="string">/etc/salt/key</span></span><br><span class="line"></span><br><span class="line"><span class="puppet">$&gt; /etc/init.d/<span class="literal">salt</span>-minion <span class="literal">start</span></span></span><br></pre></td></tr></table></figure></p>
+<h2 id="Saltstack_认证"><strong>Saltstack 认证</strong></h2><p>&emsp;皆在salt-master端</p>
+<ul>
+<li><p>查看</p>
+  <figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt-<span class="variable">key</span> –L</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>接受</p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt-key –<span class="tag">a</span> minion_id</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>接受所有</p>
+  <figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt-key –<span class="literal">A</span></span><br></pre></td></tr></table></figure>
+<p>  master设置自动接受所有：/etc/salt/master——<code>auto_accept: True</code></p>
+</li>
+</ul>
+<ul>
+<li><p>测试连通</p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">salt <span class="string">'*'</span> test<span class="class">.ping</span></span><br><span class="line">salt <span class="string">'*'</span> test<span class="class">.ping</span> –t <span class="number">15</span>   (-t 设置超时时间)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Debug</p>
+  <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -<span class="keyword">N</span> tool <span class="keyword">test</span>.ping -v -<span class="keyword">l</span> all</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除minion</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt-key <span class="operator">-d</span> minion_id</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>认证过程</p>
+<ol>
+<li>minion在第一次启动时，会在/etc/salt/pki/minion/（该路径在/etc/salt/minion里面设置）下自动生成minion.pem(privatekey)和minion.pub(publickey)，然后将minion.pub发送给master。</li>
+<li>master在接收到minion的publickey后，通过salt-key命令acceptminionpublickey，这样在master的/etc/salt/pki/master/minions下的将会存放以minionid命名的publickey,然后master就能对minion发送指令了。</li>
+</ol>
+</li>
+</ul>
+<h2 id="Saltstack_批量管理"><strong>Saltstack 批量管理</strong></h2><ul>
+<li><p>远程执行命令</p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt <span class="string">'*'</span> cmd<span class="class">.run</span> <span class="string">'bash --version'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>远程执行指定语言的命令</p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="id">#salt</span> ‘目标’ 执行语言 对应语言的代码</span><br><span class="line">salt <span class="string">'centos7.10.0.2.222'</span> cmd<span class="class">.exec_code</span> python <span class="string">'print "test"'</span></span><br><span class="line">salt <span class="string">'centos7.10.0.2.222'</span> cmd<span class="class">.exec_code</span> bash <span class="string">'echo "test"'</span></span><br><span class="line"></span><br><span class="line">centos7.<span class="number">10.0</span>.<span class="number">2.222</span>:</span><br><span class="line">   	test</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>从master批量复制文件到minion<br>  &emsp;源文件目录可在master配置文件中指定，默认路径为<strong><code>/srv/salt/</code></strong>： </p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">file_roots:</span></span><br><span class="line"><span class="label">  base:</span></span><br><span class="line">    - <span class="regexp">/srv/</span>salt/</span><br></pre></td></tr></table></figure>
+  <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#必须指定到文件</span></span><br><span class="line"><span class="title">salt</span> <span class="string">'*'</span> cp.get_file <span class="url">salt://vimrc</span> /etc/vimrc</span><br></pre></td></tr></table></figure>
+<p>  &emsp;或者直接用<strong><code>salt-cp</code></strong>命令</p>
+  <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt-<span class="keyword">cp</span> -<span class="keyword">N</span> tool <span class="keyword">sh</span>/*.<span class="keyword">sh</span> /tmp/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>minion远程下载master脚本并执行<br>  &emsp;master端脚本存放路径：<strong>/srv/salt/scripts</strong>(<code>/srv/salt</code>同上的<code>file_roots</code>设置)<br>  &emsp;minion默认脚本存放路径：<strong>/var/cache/salt/minion/files/base/scripts/</strong></p>
+  <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt \* cmd.script <span class="keyword">sal</span><span class="variable">t:</span>//scripts/test.<span class="keyword">sh</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="Saltstack_配置管理"><strong>Saltstack 配置管理</strong></h2><h3 id="top-sls"><strong>top.sls</strong></h3><p>&emsp;<strong><code>top.sls</code></strong>是配置管理的入口文件，若使用<strong><code>state.highstate</code></strong>则会根据<code>top.sls</code>的内容将<code>statefile</code>推送到salt-minion并执行；若是直接指定<code>statefile</code>则可不根据<code>top.sls</code>。在salt-master主机上，默认存放在<strong><code>/srv/salt/top.sls</code></strong>。 <code>(/etc/salt/master——file_roots)</code><br>&emsp;<strong><code>top.sls</code></strong>文件结构：</p>
+<ul>
+<li><code>base</code>：<code>top.sls</code>默认从<strong><code>base</code></strong>标签开始解析执行。</li>
+<li><code>操作目标</code>：需要执行操作的salt-minion目标。可以通过<strong>正则</strong>、<strong>grain模块</strong>、<strong>分组名</strong>来进行匹配。</li>
+<li><code>statefile</code>：需要执行的state文件。指定statefile不需要包含扩展名(<code>.sls</code>)，详见下节内容。</li>
+</ul>
+<p>&emsp;top.sls文件样例<br><figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">base:</span><br><span class="line">  tool:         					#nodegroup分组名指定目标</span><br><span class="line">    -<span class="ruby"> <span class="symbol">match:</span> nodegroup              <span class="comment">#指定匹配类型为nodegroup</span></span><br><span class="line"></span>    -<span class="ruby"> statefile.apache            	<span class="comment">#state文件：/srv/salt/statefile/apache.sls</span></span><br><span class="line"></span></span><br><span class="line">  'centos7.10.0.2.222':				#直接指定minion_id目标</span><br><span class="line">    -<span class="ruby"> statefile.nginx</span><br><span class="line"></span></span><br><span class="line">  'os:CentOS':						#通过grain指定目标</span><br><span class="line">    -<span class="ruby"> <span class="symbol">match:</span> grain					<span class="comment">#指定匹配类型为grain</span></span><br><span class="line"></span>    -<span class="ruby"> statefile.git</span><br><span class="line"></span></span><br><span class="line">  '*':								#目标为所有minion</span><br><span class="line">    -<span class="ruby"> statefile.all</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="SLS文件——statefile"><strong>SLS文件——statefile</strong></h3><h4 id="SLS文件规则"><strong>SLS文件规则</strong></h4><ul>
+<li>SLS文件的扩展名<code>.sls</code>被省略。 (例如：nginx.sls 变成 nginx)                                              </li>
+<li>若有子目录，子目录都由一个点来表示.(例如 statefile/nginx.sls写成 statefile.nginx)</li>
+<li>若子目录下存在<strong><code>init.sls</code></strong>文件，引用的时候仅指定该目录即可. (例如 statefile/init.sls 可以简称为 statefile）</li>
+<li>若一个目录下同时存在<code>statefile.sls</code>和<code>statefile/init.sls</code>，那么 statefile/init.sls 将被忽略，SLS文件引用的statefile将只引用statefile.sls</li>
+<li>缩进严格按照python标准，且不要用tab做缩进而应用空格！</li>
+</ul>
+<h4 id="实例分析"><strong>实例分析</strong></h4><p>&emsp;通过具体实例分析<strong>statefile</strong>(hexo会对markdown显示有些影响)</p>
+<ol>
+<li><p><strong>cmd.script</strong></p>
+ <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">cmdscript:</span></span><br><span class="line">  cmd.<span class="string">script:</span></span><br><span class="line">	- <span class="string">source:</span> <span class="string">salt:</span><span class="comment">//scripts/test.sh</span></span><br><span class="line">	- <span class="string">user:</span> root</span><br><span class="line">	- <span class="string">shell:</span> <span class="regexp">/bin/</span>bash</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>cmdscript</code>：ID标签定义</li>
+<li><code>cmd.script</code>：使用saltstack的<code>cmd.script</code>模块<ul>
+<li><code>source</code>： 指定master端脚本存放路径，minion从master上下载并执行。master上物理存放路径：<code>/srv/salt/scripts/test.sh</code></li>
+<li><code>user</code>：指定执行脚本的用户</li>
+<li><code>shell</code>：指定执行脚本的shell</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>cmd.run</strong></p>
+ <figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">cmdrun:</span><br><span class="line">  cmd.run:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">cwd:</span> /tmp</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">name:</span> pwd;uptime</span><br><span class="line"></span></span><br><span class="line">cmdrun2:</span><br><span class="line">  cmd.run:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">cwd:</span> /tmp</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">names:</span></span><br><span class="line"></span>	  -<span class="ruby"> pwd</span><br><span class="line"></span>	  -<span class="ruby"> uptime</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>cmd.wait</strong></p>
+ <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">cmdwait:</span></span><br><span class="line">  cmd.<span class="string">wait:</span></span><br><span class="line">	- <span class="string">names:</span></span><br><span class="line">	  - <span class="regexp">/usr/</span>local<span class="regexp">/nginx/</span>sbin<span class="regexp">/nginx -t &amp;&amp; /</span>usr<span class="regexp">/local/</span>nginx<span class="regexp">/sbin/</span>nginx -s reload</span><br><span class="line">	- <span class="string">watch:</span></span><br><span class="line">	  - <span class="string">file:</span> <span class="regexp">/usr/</span>local<span class="regexp">/nginx/</span>conf<span class="regexp">/vhosts/</span>cmdwait.conf</span><br><span class="line"></span><br><span class="line"><span class="regexp">/usr/</span>local<span class="regexp">/nginx/</span>conf<span class="regexp">/vhosts/</span>cmdwait.<span class="string">conf:</span></span><br><span class="line">  file.<span class="string">managed:</span></span><br><span class="line">	- <span class="string">source:</span> <span class="string">salt:</span><span class="comment">//configfile/cmdwait.conf</span></span><br><span class="line">	- <span class="string">backup:</span> minion</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>cmd.wait</code>：条件执行命令，满足条件后才执行<code>names</code>中的命令。</li>
+<li><code>watch</code>：文件监控(监控文件是否存在或变化)，此处监控salt-minion上<code>file</code>指定的文件且作为<code>cmd.wait</code>的条件。</li>
+<li><code>file.managed</code>：文件管理<ul>
+<li><code>/usr/local/nginx/conf/vhosts/cmdwait.conf</code>：salt-minion上文件路径，同步来自salt-master上指定的文件。</li>
+<li><code>source</code>：salt-master上的文件，如果此文件有变化推送SLS配置管理时会立即同步到salt-minion上。</li>
+<li><code>backup</code>：指定salt-minion在同步文件前先备份原有文件，默认备份路径<strong><code>/var/cache/salt/minion/file_backup</code></strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>Apache配置管理实例</strong><br> &emsp;若要使用<code>service</code>则需要有<code>/etc/init.d/httpd</code>脚本</p>
+ <figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">apache:</span><br><span class="line">  pkg:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">name:</span> httpd</span><br><span class="line"></span>	-<span class="ruby"> installed</span><br><span class="line"></span></span><br><span class="line">  service:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">name:</span> httpd</span><br><span class="line"></span>	-<span class="ruby"> running</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">enable:</span> <span class="constant">True</span></span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">reload:</span> <span class="constant">True</span></span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">watch:</span></span><br><span class="line"></span>	  -<span class="ruby"> <span class="symbol">file:</span> /etc/httpd/conf/httpd.conf</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">require:</span></span><br><span class="line"></span>	  -<span class="ruby"> <span class="symbol">pkg:</span> httpd</span><br><span class="line"></span><span class="comment"></span><br><span class="line">/etc/httpd/conf/httpd.conf:</span></span><br><span class="line">  file.managed:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">source:</span> <span class="symbol">salt:</span>/<span class="regexp">/configfile/httpd</span>.conf</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">backup:</span> minion</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>unless &amp; onlyif</strong><br> &emsp;unless——当命令执行返回’False’时，执行name里的命令；onlyif相反</p>
+ <figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">apacheStart:</span><br><span class="line">  cmd.run:</span><br><span class="line">	- name: service httpd start</span><br><span class="line">	- <span class="keyword">unless</span>: ps aux|<span class="keyword">grep</span> httpd|<span class="keyword">grep</span> -v <span class="keyword">grep</span>|<span class="keyword">grep</span> -v <span class="string">'bash -c'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>使用saltstack批量配置vim</strong><br> &emsp;statefile：<code>/srv/salt/statefile/vimConfig.sls</code><br> &emsp;推送执行<code>vimConfig.sls</code>：<strong><code>salt -G os:CentOS state.sls statefile.vimConfig</code></strong></p>
+ <figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">vimInstall:</span><br><span class="line">  pkg.installed:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">names:</span></span><br><span class="line"></span>	  -<span class="ruby"> vim-enhanced</span><br><span class="line"></span>	  -<span class="ruby"> unzip</span><br><span class="line"></span></span><br><span class="line">vimDownload:</span><br><span class="line">  file.managed:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">name:</span> /home/work/software/<span class="constant">AutoConfigVim</span>.zip</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">source:</span> <span class="symbol">salt:</span>/<span class="regexp">/software/</span><span class="constant">AutoConfigVim</span>.zip</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">unless:</span> test -e /home/work/software/<span class="constant">AutoConfigVim</span>.zip</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">require:</span></span><br><span class="line"></span>	  -<span class="ruby"> <span class="symbol">pkg:</span> vimInstall</span><br><span class="line"></span></span><br><span class="line">vimUnzip:</span><br><span class="line">  cmd.run:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">cwd:</span> /home/work/software</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">name:</span> unzip -q <span class="constant">AutoConfigVim</span>.zip</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">unless:</span> test -e /home/work/software/<span class="constant">AutoConfigVim</span></span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">require:</span></span><br><span class="line"></span>	  -<span class="ruby"> <span class="symbol">file:</span> vimDownload</span><br><span class="line"></span></span><br><span class="line">vimScript:</span><br><span class="line">  cmd.run:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">cwd:</span> /home/work/software/<span class="constant">AutoConfigVim</span></span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">name:</span> bash <span class="constant">AutoConfigVim</span>.sh</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">onlyif:</span> test -e /home/work/software/<span class="constant">AutoConfigVim</span>/<span class="constant">AutoConfigVim</span>.sh</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">require:</span></span><br><span class="line"></span>	  -<span class="ruby"> <span class="symbol">cmd:</span> vimUnzip</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="推送执行SLS配置管理"><strong>推送执行SLS配置管理</strong></h4><ol>
+<li><p>根据top.sls的内容，将<strong>全部</strong>statefile文件推送到指定minion并执行</p>
+ <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt –<span class="keyword">N</span> tool state.highstate</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>不根据top.sls，只将特定的statefile(<code>statefile/cmdscript.sls</code>)推送到指定minion并执行(<code>-v</code> 查看执行反馈)</p>
+ <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -N tool state<span class="class">.sls</span> statefile<span class="class">.cmdscript</span> –v</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="获取minion信息——grains_&amp;_pillar"><strong>获取minion信息——grains &amp; pillar</strong></h2><p>&emsp;<strong>grains</strong> 和 <strong>pillar</strong>都可用于获取minion的信息，但两者有很多不同的地方需要注意。</p>
+<ul>
+<li><p><strong>grains</strong></p>
+<ol>
+<li>minion每次启动时采集minion信息并向master汇报</li>
+<li><strong>grains</strong>用于存储静态、不常变化的信息数据</li>
+<li><strong>grains</strong>存储在minion本地</li>
+<li>minion可对<strong>grains</strong>进行操作(新增、删除等)</li>
+</ol>
+</li>
+<li><p><strong>pillar</strong></p>
+<ol>
+<li><strong>pillar</strong>用于存储敏感或常变化的信息数据</li>
+<li><strong>pillar</strong>存储在master本地</li>
+<li>minion只能对自己的<strong>pillar</strong>进行查询的权限，无法修改。</li>
+</ol>
+</li>
+</ul>
+<h4 id="grains"><strong>grains</strong></h4><ul>
+<li><p>查看minion所有信息</p>
+  <figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -N tool grains.<span class="keyword">items</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>列出所有查看项目</p>
+  <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -<span class="keyword">N</span> tool grains.<span class="keyword">ls</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看特定项目</p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -N tool grains<span class="class">.item</span> ipv4</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>自定义信息项<br>  &emsp;<code>mkdir -p /srv/salt/_grains</code>目录下编写脚本，返回时必须为<strong>字典</strong>。<br>  &emsp;salt-master端：<strong><code>/srv/salt/_grains/getNginxVer.py</code></strong></p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> commands</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getNginxVer</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="string">"""get minion nginx version"""</span></span><br><span class="line">	ngxver = &#123;&#125;</span><br><span class="line">	ngxV = commands.getoutput(<span class="string">'/usr/local/nginx/sbin/nginx -V'</span>)</span><br><span class="line">	ngxver[<span class="string">'nginxversion'</span>] = ngxV.split(<span class="string">'\n'</span>)[<span class="number">0</span>].split(<span class="string">'/'</span>)[-<span class="number">1</span>]</span><br><span class="line">	<span class="keyword">return</span> ngxver</span><br></pre></td></tr></table></figure>
+<p>  &emsp;自定义grains脚本同步到minion：会将_grains目录下的文件全部同步到minion</p>
+  <figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt ‘<span class="keyword">*</span>’ saltutil.sync_grains</span><br></pre></td></tr></table></figure>
+<p>  获取自定义grains信息项：</p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt ‘*’ grains<span class="class">.item</span> nginxversion</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="pillar"><strong>pillar</strong></h4><ul>
+<li><p>查看默认pillar</p>
+  <figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">salt</span> -<span class="type">N</span> tool pillar.<span class="typedef"><span class="keyword">data</span></span></span><br></pre></td></tr></table></figure>
+<p>  &emsp;默认pillar路径(pillar_roots)：<strong><code>/srv/pillar</code></strong><br>  &emsp;组织pillar文件、pillar入口文件：<strong><code>/srv/pillar/top.sls</code></strong><br>  &emsp;pillar和SLS一样拥有自己的<code>top.sls</code>文件，通过top.sls文件作为入口，组织其它的pillar文件。<br>  &emsp;自定义pillar待了解。</p>
+</li>
+</ul>
+<h2 id="Saltstack_模块"><strong>Saltstack 模块</strong></h2><h4 id="系统模块"><strong>系统模块</strong></h4><p>&emsp;最新在线系统模块查询：<a href="http://docs.saltstack.com/en/latest/ref/modules/all/index.html" target="_blank" rel="external">saltstack系统模块</a><br>&emsp;命令查询在线doc：<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt \<span class="keyword">*</span> sys.doc disk</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;系统模块如：<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">salt ‘<span class="keyword">*</span>’ test.ping</span><br><span class="line">salt ‘<span class="keyword">*</span>’ disk.usage</span><br></pre></td></tr></table></figure></p>
+<h4 id="自定义模块"><strong>自定义模块</strong></h4><ul>
+<li><p>默认模块存放路径<br>  <strong><code>/srv/salt/_modules</code></strong></p>
+</li>
+<li><p>自定义模块样例——<strong><code>/srv/salt/_modules/custom.py</code></strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">  <span class="keyword">return</span> <span class="string">'This is saltstack custom module test.'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>同步自定义模块到minion<br>  &emsp;此操作会将master上<code>/srv/salt/_modules</code>目录下的所有目录及文件同步到minion上的<strong><code>/var/cache/salt/minion/files/base/_modules</code></strong>目录下。(包括隐藏文件)</p>
+  <figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt \<span class="keyword">*</span> saltutil.sync_modules</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>执行自定义模块</p>
+  <figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt \<span class="keyword">*</span> custom.test</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="自定义returners"><strong>自定义returners</strong></h4><ul>
+<li><p>默认模块存放路径<br>  <strong><code>/srv/salt/_returners</code></strong></p>
+</li>
+<li><p>自定义returner样例——<strong><code>/srv/salt/_returners/writefile.py</code></strong></p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python2.7</span></span><br><span class="line"><span class="comment">#coding: utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">__virtual__</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="string">"""调用时用的名字"""</span></span><br><span class="line">	<span class="keyword">return</span> <span class="string">"writefile"</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">returner</span><span class="params">(result)</span>:</span></span><br><span class="line">	<span class="string">"""将minion的return写入到文件"""</span></span><br><span class="line">	fd = open(<span class="string">'/tmp/saltReturn.txt'</span>, <span class="string">'a+'</span>)</span><br><span class="line">	fd.write(str(result))</span><br><span class="line">	fd.close()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>同步自定义returner</p>
+  <figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt \<span class="keyword">*</span> saltutil.sync_returners</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>调用自定义returner：</p>
+  <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -<span class="keyword">N</span> centos7 cmd.<span class="keyword">run</span> 'uptime' --<span class="keyword">return</span> writefile</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="计划任务"><strong>计划任务</strong></h2><p>&emsp;默认情况下，时间参数都是<code>*</code>，执行用户是”root”，当修改一个当前存在的cron job，这个名字的声明<strong>必须是全局唯一的</strong>，否则会自动新增crontab job！<br>&emsp;如果cron的命令(name)被修改，只会新增cron job不会更新！！</p>
+<p>定时任务样例——crontab.sls<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">cronScriptFile:</span></span><br><span class="line">  file.<span class="string">managed:</span></span><br><span class="line">    - <span class="string">name:</span> <span class="regexp">/home/</span>work<span class="regexp">/script/</span>cron.sh</span><br><span class="line">    - <span class="string">source:</span> <span class="string">salt:</span><span class="comment">//scripts/cron.sh</span></span><br><span class="line"><span class="label"></span><br><span class="line">crontab20141020:</span></span><br><span class="line">  cron.<span class="string">present:</span></span><br><span class="line">    - <span class="string">name:</span> bash <span class="regexp">/home/</span>work<span class="regexp">/script/</span>cron.sh &gt;&gt; <span class="regexp">/dev/</span><span class="literal">null</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br><span class="line">    - <span class="string">user:</span> root</span><br><span class="line">    - <span class="string">minute:</span> random</span><br><span class="line">    - <span class="string">hour:</span> <span class="string">'*/2'</span></span><br><span class="line">    - <span class="string">require:</span></span><br><span class="line">      - <span class="string">file:</span> cronScriptFile</span><br></pre></td></tr></table></figure></p>
+<h2 id="关于saltstack无返回信息的问题"><strong>关于saltstack无返回信息的问题</strong></h2><p>&emsp;saltstack用一段时间后发现一个非常严重的问题。当salt-master执行命令时，部分salt-minion并没有返回任何信息，无论是成功还是失败信息都没有。这导致无法确定salt-minion是否执行了命令还是返回信息丢失，这样的不可控性对Ops来说是个非常严重的问题。<br>&emsp;为解决此问题根据<strong>jid</strong>查看salt-minion的执行情况。当salt-master执行命令时加上<strong><code>-v</code></strong>参数，让其返回任务的<code>jid</code>。若有salt-minion没有返回信息则根据此<code>jid</code>查询任务结果<br><figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$&gt; salt -v \* cmd.run <span class="emphasis">'echo "jid test"'</span></span><br><span class="line"><span class="header">Executing job with jid 20160225103117255324</span><br><span class="line">-------------------------------------------</span></span><br><span class="line">centos7.10.0.2.222:</span><br><span class="line"><span class="code">    jid test</span></span><br><span class="line">tserver.10.0.6.5:</span><br><span class="line"><span class="code">    jid test</span></span><br><span class="line">tclient.10.0.6.6:</span><br><span class="line"><span class="code">    jid test</span></span><br><span class="line"></span><br><span class="line">$&gt; salt-run jobs.lookup<span class="emphasis">_jid 20160225103117255324</span><br><span class="line">centos7.10.0.2.222:</span><br><span class="line">    jid test</span><br><span class="line">tclient.10.0.6.6:</span><br><span class="line">    jid test</span><br><span class="line">tserver.10.0.6.5:</span><br><span class="line">    jid test</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;假若管理的salt-minion达到一定数量，可使用<strong><code>--async</code></strong>参数<strong>异步</strong>执行命令，然后根据<code>jid</code>查询执行结果。<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">$&gt; salt --async \* cmd.<span class="keyword">run</span> 'echo <span class="string">"jid test"</span>'</span><br><span class="line">Executed command with job ID: 20160225104129665398</span><br><span class="line"></span><br><span class="line">$&gt; salt-<span class="keyword">run</span> jobs.lookup_jid 20160225104129665398</span><br><span class="line">centos7.10.0.2.222:</span><br><span class="line">    jid <span class="keyword">test</span></span><br><span class="line">tclient.10.0.6.6:</span><br><span class="line">    jid <span class="keyword">test</span></span><br><span class="line">tserver.10.0.6.5:</span><br><span class="line">    jid <span class="keyword">test</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="关于jid"><strong>关于jid</strong></h3><p>&emsp;salt-master每执行一次salt命令就会产生一个Job，每个Job会有一个唯一的<code>jid</code>。<br>&emsp;<strong><code>jid</code></strong>: job id, 格式为<code>%Y%m%d%H%M%S%f</code><br>&emsp;salt-master在下发指令消息时, 会附带上产⽣的jid. salt-minion接收到指令开始执⾏时, 会在本地cachedir(默认是<code>/var/cache/salt/minion/proc</code>)下以该jid命名产生⽂件,⽤于在执⾏过程中master查看当前任务的执⾏情况. 指令执⾏完毕将结果传送给master后并删除该临时⽂件⽂件。<br>&emsp;salt-master将salt-minion的执⾏结果存放在本地<strong><code>/var/cache/salt/master/jobs</code></strong>目录下, 默认缓存24⼩时(可通过修改master配置⽂件<strong><code>keep_jobs</code></strong>选项调整)</p>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/saltstack/">saltstack</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+
+				
+					<a href="/2015/11/11/ddos/" title="DDOS浅记">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>

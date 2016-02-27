@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" Keepalived | Hexo " />
+	<meta name="twitter:title" content=" Keepalived | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" Keepalived | Hexo ">
+	<meta property="og:description" content=" Keepalived | Hexo " />
+	<meta name="twitter:description" content=" Keepalived | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2015/09/20/keepalived/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2015-09-20">2015-09-20</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/OPS/">OPS</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2015/09/20/keepalived/" itemprop="url"><span itemprop="name">Keepalived</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<h2 id="Keepalived基础"><strong>Keepalived基础</strong></h2><p>&emsp;Keepalived是以VRRP协议为实现基础的，VRRP全称Virtual Router Redundancy Protocol，即虚拟路由冗余协议</p>
+<h3 id="keepalived组成"><strong>keepalived组成</strong></h3><ol>
+<li>core：核心，负责主进程的启动、维护以及全局配置文件的加载和解析</li>
+<li>check：负责健康检查，包括常见的各种检查方式</li>
+<li>vrrp：实现VRRP协议</li>
+</ol>
+<h2 id="Keepalived安装"><strong>Keepalived安装</strong></h2><ol>
+<li><p>确认内核与使用的内核版本一致，不一致则建立软链接<code>ln -s /usr/src/kernels/xxxxxxx/ /usr/src/linux</code>。若不想建立软链接也可以在编译安装时使用<strong><code>--with-kernel-dir=/usr/src/kernels/xxxxxxx</code></strong>指定内核目录。</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls <span class="regexp">/usr/</span>src<span class="regexp">/kernels/</span> &amp;&amp; uname -r</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>编译安装Keepalived</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">yum -y install openssl openssl-devel</span><br><span class="line"></span><br><span class="line">wget <span class="string">'http://www.keepalived.org/software/keepalived-1.2.15.tar.gz'</span></span><br><span class="line">tar -zxf keepalived-<span class="number">1.2</span><span class="number">.15</span>.tar.gz</span><br><span class="line">cd keepalived-<span class="number">1.2</span><span class="number">.15</span></span><br><span class="line"></span><br><span class="line">#手动指定内核目录，内核以CentOS6<span class="number">.4</span> <span class="number">64</span>bit为例子</span><br><span class="line">#.<span class="regexp">/configure --prefix=/</span>usr<span class="regexp">/local/</span>keepalived --with-kernel-dir=<span class="regexp">/usr/</span>src<span class="regexp">/kernels/</span><span class="number">2.6</span><span class="number">.32</span>-<span class="number">573.3</span><span class="number">.1</span>.el6.x86_64	</span><br><span class="line">.<span class="regexp">/configure --prefix=/</span>usr<span class="regexp">/local/</span>keepalived</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line"></span><br><span class="line">cp <span class="regexp">/usr/</span>local<span class="regexp">/keepalived/</span>etc<span class="regexp">/rc.d/</span>init.d<span class="regexp">/keepalived /</span>etc<span class="regexp">/init.d/</span> &amp;&amp; chmod a+x <span class="regexp">/etc/</span>init.d/keepalived</span><br><span class="line">cp <span class="regexp">/usr/</span>local<span class="regexp">/keepalived/</span>etc<span class="regexp">/sysconfig/</span>keepalived <span class="regexp">/etc/</span>sysconfig/</span><br><span class="line"></span><br><span class="line">mkdir -p <span class="regexp">/etc/</span>keepalived</span><br><span class="line">cp <span class="regexp">/usr/</span>local<span class="regexp">/keepalived/</span>etc<span class="regexp">/keepalived/</span>keepalived.conf <span class="regexp">/etc/</span>keepalived/</span><br><span class="line">ln -s <span class="regexp">/usr/</span>local<span class="regexp">/keepalived/</span>sbin<span class="regexp">/keepalived /</span>sbin/</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="配置Keepalived详解"><strong>配置Keepalived详解</strong></h2><p>Keepalived配置域主要包括：</p>
+<ul>
+<li>global_defs————全局配置</li>
+<li>static_ipaddress————静态IP(一般不用配置, eth0等配好即可)</li>
+<li>static_routes————静态路由(一般不用配置, 设置好网关即可)</li>
+<li>vrrp_script————VRRP脚本</li>
+<li>vrrp_instance————VRRP实例</li>
+<li>virtual_server————LVS的相关</li>
+</ul>
+<h3 id="iptables允许VRRP组播"><strong>iptables允许VRRP组播</strong></h3><p>&emsp;master和backup都需要配置<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">iptables</span> -A INPUT -d <span class="number">224.0.0.18</span> -j ACCEPT</span><br></pre></td></tr></table></figure></p>
+<h3 id="global_defs——全局配置"><strong>global_defs——全局配置</strong></h3><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">global_defs &#123;</span><br><span class="line">   notification_email &#123;</span><br><span class="line">     fatesai<span class="variable">@gmail</span>.com 	<span class="comment">#报警邮箱</span></span><br><span class="line">   &#125;</span><br><span class="line">   notification_email_from keepalived<span class="variable">@10</span>.<span class="number">0</span>.<span class="number">2.15</span> 	<span class="comment">#发信箱</span></span><br><span class="line">   smtp_server <span class="number">127.0</span>.<span class="number">0</span>.<span class="number">1</span>		<span class="comment">#smtp服务器</span></span><br><span class="line">   smtp_connect_timeout <span class="number">30</span>		<span class="comment">#超时时间</span></span><br><span class="line">   router_id node1		<span class="comment">#机器标识</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="vrrp_script——vrrp脚本"><strong>vrrp_script——vrrp脚本</strong></h3><p>&emsp;健康检查，当检查失败时会将vrrp_instance的priority作相应变化<br>&emsp;script可以是脚本或一条指令(返回0则成功，1则失败)<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">vrrp_script</span> check_nginx &#123;</span><br><span class="line">	<span class="title">script</span> <span class="string">"/home/work/script/check_nginx.sh"</span>	<span class="comment">#监控脚本</span></span><br><span class="line">	interval <span class="number">2</span>	<span class="comment">#监控间隔,每2秒监控一次</span></span><br><span class="line">	weight <span class="number">2</span>	<span class="comment">#权重</span></span><br><span class="line">	<span class="comment">#fall 2		#脚本检查失败2次vrrp_script才为失败</span></span><br><span class="line">	<span class="comment">#rise 2		#脚本检查成功2次vrrp_script才为成功</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="vrrp_instance——vrrp实例"><strong>vrrp_instance——vrrp实例</strong></h3><p>&emsp;<strong><code>vrrp_instance</code></strong>用来定义对外提供服务的VIP区域及其相关属性。<br>&emsp;<strong><code>vrrp_rsync_group</code></strong>用来定义vrrp_instance组，使得这个组内成员动作一致，一个vrrp_rsync_group可包含多个vrrp_instance</p>
+<h4 id="vrrp_rsync_group"><strong>vrrp_rsync_group</strong></h4><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">vrrp_sync_group vrrp_group_name &#123; <span class="preprocessor">#vrrp_group_name名，监控多个vrrp_instance实例</span></span><br><span class="line">	group &#123;</span><br><span class="line">		inside_network 		<span class="preprocessor">#vrrp_instance实例名</span></span><br><span class="line">		outside_network</span><br><span class="line">	&#125;</span><br><span class="line"><span class="preprocessor">#notify_master <span class="title">"/home/work/script/notify.sh master"</span> #切换到Master状态时执行的脚本</span></span><br><span class="line"><span class="preprocessor">#notify_backup <span class="title">"/home/work/script/notify.sh backup"</span> #切换到Backup状态时执行的脚本</span></span><br><span class="line"><span class="preprocessor">#notify_fault <span class="title">"/home/work/script/notify.sh fault"</span> #切换到fault状态时执行的脚本(未明)</span></span><br><span class="line"><span class="preprocessor">#notify_stop <span class="title">"/home/work/script/notify.sh stop"</span> #keepalived停止时执行的脚本</span></span><br><span class="line"><span class="preprocessor">#smtp_alert #是否启用global_defs中提供的邮件地址和smtp服务器发送邮件通知</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vrrp_instance inside_network &#123;</span><br><span class="line">	state MASTER			<span class="preprocessor">#角色(master/backup)，实际是通过priority 和 weight决定</span></span><br><span class="line">	interface eth0			<span class="preprocessor">#接口</span></span><br><span class="line">	virtual_router_id <span class="number">51</span>	<span class="preprocessor">#同一主从的virtual_router_id要相同且唯一</span></span><br><span class="line">	priority <span class="number">100</span>			<span class="preprocessor">#权重</span></span><br><span class="line">	advert_int <span class="number">1</span>	<span class="preprocessor">#检查间隔，默认1秒</span></span><br><span class="line">	authentication &#123;	<span class="preprocessor">#验证</span></span><br><span class="line">		auth_type PASS</span><br><span class="line">		auth_pass <span class="number">1111</span></span><br><span class="line">	&#125;</span><br><span class="line">	virtual_ipaddress &#123;	<span class="preprocessor">#VIP</span></span><br><span class="line">		<span class="number">192.168</span><span class="number">.200</span><span class="number">.16</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="virtual_server——lvs_server"><strong>virtual_server——lvs_server</strong></h4><p>&emsp;结合LVS使用。先大致列举一下配置，以后会专门写篇博客记录Keepalived和LVS的使用加以详细说明。<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">virtual_server IP Port &#123;</span><br><span class="line">    delay_loop <span class="tag">&lt;<span class="title">INT</span>&gt;</span></span><br><span class="line">    lb_algo rr|wrr|lc|wlc|lblc|sh|dh</span><br><span class="line">    lb_kind NAT|DR|TUN</span><br><span class="line">    persistence_timeout <span class="tag">&lt;<span class="title">INT</span>&gt;</span></span><br><span class="line">    persistence_granularity <span class="tag">&lt;<span class="title">NETMASK</span>&gt;</span></span><br><span class="line">    protocol TCP</span><br><span class="line">    ha_suspend</span><br><span class="line">    virtualhost <span class="tag">&lt;<span class="title">STRING</span>&gt;</span></span><br><span class="line">    alpha</span><br><span class="line">    omega</span><br><span class="line">    quorum <span class="tag">&lt;<span class="title">INT</span>&gt;</span></span><br><span class="line">    hysteresis <span class="tag">&lt;<span class="title">INT</span>&gt;</span></span><br><span class="line">    quorum_up <span class="tag">&lt;<span class="title">STRING</span>&gt;</span>|<span class="tag">&lt;<span class="title">QUOTED-STRING</span>&gt;</span></span><br><span class="line">    quorum_down <span class="tag">&lt;<span class="title">STRING</span>&gt;</span>|<span class="tag">&lt;<span class="title">QUOTED-STRING</span>&gt;</span></span><br><span class="line">    sorry_server <span class="tag">&lt;<span class="title">IPADDR</span>&gt;</span> <span class="tag">&lt;<span class="title">PORT</span>&gt;</span></span><br><span class="line">    real_server <span class="tag">&lt;<span class="title">IPADDR</span>&gt;</span> <span class="tag">&lt;<span class="title">PORT</span>&gt;</span> &#123;</span><br><span class="line">        weight <span class="tag">&lt;<span class="title">INT</span>&gt;</span></span><br><span class="line">        inhibit_on_failure</span><br><span class="line">        notify_up <span class="tag">&lt;<span class="title">STRING</span>&gt;</span>|<span class="tag">&lt;<span class="title">QUOTED-STRING</span>&gt;</span></span><br><span class="line">        notify_down <span class="tag">&lt;<span class="title">STRING</span>&gt;</span>|<span class="tag">&lt;<span class="title">QUOTED-STRING</span>&gt;</span></span><br><span class="line">        # HTTP_GET|SSL_GET|TCP_CHECK|SMTP_CHECK|MISC_CHECK</span><br><span class="line">        HTTP_GET|SSL_GET &#123;</span><br><span class="line">            url &#123;</span><br><span class="line">                path <span class="tag">&lt;<span class="title">STRING</span>&gt;</span></span><br><span class="line">                # Digest computed with genhash</span><br><span class="line">                digest <span class="tag">&lt;<span class="title">STRING</span>&gt;</span></span><br><span class="line">                status_code <span class="tag">&lt;<span class="title">INT</span>&gt;</span></span><br><span class="line">            &#125;</span><br><span class="line">            connect_port <span class="tag">&lt;<span class="title">PORT</span>&gt;</span></span><br><span class="line">            connect_timeout <span class="tag">&lt;<span class="title">INT</span>&gt;</span></span><br><span class="line">            nb_get_retry <span class="tag">&lt;<span class="title">INT</span>&gt;</span></span><br><span class="line">            delay_before_retry <span class="tag">&lt;<span class="title">INT</span>&gt;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="Keepalived的VRRP选举"><strong>Keepalived的VRRP选举</strong></h2><p>&emsp;Keepalived中的集群角色由<strong><code>priority</code></strong>和<strong><code>weight</code></strong>共同决定<br>&emsp;Keepalived一主多从选举:</p>
+<ol>
+<li><strong><code>priority</code></strong>最大成为master，其余为backup</li>
+<li>master发生故障—-&gt;backup节点间VRRP选举—-&gt;通过<code>priority</code>和<code>weight</code>选出master</li>
+</ol>
+<h3 id="VRRP选举"><strong>VRRP选举</strong></h3><p>&emsp;Keepalived是通过<code>priority</code>和<code>weight</code>选出master，<code>weight</code>可以是正或负，需分情况讨论<br>&emsp;<strong>weight值设定原则：</strong><br>&emsp;&emsp;&emsp;&emsp;<code>weight</code>绝对值大于master和backup的priority之差。<code>abs(weight)</code> &gt; <code>master-priority</code> - <code>backup-priority</code></p>
+<p><strong>weight为正 +</strong></p>
+<ul>
+<li>master vrrp_script 成功时: 若 <code>master-priority</code> + <code>master-weight</code> &gt; <code>backup-priority</code> + <code>backup-weight</code>    则保持现状角色不发生切换</li>
+<li>master vrrp_script <strong>失败</strong>时: 若 <code>master-priority</code> &lt; <code>backup-priority</code> + <code>backup-weight</code>     则<strong>主从切换</strong></li>
+</ul>
+<p><strong>weight为负 -</strong></p>
+<ul>
+<li>master vrrp_script 成功时: 若 <code>master-priority</code> &gt; <code>backup-priority</code>    则保持现状角色不发生切换</li>
+<li>master vrrp_script <strong>失败</strong>时: 若 <code>master-priority</code> - <code>abs(weight)</code> &lt; <code>backup-priority</code>        则<strong>主从切换</strong></li>
+</ul>
+<h2 id="Nginx_+_Keepalived实例"><strong>Nginx + Keepalived实例</strong></h2><p>&emsp;Keepalived 配置完成后<code>ip a</code>查看VIP<br>&emsp;<strong>master配置—-/etc/keepalived/keepalived.conf</strong><br><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File <span class="keyword">for</span> keepalived</span><br><span class="line">global_defs &#123;</span><br><span class="line">   <span class="preprocessor">#notification_email &#123;</span></span><br><span class="line">   <span class="preprocessor">#  fatesai@gmail.com	#报警邮箱</span></span><br><span class="line">   <span class="preprocessor">#&#125;</span></span><br><span class="line">   <span class="preprocessor">#notification_email_from keepalived@10.0.2.15	#发信箱</span></span><br><span class="line">   <span class="preprocessor">#smtp_server 127.0.0.1</span></span><br><span class="line">   <span class="preprocessor">#smtp_connect_timeout 30</span></span><br><span class="line">   <span class="preprocessor">#router_id 10.0.1.152</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vrrp_script check_nginx &#123;</span><br><span class="line">    script <span class="string">"/home/work/script/check_nginx.sh"</span>	<span class="preprocessor">#监控脚本</span></span><br><span class="line">    interval <span class="number">3</span>	<span class="preprocessor">#监控间隔,每3秒监控一次</span></span><br><span class="line">    weight -<span class="number">20</span>	<span class="preprocessor">#权重</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state MASTER</span><br><span class="line">    <span class="class"><span class="keyword">interface</span> <span class="title">eth0</span></span><br><span class="line">    <span class="title">virtual_router_id</span> 51</span><br><span class="line">    <span class="title">priority</span> 100</span><br><span class="line">    <span class="title">advert_int</span> 1</span><br><span class="line">    <span class="title">authentication</span> </span>&#123;</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass <span class="number">1111</span></span><br><span class="line">    &#125;</span><br><span class="line">	track_script &#123;</span><br><span class="line">		check_nginx 	<span class="preprocessor">###执行上面定义的check_nginx</span></span><br><span class="line">	&#125;</span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">		<span class="number">10.0</span><span class="number">.1</span><span class="number">.222</span>	<span class="preprocessor">#VIP</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;<strong>backup配置—-/etc/keepalived/keepalived.conf</strong><br><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">! Configuration File <span class="keyword">for</span> keepalived</span><br><span class="line"></span><br><span class="line">global_defs &#123;</span><br><span class="line">   <span class="preprocessor">#notification_email &#123;</span></span><br><span class="line">   <span class="preprocessor">#	 fatesai@gmail.com	#报警邮箱</span></span><br><span class="line">   <span class="preprocessor">#&#125;</span></span><br><span class="line">   <span class="preprocessor">#notification_email_from keepalived@10.0.2.15	#发信箱</span></span><br><span class="line">   <span class="preprocessor">#smtp_server 127.0.0.1</span></span><br><span class="line">   <span class="preprocessor">#smtp_connect_timeout 30</span></span><br><span class="line">   <span class="preprocessor">#router_id 10.0.1.153</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vrrp_script check_nginx &#123;</span><br><span class="line">    script <span class="string">"/home/work/script/check_nginx.sh"</span>	<span class="preprocessor">#监控脚本</span></span><br><span class="line">    interval <span class="number">3</span>	<span class="preprocessor">#监控间隔,每3秒监控一次</span></span><br><span class="line">    weight -<span class="number">20</span>	<span class="preprocessor">#权重</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    state BACKUP</span><br><span class="line">    <span class="class"><span class="keyword">interface</span> <span class="title">eth0</span></span><br><span class="line">    <span class="title">virtual_router_id</span> 51</span><br><span class="line">    <span class="title">priority</span> 90</span><br><span class="line">    <span class="title">advert_int</span> 1</span><br><span class="line">    <span class="title">authentication</span> </span>&#123;</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass <span class="number">1111</span></span><br><span class="line">    &#125;</span><br><span class="line">	track_script &#123;</span><br><span class="line">		check_nginx 	<span class="preprocessor">###执行上面定义的check_nginx</span></span><br><span class="line">	&#125;</span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">		<span class="number">10.0</span><span class="number">.1</span><span class="number">.222</span>	<span class="preprocessor">#VIP</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="Keepalived非抢占方式"><strong>Keepalived非抢占方式</strong></h2><p>应用场景描述：<br>A-master，B-backup<br>A故障，B接管VIP成为master，业务由A切换至B。<br>当A恢复时，由于A的priority高于B，A接管VIP变回master。业务做了一次无意义切换，为避免此情况发生可以在A上设置<strong>Keepalived非抢占方式</strong></p>
+<p><strong><code>Keepalived非抢占方式配置</code></strong></p>
+<ol>
+<li>A和B的state 都设置为BACKUP</li>
+<li>A的priority比B的priority高</li>
+<li>在A的Keepalived配置文件中添加<code>nopreempt</code>参数</li>
+</ol>
+<figure class="highlight capnproto"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">vrrp_instance VI_1 &#123;</span><br><span class="line">    <span class="comment">#state MASTER</span></span><br><span class="line">    state BACKUP</span><br><span class="line">    nopreempt</span><br><span class="line">    <span class="class"><span class="keyword">interface</span> <span class="title">eth0</span></span><br><span class="line">    virtual_router_id 51</span><br><span class="line">    priority 100 </span><br><span class="line">    advert_int 1</span><br><span class="line">    authentication </span>&#123;</span><br><span class="line">        auth_type PASS</span><br><span class="line">        auth_pass <span class="number">1111</span></span><br><span class="line">    &#125;   </span><br><span class="line">    track_script &#123;</span><br><span class="line">        check_nginx     <span class="comment">###执行上面定义的check_nginx</span></span><br><span class="line">    &#125;   </span><br><span class="line">    virtual_ipaddress &#123;</span><br><span class="line">        <span class="number">10.0</span>.<span class="number">1.222</span>  <span class="comment">#VIP</span></span><br><span class="line">    &#125;   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Keepalived非抢占切换过程及注意事项</strong><br>场景配置：<br>A    backup    nopreempt    priority 100    weight -20<br>B    backup                 priority 90     weight -20</p>
+<ul>
+<li><p>正常情况：<br>  A    主    VIP<br>  B    备</p>
+</li>
+<li><p>A宕机/check_nginx失败：<br>  VIP漂移<br>  A    宕<br>  B    主    VIP</p>
+</li>
+<li><p>A恢复/check_nginx恢复：<br>  A设置了nopreempt，非抢占方式，VIP无变化<br>  A    备<br>  B    主    VIP</p>
+</li>
+<li><p>B宕机/check_nginx失败：<br>  由于A设置nopreempt，若B没有宕机(keepalived正常)但check_nginx失败，VIP不会漂移!! 必须停止B的keepalived让A接管VIP！否则网站处于不可访问状态！<br>  B的check_nginx失败后，必须停止B的keepalived才能使VIP漂移A成为master！</p>
+</li>
+<li><p>B恢复/check_nginx恢复：<br>  手动启动B的keepalived，B成为备<br>  A    主    VIP<br>  B    备</p>
+</li>
+</ul>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/keepalived/">keepalived</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+					<a href="/2015/09/28/haproxy/" title="HAProxy">&larr; Prev</a>
+				
+
+				
+					<a href="/2015/08/30/openvpn/" title="OpenVPN使用小记">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
