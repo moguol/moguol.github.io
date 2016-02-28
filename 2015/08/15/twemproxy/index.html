@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" Twemproxy简记 | Hexo " />
+	<meta name="twitter:title" content=" Twemproxy简记 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" Twemproxy简记 | Hexo ">
+	<meta property="og:description" content=" Twemproxy简记 | Hexo " />
+	<meta name="twitter:description" content=" Twemproxy简记 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2015/08/15/twemproxy/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2015-08-15">2015-08-15</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/OPS/">OPS</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2015/08/15/twemproxy/" itemprop="url"><span itemprop="name">Twemproxy简记</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<p>&emsp;Twemproxy是Twitter开源的Redis/Memcache代理软件。</p>
+<h2 id="基础环境"><strong>基础环境</strong></h2><ul>
+<li>CentOS 6.4 64bit</li>
+<li>Twemproxy 0.4.1</li>
+<li>Redis 2.8.24</li>
+</ul>
+<h2 id="安装Twemproxy"><strong>安装Twemproxy</strong></h2><ul>
+<li><p><strong>安装依赖</strong></p>
+  <figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; yum -y <span class="keyword">install</span> libtool</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>安装autoconf</strong><br>  <strong>autoconf</strong>的版本必须在<strong><code>2.6.4</code></strong>以上</p>
+  <figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> wget http:<span class="comment">//ftp.gnu.org/gnu/autoconf/autoconf-2.68.tar.gz</span></span><br><span class="line"><span class="variable">$&gt;</span> tar -zxf autoconf-<span class="number">2.68</span>.tar.gz</span><br><span class="line"><span class="variable">$&gt;</span> cd autoconf-<span class="number">2.68</span></span><br><span class="line"><span class="variable">$&gt;</span> ./configure --prefix=/usr/local/</span><br><span class="line"><span class="variable">$&gt;</span> make &amp;&amp; make install</span><br><span class="line"></span><br><span class="line"><span class="variable">$&gt;</span> autoconf -V</span><br><span class="line">autoconf (GNU Autoconf) <span class="number">2.68</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>安装Twemproxy</strong><br>  &emsp;如果需要twemproxy支持<code>redis_auth</code>则要选择<code>0.4.1</code>版本，若redis没有设置认证则并非必须使用<code>0.4.1</code>。<a href="https://drive.google.com/folderview?id=0B6pVMMV5F5dfMUdJV25abllhUWM&amp;usp=drive_web#list" target="_blank" rel="external">下载twemproxy.0.4.1.tar.gz</a> (需要梯子)<br>  &emsp;configure时可以指定debug的log输出级别 “full、log、yes、no”，默认是no。</p>
+  <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">tar -zxf twemproxy.tar.gz</span><br><span class="line"><span class="keyword">cd</span> twemproxy-<span class="number">0.4</span>.<span class="number">1</span>/</span><br><span class="line">autoreconf -fvi</span><br><span class="line">./configure --prefix=/usr/local/twemproxy --enable-<span class="keyword">debug</span>=<span class="built_in">log</span></span><br><span class="line"><span class="keyword">make</span> &amp;&amp; <span class="keyword">make</span> install</span><br><span class="line"></span><br><span class="line">/usr/local/twemproxy/sbin/nutcracker --<span class="keyword">version</span></span><br><span class="line">This <span class="keyword">is</span> nutcracker-<span class="number">0.4</span>.<span class="number">1</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="配置Twemproxy"><strong>配置Twemproxy</strong></h2><p>&emsp;<strong><code>/usr/local/twemproxy/conf/nutcracker.yml</code></strong><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">web_redis:</span><br><span class="line">  listen: <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">22122</span></span><br><span class="line">  <span class="built_in">hash</span>: fnv1a_64</span><br><span class="line">  <span class="built_in">hash</span>_tag: <span class="string">"&#123;&#125;"</span></span><br><span class="line">  distribution: ketama</span><br><span class="line">  auto_eject_hosts: <span class="literal">true</span></span><br><span class="line">  redis: <span class="literal">true</span></span><br><span class="line">  redis_auth: redis_password</span><br><span class="line">  server_retry_timeout: <span class="number">3000</span></span><br><span class="line">  server_failure_<span class="built_in">limit</span>: <span class="number">1</span></span><br><span class="line">  servers:</span><br><span class="line">   - <span class="number">10.0</span>.<span class="number">6.5</span>:<span class="number">6379</span>:<span class="number">1</span></span><br><span class="line">   - <span class="number">10.0</span>.<span class="number">6.6</span>:<span class="number">6379</span>:<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>web_redis：实例别名</li>
+<li>listen：监听ip及端口</li>
+<li>hash：hash算法<ul>
+<li>one_at_a_time</li>
+<li>md5</li>
+<li>crc16</li>
+<li>crc32 (crc32 implementation compatible with libmemcached)</li>
+<li>crc32a (correct crc32 implementation as per the spec)</li>
+<li>fnv1_64</li>
+<li>fnv1a_64</li>
+<li>fnv1_32</li>
+<li>fnv1a_32</li>
+<li>hsieh</li>
+<li>murmur</li>
+<li>jenkins</li>
+</ul>
+</li>
+<li>hash_tag: 使用key的一部分作为键值，比如：”user:{user1}:ids”、”user:{user1}:tweets”使用<code>user1</code>作为hash会映射到同一台redis上</li>
+<li>distribution: 分片算法<ul>
+<li>ketama：一致性Hash。据服务器构造出一个hash ring，并为ring上的节点分配hash范围。ketama的优势在于单个节点添加、删除之后，会最大程度上保持整个群集中缓存的key值可以被重用。</li>
+<li>modula：取模。据key值的hash值取模，根据取模的结果选择对应的服务器。</li>
+<li>random：随机。无论key值的hash是什么，都随机的选择一个服务器作为key值操作的目标。这种分片适合只读缓存。</li>
+</ul>
+</li>
+<li>auto_eject_hosts: twemproxy是否应该根据server的连接状态重建群集。连接状态是由server_failure_limit阀值来控制。 默认是false。 （是否在节点故障无法响应时自动摘除该节点，如果作为存储需要设置为为false）</li>
+<li>redis: 是否是redis代理，如果是false则是memcached代理。</li>
+<li>redis_auth:　后端redis若需要认证则需此选项。</li>
+<li>server_retry_timeout：单位是毫秒，控制服务器连接的时间间隔（重新连接一个临时摘掉的故障节点的间隔），在auto_eject_host被设置为true的时候产生作用。默认是30000 毫秒。</li>
+<li>server_failure_limit: 控制连接服务器的次数（节点故障无法响应多少次从一致性Hash环临时摘掉它），在auto_eject_host被设置为true的时候产生作用。默认是2。</li>
+<li>servers: 代理的服务器列表，该列表会使用distribution配置的分片算法进行分片。</li>
+</ul>
+<h2 id="启动Twemproxy"><strong>启动Twemproxy</strong></h2><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 测试配置文件</span><br><span class="line"><span class="regexp">/usr/</span>local<span class="regexp">/twemproxy/</span>sbin<span class="regexp">/nutcracker -t /u</span>sr<span class="regexp">/local/</span>twemproxy<span class="regexp">/conf/</span>nutcracker.yml</span><br><span class="line"></span><br><span class="line"># 启动Twemproxy</span><br><span class="line"><span class="regexp">/usr/</span>local<span class="regexp">/twemproxy/</span>sbin<span class="regexp">/nutcracker -d -c /u</span>sr<span class="regexp">/local/</span>twemproxy<span class="regexp">/conf/</span>nutcracker.yml -p <span class="regexp">/usr/</span>local<span class="regexp">/twemproxy/</span>run<span class="regexp">/twemproxy.pid -o /u</span>sr<span class="regexp">/local/</span>twemproxy<span class="regexp">/run/</span>twemproxy.log</span><br></pre></td></tr></table></figure>
+<h2 id="测试Twemproxy"><strong>测试Twemproxy</strong></h2><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> /usr/local/redis/bin/redis-cli -p <span class="number">22122</span> -a redis_password</span><br><span class="line"></span><br><span class="line"><span class="prompt">127.0.0.1:22122&gt;</span> set name mogl</span><br><span class="line"><span class="constant">OK</span></span><br><span class="line"><span class="prompt">127.0.0.1:22122&gt;</span> get name</span><br><span class="line"><span class="string">"mogl"</span></span><br><span class="line"><span class="prompt">127.0.0.1:22122&gt;</span></span><br></pre></td></tr></table></figure>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/twemproxy/">twemproxy</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+					<a href="/2015/08/30/openvpn/" title="OpenVPN使用小记">&larr; Prev</a>
+				
+
+				
+					<a href="/2015/07/30/review-tcp-ip-4/" title="重读《TCP/IP详解卷一》之UDP及DNS">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
