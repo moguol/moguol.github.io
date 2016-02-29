@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" EFK自动化实践记录 | Hexo " />
+	<meta name="twitter:title" content=" EFK自动化实践记录 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" EFK自动化实践记录 | Hexo ">
+	<meta property="og:description" content=" EFK自动化实践记录 | Hexo " />
+	<meta name="twitter:description" content=" EFK自动化实践记录 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2015/12/29/auto-EFK/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2015-12-29">2015-12-29</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/OPS/">OPS</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2015/12/29/auto-EFK/" itemprop="url"><span itemprop="name">EFK自动化实践记录</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<p>&emsp;自从使用EFK(Elasticsearch/Fluentd/Kibana)日志系统对各项目的日志进行采集、分析及可视化展示后，逐渐发现添加配置是件繁琐的事情。于是构想对从添加配置到可视化过程中可自动化的部分，初步针对以下方面进行自动化减轻工作负担，让日志的采集、分析和可视化更轻松方便：</p>
+<ol>
+<li>自动添加Fluentd配置<br> &emsp;日志需要采集则需要在日志生成端对Fluentd进行配置，并且汇聚端同样需要添加相关的Fluentd配置。手动添加既繁琐又容易出错，所以这部分需要交由程序完成。</li>
+<li>自动添加Kibana图表<br> &emsp;Fluentd采集日志存入Elasticsearch后，要在Kibana上可视化则需要添加各种图表，添加完图表后还需要添加Dashboard将图表统一添加进Dashboard方便查看。这个过程只是添加一个项目就已经比较繁琐，若需要同时添加多个项目则需要浪费很多时间进行添加图表及Dashboard。这部分是必须自动完成的，手动操作过于耗时耗力。</li>
+</ol>
+<p>&emsp;针对以上两点，主要通过<code>Shell</code>及<code>Python</code>程序完成自动添加Fluentd配置和Kibana图表的工作，简要流程如下：</p>
+<ul>
+<li>在Fluentd汇聚端使用<code>Flask</code>Python框架写接口，负责接收传递过来的参数并调用<code>Shell</code>脚本添加Fluentd汇聚端配置及添加Kibana图表。</li>
+<li>在日志生成端利用<code>Shell</code>脚本获取输入参数，将参数组合成<code>JSON</code>格式并<code>POST</code>提交给<code>Flask</code>接口。</li>
+</ul>
+<h3 id="自动添加Fluentd配置"><strong>自动添加Fluentd配置</strong></h3><ul>
+<li>日志生成端获取配置Fluentd的<strong><code>tag</code></strong>，组合成<code>JSON</code>格式后<code>POST</code>提交到<code>Python</code>接口</li>
+<li><code>Python</code>接口接收<strong><code>tag</code></strong>，调用本地脚本添加汇聚端Fluentd配置。检查Fluentd配置是否正确、重新加载配置文件、返回结果<code>code</code>给客户端脚本</li>
+<li>判断服务端返回结果<code>code</code>，成功则添加客户端Fluentd配置</li>
+</ul>
+<p>客户端脚本部分代码：</p>
+<p>&emsp;因为Elasticsearch的<strong>Indices名不能存在大写字母</strong>，所以统一所有<strong>tag</strong>的字母均为小写字母<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">read</span> -p <span class="string">"请输入tag(字母必须小写且不包含空格): "</span> FLUENTD_TAG_TMP</span><br><span class="line"><span class="built_in">read</span> -p <span class="string">"请输入日志路径: "</span> LOG_PATH</span><br><span class="line"></span><br><span class="line">FLUENTD_TAG=<span class="string">"`echo <span class="variable">$FLUENTD_TAG_TMP</span>|awk '&#123;gsub(/ +/,"</span>_<span class="string">",<span class="variable">$0</span>);print tolower(<span class="variable">$0</span>)&#125;'`"</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;调用<code>Python</code>接口，<code>POST</code>请求接口将数据以<code>JSON</code>格式提交，添加服务端Fluentd配置<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"调用服务端接口添加配置文件......"</span></span><br><span class="line">FLUENTD_RESULT=<span class="string">"`curl -s -X POST -H "</span>Content-Type: application/json<span class="string">" -d '&#123;"</span>auth_key<span class="string">":"</span><span class="string">'$AUTH_KEY'</span><span class="string">", "</span>fluentd_tag<span class="string">":"</span><span class="string">'$FLUENTD_TAG'</span><span class="string">", "</span>action_<span class="built_in">type</span><span class="string">":0&#125;' <span class="variable">$POST_URL</span>`"</span></span><br><span class="line"><span class="keyword">case</span> <span class="string">"<span class="variable">$FLUENTD_RESULT</span>"</span> <span class="keyword">in</span></span><br><span class="line">	<span class="number">0</span>)</span><br><span class="line">		<span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"\033[0;40;31m服务端添加配置成功\033[0m"</span></span><br><span class="line">		AddFluentdConfig</span><br><span class="line">		ReloadFluentd</span><br><span class="line">		CallKibanaAPI</span><br><span class="line">		;;</span><br><span class="line">	<span class="number">1</span>)</span><br><span class="line">		<span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"\033[0;40;31m认证失败\033[0m"</span></span><br><span class="line">		<span class="built_in">exit</span> <span class="number">6</span></span><br><span class="line">		;;</span><br><span class="line">	<span class="number">2</span>)</span><br><span class="line">		<span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"\033[0;40;31m服务端配置文件已存在\033[0m"</span></span><br><span class="line">		<span class="built_in">read</span> -p <span class="string">"是否继续添加客户端配置(y/n): "</span> FLAG</span><br><span class="line">		<span class="keyword">if</span> [[ <span class="variable">$FLAG</span> == <span class="string">'y'</span> ]]; <span class="keyword">then</span></span><br><span class="line">			AddFluentdConfig</span><br><span class="line">			ReloadFluentd</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">			<span class="built_in">exit</span> <span class="number">7</span></span><br><span class="line">		<span class="keyword">fi</span></span><br><span class="line">		;;</span><br><span class="line">	<span class="number">3</span>)</span><br><span class="line">		<span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"\033[0;40;31m服务端配置文件发现错误，请手动检查服务端配置\033[0m"</span></span><br><span class="line">		<span class="built_in">exit</span> <span class="number">8</span></span><br><span class="line">		;;</span><br><span class="line">	<span class="number">4</span>)</span><br><span class="line">		<span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"\033[0;40;31mPOST参数错误\033[0m"</span></span><br><span class="line">		<span class="built_in">exit</span> <span class="number">9</span></span><br><span class="line">		;;</span><br><span class="line">	*)</span><br><span class="line">		<span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"\033[0;40;31mError: <span class="variable">$FLUENTD_RESULT</span>.\033[0m"</span></span><br><span class="line">		<span class="built_in">exit</span> <span class="number">10</span></span><br><span class="line">		;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;<code>Python</code>接口接收参数，调用本地脚本添加服务端Fluentd配置<br>&emsp;<code>Python</code>接口使用<code>Flask</code>轻量框架，以守护进程方式运行<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AutoEFKDaemon</span><span class="params">(Daemon)</span>:</span></span><br><span class="line">    <span class="string">"""自动添加Fluentd/Kibana配置"""</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">run</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""overwrite class Daemon's function run()"""</span></span><br><span class="line">        app = Flask(__name__)</span><br><span class="line"></span><br><span class="line">        <span class="decorator">@app.route('/autoEFK', methods=['POST'])</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">autoAddEFKConfig</span><span class="params">()</span>:</span></span><br><span class="line">            <span class="string">"""添加Fluentd配置 &amp; 调用Elasticsearch接口使Kibana画图"""</span></span><br><span class="line">            <span class="comment">#接收POST参数。action_type=0 添加Fluentd；action_type=1 Kibana绘图</span></span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                auth_key = request.json[<span class="string">'auth_key'</span>]</span><br><span class="line">                fluentd_tag = request.json[<span class="string">'fluentd_tag'</span>]</span><br><span class="line">                action_type = int(request.json[<span class="string">'action_type'</span>])</span><br><span class="line">            <span class="keyword">except</span> Exception:</span><br><span class="line">                <span class="keyword">return</span> str(<span class="number">4</span>)</span><br><span class="line">            fluentd_bash_script = os.path.join(sys.path[<span class="number">0</span>], <span class="string">'script/autoAddFluentd.sh'</span>)</span><br><span class="line">            kibana_bash_script = os.path.join(sys.path[<span class="number">0</span>], <span class="string">'script/autoAddKibana.sh'</span>)</span><br><span class="line">            <span class="comment">#简单验证</span></span><br><span class="line">            <span class="keyword">if</span> auth_key != <span class="string">'HVlbnRkCg=='</span>:</span><br><span class="line">                <span class="keyword">return</span> str(<span class="number">1</span>)</span><br><span class="line">            <span class="comment">#调用Fluentd shell脚本</span></span><br><span class="line">            <span class="keyword">if</span> action_type == <span class="number">0</span>:</span><br><span class="line">                shellReslulCode = subprocess.call([<span class="string">'bash'</span>, fluentd_bash_script, fluentd_tag])</span><br><span class="line">                <span class="keyword">return</span> str(shellReslulCode)</span><br><span class="line">            <span class="keyword">elif</span> action_type == <span class="number">1</span>:</span><br><span class="line">                shellReslulCode = subprocess.call([<span class="string">'bash'</span>, kibana_bash_script, fluentd_tag])</span><br><span class="line">                <span class="keyword">return</span> str(shellReslulCode)</span><br><span class="line"></span><br><span class="line">        app.run(host=<span class="string">'0.0.0.0'</span>, port=<span class="number">23333</span>)</span><br></pre></td></tr></table></figure></p>
+<h3 id="Kibana自动绘图"><strong>Kibana自动绘图</strong></h3><p>&emsp;Kibana自身并不提供API，所以想要通过程序使得Kibana自动绘图则需要通过调用Elasticsearch的API。因为Kibana使用Elasticsearch的index来存储<code>Visualizations</code>和<code>Dashboard</code>等信息，在Kibana的配置文件中有相关配置。该index目录在Elasticsearch的indices目录下，默认的目录名称为<strong><code>.kibana</code></strong>。</p>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$&gt; vim /usr/local/kibana/config/kibana.yml</span><br><span class="line"></span><br><span class="line"># Kibana <span class="keyword">uses</span> an <span class="keyword">index</span> <span class="keyword">in</span> Elasticsearch <span class="keyword">to</span> store saved searches, visualizations</span><br><span class="line"># <span class="keyword">and</span> dashboards. It will <span class="keyword">create</span> a <span class="keyword">new</span> <span class="keyword">index</span> <span class="keyword">if</span> it doesn<span class="string">'t already exist.</span><br><span class="line">kibana_index: ".kibana"</span><br><span class="line"></span><br><span class="line">$&gt; ls -ltha /data/elasticsearch/nodes/0/indices/</span><br><span class="line">drwxr-xr-x.  8 root root 4.0K 11月 27 09:12 logstash-2015.11.27</span><br><span class="line">drwxr-xr-x.  8 root root 4.0K 11月 26 09:00 logstash-2015.11.26</span><br><span class="line">drwxr-xr-x.  4 root root 4.0K 11月 23 10:42 .kibana</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;可以通过Elasticsearch的API查看及创建Kibana相关数据。有关Kibana最重要的数据有：<strong><code>index-pattern</code></strong>、<strong><code>visualization</code></strong>和<strong><code>dashboard</code></strong>。通过curl可直接查看相关数据<br><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#查看所有不同类型的数据</span><br><span class="line">curl -XGET 'http:<span class="comment">//localhost:9200/.kibana/_search?type=index-pattern&amp;pretty'</span></span><br><span class="line">curl -XGET 'http:<span class="comment">//localhost:9200/.kibana/_search?type=visualization&amp;pretty'</span></span><br><span class="line">curl -XGET 'http:<span class="comment">//localhost:9200/.kibana/_search?type=dashboard&amp;pretty'</span></span><br><span class="line"></span><br><span class="line">#查看具体类型下具体实例的数据</span><br><span class="line">curl -XGET 'http:<span class="comment">//localhost:9200/.kibana/index-pattern/your_index-pattern_name?pretty'</span></span><br><span class="line">curl -XGET 'http:<span class="comment">//localhost:9200/.kibana/visualization/your_visualization_name?pretty'</span></span><br><span class="line">curl -XGET 'http:<span class="comment">//localhost:9200/.kibana/dashboard/your_dashboard_name?pretty'</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;查看名为<strong><code>logstash-*</code></strong>的<strong>index-pattern</strong>数据<br><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$&gt; curl -XGET 'http:<span class="comment">//localhost:9200/.kibana/index-pattern/logstash-*?pretty'</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"_index"</span> : <span class="string">".kibana"</span>,</span><br><span class="line">  <span class="string">"_type"</span> : <span class="string">"index-pattern"</span>,</span><br><span class="line">  <span class="string">"_id"</span> : <span class="string">"logstash-*"</span>,</span><br><span class="line">  <span class="string">"_version"</span> : <span class="number">15</span>,</span><br><span class="line">  <span class="string">"found"</span> : true,</span><br><span class="line">  <span class="string">"_source"</span>:&#123;<span class="string">"title"</span>:<span class="string">"logstash-*"</span>,<span class="string">"timeFieldName"</span>:<span class="string">"@timestamp"</span>,<span class="string">"fields"</span>:<span class="string">"[&#123;\"</span>name\<span class="string">":\"</span>_index\<span class="string">",\"</span>type\<span class="string">":\"</span>string\<span class="string">",\"</span>count\<span class="string">":0,\"</span>scripted\<span class="string">":false,\"</span>indexed\<span class="string">":false,\"</span>analyzed\<span class="string">":false,\"</span>doc_values\<span class="string">":false&#125;,......&#125;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;假如请求一个并不存在的index-pattern，则会返回如下信息<strong><code>&quot;found&quot; : false</code></strong>，可用于判断数据是否已存在于Kibana中。<br><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$&gt; curl -XGET 'http:<span class="comment">//localhost:9200/.kibana/index-pattern/test*?pretty'</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"_index"</span> : <span class="string">".kibana"</span>,</span><br><span class="line">  <span class="string">"_type"</span> : <span class="string">"index-pattern"</span>,</span><br><span class="line">  <span class="string">"_id"</span> : <span class="string">"test*"</span>,</span><br><span class="line">  <span class="string">"found"</span> : <span class="keyword">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;获得数据格式后便可构造数据，通过程序创建Kibana相关数据。比如需要创建<code>index-pattern</code>数据结构和<strong><code>logstash-*</code></strong> <strong>相同</strong>的新index-pattern，新index-pattern的名称为<code>test*</code>，只需要将<strong>_source</strong>的内容做适当修改并提交给Elasticsearch便可：<br><figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; curl -<span class="type">XPUT</span> 'http://localhost:<span class="number">9200</span>/.kibana/index-pattern/test-*?pretty' -d '&#123;<span class="string">"title"</span>:<span class="string">"test-*"</span>,<span class="string">"timeFieldName"</span>:<span class="string">"@timestamp"</span>,<span class="string">"fields"</span>:<span class="string">"[&#123;\"name\":\"_index\",\"type\":\"string\",\"count\":0,\"scripted\":false,\"indexed\":false,\"analyzed\":false,\"doc_values\":false&#125;,......&#125;'</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;创建<code>visualization</code>和<code>dashboard</code>方法相同。<code>index-pattern</code>、<code>visualization</code>和<code>dashboard</code>之间相互依赖，注意修改数据中相关联的部分即可。<br><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">index</span>-pattern————&gt;visualization————&gt;dashboard</span><br></pre></td></tr></table></figure></p>
+<h2 id="改进"><strong>改进</strong></h2><p>&emsp;目前初步实现利用脚本程序完成日志的采集、分析和可视化流程，但仍有可改进的地方。</p>
+<ol>
+<li>利用SaltStack进行统一的配置管理。若项目增多需要管理的配置文件便会增加，为方便统一管理配置文件需要使用额外的工具进行管理。</li>
+<li>操作的Web界面化。目前只实现运行脚本添加配置，为更进一步方便添加、管理配置，可开发拥有Web界面操作及结合SaltStack的管理系统。</li>
+</ol>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/EFK-ELK/">EFK/ELK</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+
+				
+					<a href="/2015/12/28/EFK/" title="EFK日志系统——Fluentd代替Logstash & GeoIP地图">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
