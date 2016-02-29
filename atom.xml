@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-02-28T13:54:46.000Z</updated>
+  <updated>2016-02-28T13:56:56.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://yoursite.com/2015/12/28/EFK/"/>
     <id>http://yoursite.com/2015/12/28/EFK/</id>
     <published>2015-12-28T13:08:38.000Z</published>
-    <updated>2016-02-28T13:54:46.000Z</updated>
+    <updated>2016-02-28T13:56:56.000Z</updated>
     <content type="html"><![CDATA[<h2 id="安装"><strong>安装</strong></h2><ul>
 <li>Elasticsearch、Kibana详见<a href="https://moguol.github.io/2015/12/21/ELK/" target="_blank" rel="external">Elasticsearch、Kibana安装</a></li>
 <li>Fluentd详见<a href="https://moguol.github.io/2015/12/20/fluentd/" target="_blank" rel="external">Fluentd安装</a></li>
@@ -200,7 +200,7 @@
     <link href="http://yoursite.com/2015/12/12/saltstack/"/>
     <id>http://yoursite.com/2015/12/12/saltstack/</id>
     <published>2015-12-12T04:22:24.000Z</published>
-    <updated>2016-02-27T05:04:10.000Z</updated>
+    <updated>2016-02-29T02:13:25.000Z</updated>
     <content type="html"><![CDATA[<h2 id="SaltStack安装"><strong>SaltStack安装</strong></h2><p>&emsp;各Linux版本安装详见<a href="https://docs.saltstack.com/en/latest/topics/installation/" target="_blank" rel="external">官方安装文档</a>。<br>&emsp;以下都是在<strong><code>CentOS 6.4 64bit</code></strong>系统上进行。</p>
 <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> rpm --import <span class="symbol">https:</span>/<span class="regexp">/repo.saltstack.com/yum</span><span class="regexp">/redhat/</span><span class="number">6</span>/x86_64/latest/<span class="constant">SALTSTACK-GPG-KEY.</span>pub</span><br><span class="line"></span><br><span class="line">/etc/yum.repos.d/saltstack.repo</span><br><span class="line">[saltstack-repo]</span><br><span class="line">name=<span class="constant">SaltStack </span>repo <span class="keyword">for</span> <span class="constant">RHEL/CentOS </span><span class="variable">$releasever</span></span><br><span class="line">baseurl=<span class="symbol">https:</span>/<span class="regexp">/repo.saltstack.com/yum</span><span class="regexp">/redhat/</span><span class="variable">$releasever</span>/<span class="variable">$basearch</span>/latest</span><br><span class="line">enabled=<span class="number">1</span></span><br><span class="line">gpgcheck=<span class="number">1</span></span><br><span class="line">gpgkey=<span class="symbol">https:</span>/<span class="regexp">/repo.saltstack.com/yum</span><span class="regexp">/redhat/</span><span class="variable">$releasever</span>/<span class="variable">$basearch</span>/latest/<span class="constant">SALTSTACK-GPG-KEY.</span>pub</span><br><span class="line"></span><br><span class="line"><span class="comment">#选择需要的安装</span></span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-master</span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-minion</span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-ssh</span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-syndic</span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-cloud</span><br></pre></td></tr></table></figure>
 <h4 id="安装问题集"><strong>安装问题集</strong></h4><ol>
@@ -220,8 +220,8 @@
 </ol>
 <h2 id="SaltStack配置"><strong>SaltStack配置</strong></h2><h4 id="salt-master_配置"><strong>salt-master 配置</strong></h4><p>&emsp;salt-master监听端口：</p>
 <ul>
-<li>4505(publish_port)<br>  salt的消息发布系统</li>
-<li>4506(ret_port)<br>  salt客户端与服务端通信的端口</li>
+<li><strong><code>4505</code></strong>(publish_port)<br>  &emsp;salt的消息发布系统</li>
+<li><strong><code>4506</code></strong>(ret_port)<br>  &emsp;salt客户端与服务端通信的端口</li>
 </ul>
 <p>&emsp;默认配置文件：<strong>/etc/salt/master</strong><br>&emsp;<strong>nodegroups</strong>定义规则：</p>
 <ul>
