@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" Docker笔记 | Hexo " />
+	<meta name="twitter:title" content=" Docker笔记 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" Docker笔记 | Hexo ">
+	<meta property="og:description" content=" Docker笔记 | Hexo " />
+	<meta name="twitter:description" content=" Docker笔记 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2016/02/02/docker/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2016-02-02">2016-02-02</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/OPS/">OPS</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2016/02/02/docker/" itemprop="url"><span itemprop="name">Docker笔记</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<h2 id="安装Docker"><strong>安装Docker</strong></h2><ul>
+<li>系统版本：CentOS 7 64bit</li>
+<li>内核版本：3.10.0-229.el7.x86_64</li>
+<li>Docker版本：docker-1.8.2-10.el7.centos.x86_64</li>
+</ul>
+<p>&emsp;安装Docker<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> yum install docker</span><br><span class="line"></span><br><span class="line"><span class="variable">$&gt;</span> docker -v</span><br><span class="line"><span class="constant">Docker </span>version <span class="number">1.8</span>.<span class="number">2</span>-el7.centos, build a01dc02/<span class="number">1.8</span>.<span class="number">2</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="基础概念"><strong>基础概念</strong></h2><h3 id="镜像(image)"><strong>镜像(image)</strong></h3><ul>
+<li>镜像(image)是容器(container)运行时的只读模板，一个镜像(image)由<strong>多个只读层(read-only layer)</strong>组成。(可借用Photoshop的图层概念方便理解)</li>
+<li>Docker使用<strong>统一文件系统(union file system)</strong>将多个<strong>只读层(read-only layer)</strong>整合成一个独立的文件系统。</li>
+<li>镜像(image)是Docker的<strong>构造</strong>部分。<br><img src="http://7xk64o.com1.z0.glb.clouddn.com/docker_image_layer.png" alt="镜像只读图"><br><a href="http://7xk64o.com1.z0.glb.clouddn.com/docker_image_layer.png" target="_blank" rel="external">图片来源</a></li>
+</ul>
+<h3 id="容器(container)"><strong>容器(container)</strong></h3><ul>
+<li>Docker利用容器(container)来运行应用，容器(container)包含应用运行时所需的所有环境。</li>
+<li>容器(container)是在镜像(image)的基础上创建而来，不同容器(container)间是相互隔离的。</li>
+<li>容器(container) = 镜像(image) + 可读写层(read-write layer)<br>  可读写层位于镜像的上层，是Docker的最上层</li>
+<li>容器(container)中应用的进程对文件进行的创建、修改和删除等操作都是作用于<strong>可读写层(read-write layer)</strong></li>
+<li>容器(container)可<strong>运行</strong>、<strong>开始</strong>、<strong>停止</strong>、<strong>移动</strong>、<strong>删除</strong>。</li>
+<li>容器(container)是Docker的<strong>运行</strong>部分。</li>
+</ul>
+<h3 id="仓库(repository)"><strong>仓库(repository)</strong></h3><ul>
+<li>仓库(repository)为存放镜像(image)的地方。</li>
+<li>仓库(repository)分<strong>公有仓库</strong>和<strong>私有仓库</strong>。目前最大的公有仓库为<a href="https://hub.docker.com/" target="_blank" rel="external">Docker Hub</a></li>
+<li>仓库(repository)是Docker的<strong>分发</strong>部分。</li>
+</ul>
+<h3 id="Namespace"><strong>Namespace</strong></h3><p>&emsp;Namespace是Linux Kernel提供的一种<strong>内核级别</strong>的资源隔离机制。Linux的地址空间分为<strong>user space</strong>和<strong>kernel space</strong>，每个进程在user space中独立拥有自己的地址空间且进程间互相隔离不可知。当进程需要使用到kernel相关的资源时都是通过调用kernel api进入kernel space使用kernel提供的服务(从<strong>用户态</strong>切换到<strong>内核态</strong>)。进程在user space中是相互独立隔离的，但在kernel space则是共享内核资源的，内核中有许多全局共享使用的资源，如IP、路由表、hostname、init进程、PID和GID等等。为了在kernel space中对内核全局资源(IP、PID等)实现隔离，Linux　Kernel提供了Namespace机制。<br>&emsp;<strong>mount namespace</strong>是最早出现的namespace，于2002年开始产生，用于隔离文件系统相关资源。随着container的产生与发展，截止<code>kernel 3.8</code>已存在<strong><code>6</code></strong>个不同类型的namespace，用于隔离不同的内核全局资源。</p>
+<ul>
+<li><strong>UTS Namespace</strong><br>  &emsp;UTS Namespace(UNIX Time-sharing System)，用于隔离hostname和domain name。Docker容器拥有独立的UTS Namespace，默认使用<strong>CONTAINER ID</strong>作为hostname。</li>
+<li><strong>Mount Namespace</strong><br>  &emsp;Mount Namespace通过隔离文件系统挂载点实现隔离文件系统，不同Mount Namespace中的文件结构发生变化互不影响。在创建Mount Namespace时会将当前文件结构复制给新的Mount Namespace，新的Mount Namespace中的所有mount操作仅对此Mount Namespace起作用。</li>
+<li><strong>IPC Namespace</strong><br>  &emsp;IPC Namespace(Inter-Process Communication)，IPC是Linux进程间通信的一种方式，IPC有共享内存、命名管道等方法实现进程间的相互通信。隔离IPC后，只有在同一个IPC Namespace下的进程才能直接通信。</li>
+<li><strong>PID Namespace</strong><br>  &emsp;PID Namespace，主要就用于隔离PID。每个PID Namespace的第一个进程为<code>PID=1</code>，功能和<strong>init进程</strong>一样，比如接管孤儿进程等。<br>  &emsp;Namespace允许嵌套，每个Namespace只能影响自身Namespace和子Namespace。</li>
+<li><strong>Network Namespace</strong><br>  &emsp;Network Namespace，用于网络资源的隔离，如：网络设备、IP、路由表、iptables和端口(socket)等等。</li>
+<li><strong>User Namespace</strong><br>  &emsp;User Namespace，用于隔离UID、GID和秘钥等资源。</li>
+</ul>
+<h3 id="CGroups"><strong>CGroups</strong></h3><p>&emsp;CGroups是Linux Kernel提供的一种限制、记录资源的机制，所限制的资源包括CPU、Memory、IO等等。<br>&emsp;CGroups通过VFS和上层进行交互，CGroups自定义伪文件系统并定义用于限制各资源的文件。CGroups通过挂载伪文件系统，设置、读取用于限制各资源的文件来限制任务对资源的使用。<br>&emsp;CGroups提供<code>4</code>个主要功能：</p>
+<ul>
+<li><strong>Resource Limitation(资源限制)</strong>：例如限制某程序最多能使用的内存空间、只能使用CPU的哪些核心等等。</li>
+<li><strong>Prioritization(优先级分配)</strong>：设置优先级，优先级越高能获得越多的资源。</li>
+<li><strong>Accounting(资源统计)</strong>：统计资源使用量，主要目的用于计费。</li>
+<li><strong>Control(进程控制)</strong>：能对进程组执行挂起、恢复等操作。</li>
+</ul>
+<p>&emsp;CGroups基础概念：</p>
+<ul>
+<li><strong>task(任务)</strong>：表示一个系统进程。每个子系统目录下会有<code>tasks</code>文件(例如memory子系统：<code>/sys/fs/cgroup/memory/tasks</code>)，文件内容为限制的进程PID。</li>
+<li><strong>control group(控制组)</strong>：CGroups对资源的限制以control group(控制组)为单位进行。一个任务加入某control group，表示任务需要按照此control group的限制规则来使用资源。</li>
+<li><strong>subsystem(子系统)</strong>：subsystem(子系统)既资源控制器。不同subsystem(子系统)对不同资源进行限制，目前CGroups有以下subsystem(子系统)<strong><code>/sys/fs/cgroup/</code></strong>：<ul>
+<li>blkio：限制块设备(磁盘、SSD、光盘)的IO。</li>
+<li>cpu：控制task(任务)对CPU的使用。</li>
+<li>cpuacct：自动生成task(任务)使用cpu的报告。</li>
+<li>cpuset：为task(任务)分配独立cpu(多核)和内存。</li>
+<li>devices：控制task(任务)是否允许访问设备。</li>
+<li>memory：控制task(任务)能使用多少内存并自动生成使用报告。</li>
+<li>freezer：挂起或恢复task(任务)</li>
+<li>net_cls：使用classid标记网络数据包</li>
+<li>hugetlb：对HugeTLB系统进行限制</li>
+<li>perf_event：运行task(任务)进行统一性能测试</li>
+</ul>
+</li>
+<li><strong>hierarchy(层级树)</strong>：hierarchy由control group以树状目录结构，每个hierarchy通过绑定对应的subsystem进行资源调度。一个系统可存在多个hierarchy。</li>
+</ul>
+<p>&emsp;关系图如下<br>&emsp;&emsp;整个灰色框是一个<strong>hierarchy</strong><br>&emsp;&emsp;<code>/cpu_mem_cg</code>包含<strong><code>cpu</code></strong>和<strong><code>memory</code></strong>的两个<strong>subsystem</strong>(表明一个hierarchy可包含多个subsystem)<br>&emsp;&emsp;<code>/cg1</code>、<code>/cg2</code>是不同的<strong>control group</strong><br>&emsp;&emsp;<code>/cg1</code>、<code>/cg2</code>目录下会有一个<strong><code>tasks</code></strong>文件，里面存放属于此<strong>control group</strong>的<strong>task</strong>(tasks文件内容为PID)</p>
+<center><br><img src="http://7xk64o.com1.z0.glb.clouddn.com/CGroups-relationships.png" alt="CGroups-relationships"><br><a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Resource_Management_Guide/sec-Relationships_Between_Subsystems_Hierarchies_Control_Groups_and_Tasks.html" target="_blank" rel="external">图片来源</a><br></center>
+
+<h3 id="AUFS"><strong>AUFS</strong></h3><p>&emsp;上面在<strong>镜像(image)</strong>中提到Docker使用<strong>统一文件系统(union file system)</strong>将多个<strong>只读层(read-only layer)</strong>整合成独立的文件系统。更加具体来说Docker是使用一种名为<strong>AUFS(Advance union file system)</strong>的union file system。<strong>UFS</strong>有很多种，比如：aufs、btrfs、vfs和devicemapper等等。简单而言，<strong>UFS</strong>就是将不同路径的目录联合挂载到同一个目录下。<br>&emsp;<strong>AUFS</strong>特性：</p>
+<ul>
+<li>联合<br>  可将多个目录联合挂载到同一个目录下。只显示联合目录内容并不改变源目录。<br>  <strong><code>mount</code></strong>挂载时，越写在前面的目录优先级越高(若多目录中存在相同名称的文件则挂载优先级高目录下的文件)。默认第一个目录权限为<strong><code>rw</code></strong>，之后的目录权限都为<strong><code>ro</code></strong>。</li>
+<li>branch<br>  各个需要被联合(union)的子目录，Docker中也可理解为层(layer)。</li>
+<li>copy on write<br>  若需要对联合目录下的内容做修改时，查找已union的branch中是否存在此文件，若存在则选择<strong>可写(rw)</strong>且优先级最高的branch并将文件copy到此branch后再修改。</li>
+<li>whiteout<br>  用于隐藏下层branch文件。在上层目录创建<strong>.wh.<filename></filename></strong>，可隐藏下层的<filename>文件。</filename></li>
+</ul>
+<p>&emsp;通过具体实例了解<strong>AUFS</strong>：<br>&emsp;由于CentOS 7默认并不支持AUFS而且要安装也比较麻烦(CentOS系列实现分层镜像用的是DeviceMapper技术，Ubuntu使用AUFS实现)，所以实验环境在<strong>Ubuntu 14.04</strong>上进行，Ubuntu默认没安装AUFS，需要先安装<br><figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; sudo apt-<span class="keyword">get</span> install aufs-tools</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;先创建<strong><code>4</code></strong>个目录：<code>ro_a</code>、<code>ro_b</code>、<code>rw_c</code>和<code>union</code>。创建<strong><code>2</code></strong>个文件：<code>ro_a/a.txt</code>、<code>ro_b/b.txt</code></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$&gt; tree</span><br><span class="line">.</span><br><span class="line">├── ro_a</span><br><span class="line">│   └── <span class="tag">a</span><span class="class">.txt</span></span><br><span class="line">├── ro_b</span><br><span class="line">│   └── <span class="tag">b</span><span class="class">.txt</span></span><br><span class="line">├── rw_c</span><br><span class="line">└── union</span><br><span class="line"><span class="number">4</span> directories, <span class="number">2</span> files</span><br></pre></td></tr></table></figure>
+<p>&emsp;将目录<code>rw_c</code>、<code>ro_a</code>和<code>ro_b</code> union mount到<code>union</code>目录。第一个branch为<code>rw_c</code>(可读写)，第二、三分别为<code>ro_a</code>、<code>ro_b</code>(只读)<br>&emsp;成功union mount后在<code>union</code>目录可看到其余目录的文件。<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$&gt; sudo mount -t aufs -o br=rw_c=rw:ro_a=ro:ro_b=ro <span class="attribute">none</span> union</span><br><span class="line"></span><br><span class="line">$&gt; tree</span><br><span class="line">.</span><br><span class="line">├── ro_a</span><br><span class="line">│   └── <span class="tag">a</span><span class="class">.txt</span></span><br><span class="line">├── ro_b</span><br><span class="line">│   └── <span class="tag">b</span><span class="class">.txt</span></span><br><span class="line">├── rw_c</span><br><span class="line">└── union</span><br><span class="line">    ├── <span class="tag">a</span><span class="class">.txt</span></span><br><span class="line">    └── <span class="tag">b</span><span class="class">.txt</span></span><br><span class="line"><span class="number">4</span> directories, <span class="number">4</span> files</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;对union mount后的文件<code>union/b.txt</code>进行修改。AUFS会查找优先级高且可读写的branch进行操作(<code>rw_c</code>)，而且由于<strong>copy on write</strong>特性会将源文件<code>ro_b/b.txt</code>文件copy到<code>rw_c</code>目录下再做修改。<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">$&gt; echo <span class="string">'aufs test'</span> &gt;&gt; union/<span class="tag">b</span><span class="class">.txt</span></span><br><span class="line"></span><br><span class="line">$&gt; tree</span><br><span class="line">.</span><br><span class="line">├── ro_a</span><br><span class="line">│   └── <span class="tag">a</span><span class="class">.txt</span></span><br><span class="line">├── ro_b</span><br><span class="line">│   └── <span class="tag">b</span><span class="class">.txt</span></span><br><span class="line">├── rw_c</span><br><span class="line">│   └── <span class="tag">b</span><span class="class">.txt</span></span><br><span class="line">└── union</span><br><span class="line">    ├── <span class="tag">a</span><span class="class">.txt</span></span><br><span class="line">    └── <span class="tag">b</span><span class="class">.txt</span></span><br><span class="line"><span class="number">4</span> directories, <span class="number">5</span> files</span><br><span class="line"></span><br><span class="line">#源branch保持不变</span><br><span class="line">$&gt; cat ro_b/<span class="tag">b</span><span class="class">.txt</span></span><br><span class="line">ro_b <span class="tag">b</span><span class="class">.txt</span></span><br><span class="line"></span><br><span class="line">#复制ro_b/<span class="tag">b</span>.txt到rw_c/<span class="tag">b</span>.txt并修改</span><br><span class="line">$&gt; cat rw_c/<span class="tag">b</span><span class="class">.txt</span></span><br><span class="line">ro_b <span class="tag">b</span><span class="class">.txt</span></span><br><span class="line">aufs test</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;在<code>rw_c</code>目录创建<strong><code>.wh.a.txt</code></strong>文件用于屏蔽<code>ro_a/a.txt</code><br>&emsp;源目录文件<code>ro_a/a.txt</code>并不会受到任何影响，但在union mount的目录<code>union</code>下会无法看见<code>union/a.txt</code>文件<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$&gt; touch rw_c/<span class="class">.wh</span><span class="class">.a</span><span class="class">.txt</span></span><br><span class="line">$&gt; tree</span><br><span class="line">.</span><br><span class="line">├── ro_a</span><br><span class="line">│   └── <span class="tag">a</span><span class="class">.txt</span></span><br><span class="line">├── ro_b</span><br><span class="line">│   └── <span class="tag">b</span><span class="class">.txt</span></span><br><span class="line">├── rw_c</span><br><span class="line">│   └── <span class="tag">b</span><span class="class">.txt</span></span><br><span class="line">└── union</span><br><span class="line">    └── <span class="tag">b</span><span class="class">.txt</span></span><br><span class="line"><span class="number">4</span> directories, <span class="number">4</span> files</span><br></pre></td></tr></table></figure></p>
+<h3 id="DeviceMapper"><strong>DeviceMapper</strong></h3><p>&emsp;Docker最开始是使用AUFS实现分层镜像，但由于AUFS并没有被接纳入Linux内核主干(被linus拒绝接纳多次)，仅有Ubuntu对AUFS支持导致兼容性差。对于非Ubuntu的系统为了解决此问题，使用了<strong>DeviceMapper</strong>代替AUFS实现分层镜像。<br>&emsp;DeviceMapper有三个重要的基础概念：<strong>Mapped Device</strong>——&gt;<strong>Mapping Table</strong>——&gt;<strong>Target Device</strong></p>
+<ul>
+<li><strong>Mapped Device</strong><br>  映射出的逻辑设备。<strong>Mapped Device</strong>通过<strong>Mapping Table</strong>中的映射关系和<strong>Target Device</strong>建立映射。</li>
+<li><strong>Mapping Table</strong><br>  保存<strong>Mapped Device</strong>逻辑地址的起始及范围、<strong>Target Device</strong>物理设备的地址偏移量及类型等信息。</li>
+<li><strong>Target Device</strong><br>  底层设备。<strong>Target Device</strong>可以是实际的物理块设备，也可以是映射后的<strong>Mapped Device</strong>设备。<br>  DeviceMapper在内核中通过模块化的 Target Driver 插件实现对 IO 请求的过滤或者重新定向等工作，当前已经实现的插件包括软Raid、加密、多路径、镜像、快照等。其中<strong>Thin Provisioning Snapshot</strong>是Docker使用的重要模块。</li>
+</ul>
+<h4 id="Thin_Provisioning"><strong>Thin Provisioning</strong></h4><p>&emsp;Docker使用<strong>Thin Provisioning</strong>的<strong>Snapshot</strong>技术实现分层镜像，从而解决非Ubuntu系列Linux不原生支持AUFS的问题。<br>&emsp;由于<strong>DeviceMapper</strong>的<strong>Thin Provisioning Snapshot</strong>挺复杂且还处于实验阶段，待我再研究清楚后补上。可参考<a href="http://coolshell.cn/articles/17200.html" target="_blank" rel="external">此篇文章</a>做详细了解。</p>
+<h2 id="Docker_镜像(images)"><strong>Docker 镜像(images)</strong></h2><p>&emsp;镜像(image)是Docker的重要构成部分，Docker运行容器(container)时需要本地存在相应的镜像(image)。镜像(image)可自己制作，也可从仓库(repository)中下载。</p>
+<h3 id="获取镜像"><strong>获取镜像</strong></h3><p>&emsp;从Docker Hub上获取<code>CentOS 7</code>的镜像<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动Docker进程</span></span><br><span class="line"><span class="variable">$&gt;</span> systemctl start  docker.service		/	service docker start</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看公有仓库中的镜像</span></span><br><span class="line"><span class="variable">$&gt;</span> docker search centos		/		docker search ubuntu</span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载镜像</span></span><br><span class="line"><span class="variable">$&gt;</span> docker pull docker.io/centos</span><br><span class="line"><span class="variable">$&gt;</span> docker pull ubuntu</span><br></pre></td></tr></table></figure></p>
+<h3 id="删除镜像"><strong>删除镜像</strong></h3><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看镜像</span></span><br><span class="line"><span class="variable">$&gt;</span> docker images</span><br><span class="line"><span class="constant">REPOSITORY </span>         <span class="constant">TAG </span>                <span class="constant">IMAGE ID </span>           <span class="constant">CREATED </span>            <span class="constant">VIRTUAL SIZE</span></span><br><span class="line">docker.io/ubuntu    latest              af88597ec24b        <span class="number">3</span> days ago          <span class="number">187.9</span> <span class="constant">MB</span></span><br><span class="line">docker.io/centos    latest              <span class="number">60</span>e65a8e403<span class="number">0</span>        <span class="number">2</span> weeks ago         <span class="number">196.6</span> <span class="constant">MB</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 根据镜像ID删除镜像</span></span><br><span class="line"><span class="variable">$&gt;</span> docker rmi af88597ec24b</span><br></pre></td></tr></table></figure>
+<h3 id="修改tag"><strong>修改tag</strong></h3><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> docker tag af88597ec24b <span class="symbol">ubuntu:</span><span class="number">14.04</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$&gt;</span> docker images</span><br><span class="line"><span class="constant">REPOSITORY </span>         <span class="constant">TAG </span>                <span class="constant">IMAGE ID </span>           <span class="constant">CREATED </span>            <span class="constant">VIRTUAL SIZE</span></span><br><span class="line">docker.io/ubuntu    latest              af88597ec24b        <span class="number">3</span> days ago          <span class="number">187.9</span> <span class="constant">MB</span></span><br><span class="line">docker.io/centos    latest              <span class="number">60</span>e65a8e403<span class="number">0</span>        <span class="number">2</span> weeks ago         <span class="number">196.6</span> <span class="constant">MB</span></span><br><span class="line">ubuntu              <span class="number">14.04</span>               af88597ec24b        <span class="number">3</span> days ago          <span class="number">187.9</span> <span class="constant">MB</span></span><br></pre></td></tr></table></figure>
+<h3 id="修改/更新镜像"><strong>修改/更新镜像</strong></h3><p>&emsp;在<code>ubuntu14.04</code>镜像上安装vim</p>
+<ul>
+<li><p>启动容器(container)</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker <span class="command">run</span> -ti ubuntu:<span class="number">14.04</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装vim<br>  <code>48febfe7fbd7</code>容器(container)ID，之后<code>commit</code>更新需要用到</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root<span class="variable">@48febfe7fbd7</span><span class="symbol">:/</span><span class="comment"># apt-get install vim</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用commit更新镜像</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker commit -m <span class="string">'install vim'</span> -<span class="tag">a</span> <span class="string">'mogl'</span> <span class="number">48</span>febfe7fbd7 ubuntu:<span class="number">14.04</span><span class="class">.vim</span></span><br><span class="line">eb39a2d496eda77331a6f6efb041473125d40d3f7f51077b100604be3e3cdf39</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>-m</code>：提交信息</li>
+<li><code>-a</code>：更新的用户信息</li>
+<li><code>48febfe7fbd7</code>：容器(container)ID。<code>ID为容器(container)ID而并非镜像(image)ID</code></li>
+<li><code>ubuntu:14.04.vim</code>：tag名称</li>
+</ul>
+</li>
+<li><p>查看修改结果</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker images</span><br><span class="line">REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE</span><br><span class="line">ubuntu              <span class="number">14.04</span><span class="class">.vim</span>           eb39a2d496ed        <span class="number">30</span> seconds ago      <span class="number">231</span> MB</span><br><span class="line">docker.io/ubuntu    latest              af88597ec24b        <span class="number">3</span> days ago          <span class="number">187.9</span> MB</span><br><span class="line">ubuntu              <span class="number">14.04</span>               af88597ec24b        <span class="number">3</span> days ago          <span class="number">187.9</span> MB</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用新镜像</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker <span class="command">run</span> -<span class="keyword">it</span> ubuntu:<span class="number">14.04</span>.vim</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="导出镜像"><strong>导出镜像</strong></h3><p>&emsp;将已有的镜像导出到本地<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker save -o ubuntu14.<span class="number">04</span><span class="class">.vim</span><span class="class">.tar</span> ubuntu:<span class="number">14.04</span>.vim</span><br></pre></td></tr></table></figure></p>
+<h3 id="导入镜像"><strong>导入镜像</strong></h3><p>&emsp;导入使用<code>docker save</code>导出的镜像<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker load &lt; ubuntu14.<span class="number">04</span><span class="class">.vim</span><span class="class">.tar</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="Dockerfile_创建镜像"><strong>Dockerfile 创建镜像</strong></h3><p>&emsp;使用<strong>Dockerfile</strong>创建镜像<br>&emsp;<strong>Dockerfile</strong>一般包含四部分：</p>
+<ul>
+<li>基础镜像</li>
+<li>维护者信息</li>
+<li>镜像操作指令</li>
+<li>容器启动执行命令</li>
+</ul>
+<p>&emsp;<strong>Dockerfile</strong>指令：</p>
+<ul>
+<li>FROM<br>  指定基础镜像，若本地缺少镜像则自动从公有库下载镜像<br>  <code>FROM</code>指定必须是Dockerfile的非注释第一个指令<br>  若<code>FROM</code>没有指定<code>tag</code>，默认使用<strong><code>last</code></strong></li>
+<li>MAINTAINER<br>  维护者信息</li>
+<li>RUN<br>  <code>RUN</code>会在<code>FROM</code>指定的镜像中执行命令，执行完后提交(commit)。<code>docker run image</code>——&gt;<code>RUN command</code>——&gt;<code>docker commit container_id</code><br>  后续<code>RUN</code>都在之前<code>RUN</code>已提交(commit)的镜像基础上进行。<br>  <code>RUN</code>的书写格式分两种：<ul>
+<li><strong><code>RUN command</code></strong>    (此方式运行在<code>/bin/sh -c</code>的shell中)</li>
+<li><strong><code>RUN [&quot;command&quot;, &quot;param1&quot;, &quot;param2&quot;]</code></strong></li>
+</ul>
+</li>
+<li>CMD<br>  在容器(container)启动时添加一个默认命令。<br>  一个Dockerfile只能有一个<code>CMD</code>，若出现多个<code>CMD</code>则只有最后一个生效。<br>  若用户启动容器(container)时指定了运行的命令，则会覆盖掉 CMD 指定的命令。<br>  <code>CMD</code> 和　<code>RUN</code> 区别：<br>  &emsp;<code>CMD</code>只在容器(container)启动时执行，在使用<code>docker build</code>创建镜像时并不会执行。<br>  &emsp;<code>RUN</code>只在<code>docker build</code>创建镜像时执行，一旦创建完镜像，一切与<code>RUN</code>无关。</li>
+<li>EXPOSE<br>  对外映射端口</li>
+<li>ENV<br>  设置环境变量</li>
+<li>ADD<br>  <code>ADD src dest</code><br>  复制<code>src</code>文件到容器<code>dest</code>。<code>src</code>可指定远程文件URLS。</li>
+<li>COPY<br>  和<code>ADD</code>作用相同，但<code>src</code>不能指定远程文件。</li>
+<li>ENTRYPOINT<br>  指定容器(container)启动后执行的命令，并且不可被<code>docker run</code>提供的参数覆盖(<code>CMD</code>可被覆盖)</li>
+<li>VOLUME<br>  创建挂载点</li>
+<li>USER<br>  指定容器(container)运行时的用户/UID(<code>CMD</code>、<code>RUN</code>、<code>ENTRYPOINT</code>使用<code>USER</code>指定的用户运行)</li>
+<li>WORKDIR<br>  指定<code>CMD</code>、<code>RUN</code>、<code>ENTRYPOINT</code>的工作目录</li>
+<li>ONBUILD</li>
+</ul>
+<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">$&gt; mkdir centos7_nginx &amp;&amp; cd centos7_nginx</span><br><span class="line">$&gt; vim Dockerfile</span><br><span class="line"></span><br><span class="line"><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span></span><br><span class="line"><span class="comment"># Dockerfile to build Nginx Installed Containers</span></span><br><span class="line"><span class="comment"># Based on CentOS 7</span></span><br><span class="line"><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span></span><br><span class="line"><span class="comment"># Set the base image to Ubuntu</span></span><br><span class="line">FROM <span class="attribute">centos</span>:<span class="number">7</span></span><br><span class="line"><span class="comment"># File Author / Maintainer</span></span><br><span class="line">MAINTAINER mogl &lt;fatesai<span class="property">@gmail</span>.com&gt;</span><br><span class="line"><span class="comment"># EPEL</span></span><br><span class="line"><span class="comment">#RUN echo "deb http://archive.ubuntu.com/ubuntu/ raring main universe" &gt;&gt; /etc/apt/sources.list</span></span><br><span class="line">RUN mkdir -p <span class="regexp">/home/work/software/</span> &amp;&amp; cd <span class="regexp">/home/work/software/</span></span><br><span class="line">RUN wget <span class="attribute">http</span>:<span class="regexp">//</span>dl.fedoraproject.org/pub/epel/<span class="number">7</span>/x86_64/e/epel-release-<span class="number">7</span>-<span class="number">5.</span>noarch.rpm &amp;&amp; rpm -ivh epel-release-<span class="number">7</span>-<span class="number">5.</span>noarch.rpm</span><br><span class="line"><span class="comment"># Copy script</span></span><br><span class="line">ADD Sysinit7.sh <span class="regexp">/home/work/software/</span></span><br><span class="line"><span class="comment"># Install Nginx</span></span><br><span class="line">RUN echo <span class="string">"C"</span>|bash /home/work/software/Sysinit7.sh &amp;&gt;&gt; /tmp/nginx_install.log</span><br><span class="line"><span class="comment"># Expose ports</span></span><br><span class="line">EXPOSE <span class="number">80</span></span><br><span class="line"><span class="comment"># Set the default command to execute</span></span><br><span class="line"><span class="comment"># when starting a new container</span></span><br><span class="line">ENTRYPOINT /usr/local/nginx/sbin/nginx -t &amp;&gt; /dev/<span class="literal">null</span> &amp;&amp; /usr/local/nginx/sbin/nginx</span><br><span class="line"></span><br><span class="line">$&gt; docker build -t=<span class="string">"centos7:nginx"</span> /root/centos7.nginx</span><br></pre></td></tr></table></figure>
+<h2 id="Docker_容器(container)"><strong>Docker 容器(container)</strong></h2><p>&emsp;容器(container)是应用及应用运行时所需的环境。</p>
+<h3 id="创建并启动容器"><strong>创建并启动容器</strong></h3><p>&emsp;使用<strong><code>docker run</code></strong>创建并启动容器。<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> docker run -ti  <span class="symbol">ubuntu:</span><span class="number">14.04</span> /bin/bash</span><br><span class="line">root<span class="variable">@f4bbade713e0</span><span class="symbol">:/</span><span class="comment">#</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;创建并启动容器(container)，启动Bash终端并运行用户进行交互</p>
+<ul>
+<li><strong><code>-t</code></strong>：分配伪终端</li>
+<li><strong><code>-i</code></strong>：容器标准输入保持打开</li>
+<li><strong><code>f4bbade713e0</code></strong>：容器ID</li>
+</ul>
+<p>&emsp;<strong><code>docker run</code></strong>其实是<strong><code>docker create</code></strong>和<strong><code>docker start</code></strong>的组合，即<code>docker run = docker create + docker start</code>。这一点类似与<strong>Git</strong>中<strong><code>git pull</code></strong>和<strong><code>git fetch</code></strong>、<strong><code>git merge</code></strong>的关系。<br>&emsp;<strong><code>docker run</code></strong>内部流程：</p>
+<ul>
+<li>检查指定的镜像(images)是否存在本地，不存在则<code>docker pull</code>从公有库中下载镜像(images)</li>
+<li><code>docker create</code>使用镜像(images)创建容器(container)，在镜像(images)的只读层(read-only layer)上(镜像栈顶部)添加一层可读写层(read-write layer)</li>
+<li>从宿主机接口桥接虚拟接口到容器(container)中并从地址池分配IP给容器(container)</li>
+<li><code>docker start</code>启动应用进程</li>
+</ul>
+<h3 id="启动已停止容器"><strong>启动已停止容器</strong></h3><p>&emsp;当用<code>docker run</code>创建并启动容器(container)后，退出容器(container)则容器处于<code>Existed</code>状态。可用<strong><code>docker start</code></strong>来启动此容器。</p>
+<ul>
+<li><p>查看退出容器(container)<br>  &emsp;注意<strong>STATUS</strong>，此时为<strong>Existed</strong>状态</p>
+  <figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker ps -l</span><br><span class="line">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES</span><br><span class="line">f4bbade713e0        ubuntu:<span class="number">14.04</span>.vim    <span class="string">"/bin/bash"</span>         <span class="number">46</span> <span class="built_in">seconds</span> ago      Exited (<span class="number">0</span>) <span class="number">2</span> <span class="built_in">seconds</span> ago                       high_brattain</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动已停止容器(container)</p>
+  <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> docker start f4bbade713e<span class="number">0</span></span><br><span class="line">f4bbade713e<span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$&gt;</span> docker ps -l</span><br><span class="line"><span class="constant">CONTAINER ID </span>       <span class="constant">IMAGE </span>              <span class="constant">COMMAND </span>            <span class="constant">CREATED </span>            <span class="constant">STATUS </span>             <span class="constant">PORTS </span>              <span class="constant">NAMES</span></span><br><span class="line">f4bbade713e<span class="number">0</span>        <span class="symbol">ubuntu:</span><span class="number">14.04</span>.vim    <span class="string">"/bin/bash"</span>         <span class="number">23</span> minutes ago      <span class="constant">Up </span><span class="number">24</span> seconds                           high_brattain</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进入启动后的容器(container)</p>
+<ul>
+<li><p><strong><code>docker attach</code></strong><br>  &emsp;使用<strong><code>docker attach</code></strong>命令进入容器(container)，若直接<code>Ctrl + d</code>退出时容器(container)会自动停止(<code>UP</code>——&gt;<code>Existed</code>)。若要退出容器并保持容器运行则需要按<strong><code>Ctrl + p + q</code></strong></p>
+  <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> docker attach f4bbade713e<span class="number">0</span></span><br><span class="line">root<span class="variable">@f4bbade713e0</span><span class="symbol">:/</span><span class="comment">#</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><code>docker exec</code></strong><br>  &emsp;<strong><code>docker exec</code></strong>命令也可进入容器(container)且直接<code>Ctrl + d</code>退出后容器不会停止</p>
+  <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> docker exec -it f4bbade713e<span class="number">0</span> /bin/bash</span><br><span class="line">root<span class="variable">@f4bbade713e0</span><span class="symbol">:/</span><span class="comment">#</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="导出容器"><strong>导出容器</strong></h3><p>&emsp;<strong><code>docker export</code></strong><br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker ps -<span class="tag">a</span></span><br><span class="line">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES</span><br><span class="line">f4bbade713e0        ubuntu:<span class="number">14.04</span><span class="class">.vim</span>    <span class="string">"/bin/bash"</span>         <span class="number">47</span> minutes ago      Exited (<span class="number">0</span>) <span class="number">17</span> minutes ago                       high_brattain</span><br><span class="line">dfc9ce350449        centos:nginx        <span class="string">"/bin/bash"</span>         <span class="number">7</span> hours ago         Exited (<span class="number">0</span>) <span class="number">49</span> minutes ago                       cocky_colden</span><br><span class="line"></span><br><span class="line">$&gt; docker export f4bbade713e0 &gt; ubuntu14.<span class="number">04</span><span class="class">.vim</span><span class="class">.tar</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="导入容器"><strong>导入容器</strong></h3><p>&emsp;<strong><code>docker import</code></strong><br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; cat ubuntu14<span class="number">.04</span>.vim.tar | docker <span class="keyword">import</span> - <span class="string">ubuntu:</span><span class="number">14.04</span>.vim.<span class="keyword">import</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="删除容器"><strong>删除容器</strong></h3><p>&emsp;<strong><code>docker rm</code></strong>(删除镜像是<code>docker rmi</code>)<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker ps -<span class="tag">a</span></span><br><span class="line">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES</span><br><span class="line">f4bbade713e0        ubuntu:<span class="number">14.04</span><span class="class">.vim</span>    <span class="string">"/bin/bash"</span>         <span class="number">47</span> minutes ago      Exited (<span class="number">0</span>) <span class="number">17</span> minutes ago                       high_brattain</span><br><span class="line">dfc9ce350449        centos:nginx        <span class="string">"/bin/bash"</span>         <span class="number">7</span> hours ago         Exited (<span class="number">0</span>) <span class="number">49</span> minutes ago                       cocky_colden</span><br><span class="line"></span><br><span class="line">$&gt; docker rm f4bbade713e0</span><br><span class="line">f4bbade713e0</span><br><span class="line"></span><br><span class="line">$&gt; docker ps -<span class="tag">a</span></span><br><span class="line">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES</span><br><span class="line">dfc9ce350449        centos:nginx        <span class="string">"/bin/bash"</span>         <span class="number">7</span> hours ago         Exited (<span class="number">0</span>) <span class="number">54</span> minutes ago                       cocky_colden</span><br></pre></td></tr></table></figure></p>
+<h2 id="Docker_数据管理"><strong>Docker 数据管理</strong></h2><p>&emsp;Docker管理数据主要有两种方式：</p>
+<ul>
+<li>数据卷（Data volume）</li>
+<li>数据卷容器（Data volume container）</li>
+</ul>
+<h3 id="数据卷(Data_Volume)"><strong>数据卷(Data Volume)</strong></h3><p>&emsp;为了能保存和共享容器(container)间的数据，Docker提出<strong>数据卷(Data Volume)</strong>的概念。</p>
+<ul>
+<li>可绕过统一文件系统(union file system)，数据以文件或目录形式<strong>保存在宿主机文件系统上</strong>，供多个容器(container)之间共享与重用数据。</li>
+<li>对数据卷(Data Volume)的修改立即生效</li>
+<li>更新数据卷(Data Volume)不影响镜像(images)</li>
+<li>数据卷(Data Volume)只要有容器(container)使用就会一直存在</li>
+</ul>
+<h4 id="创建数据卷(Data_Volume)"><strong>创建数据卷(Data Volume)</strong></h4><p>&emsp;创建数据卷(Data Volume)有两种方式：</p>
+<ul>
+<li><p>在Dockerfile中使用<code>VOLUME</code>指定</p>
+  <figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VOLUME /<span class="built_in">path</span>/to/<span class="built_in">dir</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在<code>docker run</code>执行时使用<strong><code>-v</code></strong>参数指定</p>
+<ul>
+<li><p>创建数据卷</p>
+  <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> docker run -it -v /data/docker_volume/ <span class="symbol">ubuntu:</span><span class="number">14.04</span> /bin/bash</span><br><span class="line">root<span class="variable">@24eb5121c1e4</span><span class="symbol">:/</span><span class="comment">#</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取数据卷在宿主机上对于的路径</p>
+  <figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker inspect 24eb5121c1e4</span><br><span class="line"><span class="keyword">...</span> <span class="keyword">...</span></span><br><span class="line">    <span class="string">"Mounts"</span>: [</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="string">"Name"</span>: <span class="string">"ec85ea5ebcf1317001d251030c15d666917862757272fa2998c0b111141917b8"</span>,</span><br><span class="line">			<span class="string">"Source"</span>: <span class="string">"/var/lib/docker/volumes/ec85ea5ebcf1317001d251030c15d666917862757272fa2998c0b111141917b8/_data"</span>,</span><br><span class="line">			<span class="string">"Destination"</span>: <span class="string">"/data/docker_volume"</span>,</span><br><span class="line">			<span class="string">"Driver"</span>: <span class="string">"local"</span>,</span><br><span class="line">			<span class="string">"Mode"</span>: <span class="string">""</span>,</span><br><span class="line">			<span class="string">"RW"</span>: true</span><br><span class="line">		&#125;</span><br><span class="line">	],</span><br><span class="line"><span class="keyword">...</span> <span class="keyword">...</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="挂载宿主目录作为数据卷(Data_Volume)"><strong>挂载宿主目录作为数据卷(Data Volume)</strong></h4><p>&emsp;创建数据卷(Data Volume)后还需要用<code>docker inspect</code>查找对于的宿主目录比较麻烦，直接挂载宿主目录到容器(container)中能方便数据的管理。<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker run -it -v <span class="regexp">/data/</span><span class="string">docker_volume:</span><span class="regexp">/www ubuntu:14.04 /</span>bin/bash</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;将宿主机上的<code>/data/docker_volume</code>目录挂载到容器(container)的<code>/www</code>目录。</p>
+<ul>
+<li>宿主目录必须为<strong>绝对路径</strong></li>
+<li>挂载到容器(container)中的目录(<code>/www</code>)默认为<strong><code>rw</code></strong>。可设置挂载为只读<code>-v /data/docker_volume:/www:ro</code></li>
+</ul>
+<h3 id="数据卷容器(Data_Volume_Container)"><strong>数据卷容器(Data Volume Container)</strong></h3><p>&emsp;数据卷容器(Data Volume Container)，即容器(container)创建了数据卷(Data Volume)，此数据卷(Data Volume)专提供给其他容器(container)进行挂载，数据卷容器常用于容器(container)间共享持续更新数据。</p>
+<h4 id="创建数据卷容器"><strong>创建数据卷容器</strong></h4><p>&emsp;创建一个数据卷容器(Data Volume Container)并命名为<code>dbdata</code>。(数据卷容器完全可不运行，避免浪费资源)<br>    <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker run -v <span class="regexp">/data/</span>dbdata --name dbdata <span class="string">ubuntu:</span><span class="number">14.04</span> echo <span class="string">"Data-only container"</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><code>-v /data/dbdata</code>：创建数据卷(Data Volume)</li>
+<li><code>--name dbdata</code>：命名此容器(container)为<code>dbdata</code></li>
+<li><code>ubuntu:14.04</code>：指定镜像(image)。一般如果用作数据库的话并不会使用系统镜像或最小化镜像(busybox/scratch)，而是直接使用<strong>数据库镜像</strong>。</li>
+<li><code>echo &quot;Data-only container&quot;</code>：指定容器执行的命令。作用有二：其一是容器执行完命令后自动退出，数据卷容器不运行；其二是当使用<code>docker ps -a</code>命令查看容器时方便指定容器的用途</li>
+</ul>
+<h4 id="共享数据卷容器的数据卷"><strong>共享数据卷容器的数据卷</strong></h4><p>&emsp;使用<strong><code>--volumes-from</code></strong>挂载容器(container)中的数据卷(Data Volume)到自身容器(container)中。<br>    <figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker <span class="command">run</span> -<span class="keyword">it</span> -d <span class="comment">--volumes-from dbdata --name db1 centos:7 /bin/bash</span></span><br><span class="line">[root@a29120ba32fa /]<span class="comment"># ll /data/</span></span><br><span class="line">total <span class="number">0</span></span><br><span class="line">drwxr-xr-x. <span class="number">2</span> root root <span class="number">36</span> Jan <span class="number">12</span> <span class="number">07</span>:<span class="number">26</span> dbdata</span><br></pre></td></tr></table></figure></p>
+<h4 id="备份、恢复数据卷"><strong>备份、恢复数据卷</strong></h4><ul>
+<li><p>备份数据卷</p>
+  <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> docker run --rm --volumes-from dbdata -v <span class="variable">$(</span>pwd)<span class="symbol">:/data/backup</span> <span class="symbol">ubuntu:</span><span class="number">14.04</span> tar zcf /data/backup/backup.tar.gz /data/dbdata</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>docker run --rm</code>：创建并运行一个新容器(container)，<strong><code>--rm</code></strong>表示执行完命令后自动删除该容器</li>
+<li><code>--volumes-from dbdata</code>：从名为<strong><code>dbdata</code></strong>的数据卷容器中挂载其数据卷到到新容器上(<code>dbdata</code>数据卷容器上的数据卷为<code>/data/dbdata</code>，就是备份此数据卷)</li>
+<li><code>-v $(pwd):/data/backup</code>：将宿主机上的当前目录<code>$(pwd)</code>挂载到新容器的<code>/data/backup</code>目录</li>
+<li><code>ubuntu:14.04</code>：新容器是基于<code>ubuntu:14.04</code>镜像创建的</li>
+<li><code>tar zcf /data/backup/backup.tar.gz /data/dbdata</code>：将新容器中<code>/data/dbdata</code>数据卷目录进行打包压缩备份成<code>/data/backup/backup.tar.gz</code></li>
+</ul>
+</li>
+<li><p>恢复数据卷<br>  &emsp;创建一个带数据卷的新容器，并将备份的数据卷数据恢复</p>
+  <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> docker run -it -d -v /data/dbdata --name recover_db <span class="symbol">ubuntu:</span><span class="number">14.04</span> /bin/bash</span><br><span class="line"><span class="variable">$&gt;</span> docker run --rm --volumes-from recover_db -v <span class="variable">$(</span>pwd)<span class="symbol">:/data/backup</span> <span class="symbol">ubuntu:</span><span class="number">14.04</span> tar zxf /data/backup/backup.tar.gz -<span class="constant">C </span>/</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="删除数据卷"><strong>删除数据卷</strong></h4><p>&emsp;数据卷只要有容器使用便会一直存在，而且在将用到某数据卷的所有容器删除后数据卷并不会自动被删除。若要彻底删除数据卷必须在删除最后一个还挂载着它的容器时使用<strong><code>docker rm -v</code></strong>命令来指定同时删除关联的容器。<br>&emsp;<code>docker run --rm</code>在执行完命令后会自动删除容器，另外也会取消该容器和数据卷的关系。</p>
+<h2 id="Docker_网络配置"><strong>Docker 网络配置</strong></h2><h3 id="容器互联"><strong>容器互联</strong></h3><p>&emsp;Docker允许容器(container)间相互连接以交换信息。容器互联需要用到容器名称，所以在启动容器时需要使用<strong>—name</strong>参数为容器自定义容器名。<br>&emsp;容器互联使用<strong><code>--link</code></strong>参数建立连接。</p>
+<ul>
+<li><p>创建数据库容器<br>  &emsp;使用数据库镜像创建数据库容器，将新容器命名为<code>db</code></p>
+  <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker <span class="keyword">run</span> -<span class="keyword">d</span> --name <span class="keyword">db</span> docker.io/mysql</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建web应用容器并建立连接<br>  &emsp;<strong><code>--link</code></strong>参数的格式为 <strong><code>--link name:alias</code></strong>，<code>name</code>是要连接容器的名称，<code>alias</code>是此连接的别名。</p>
+  <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker <span class="keyword">run</span> -<span class="keyword">d</span> -P --name web --link <span class="keyword">db</span>:web_to_db ubuntu:14.04</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="Docker_网络模式"><strong>Docker 网络模式</strong></h3><p>&emsp;容器(container)有<strong>4</strong>种网络模式，可在启动容器时通过<strong><code>--net</code></strong>参数指定：<strong><code>docker run --net=network_mode</code></strong></p>
+<ul>
+<li><strong>host模式</strong>：<strong><code>docker run --net=host</code></strong></li>
+<li><strong>container模式</strong>：<strong><code>docker run --net=container:container_name/container_id</code></strong></li>
+<li><strong>bridge模式</strong>：<strong><code>docker run</code></strong>／<strong><code>docker run --net=bridge</code></strong>，bridge模式为默认模式</li>
+<li><strong>none模式</strong>：<strong><code>docker run --net=none</code></strong></li>
+</ul>
+<h4 id="host_模式"><strong>host 模式</strong></h4><p>&emsp;host模式，在容器启动时并不会独立创建<strong>Network Namespace</strong>给容器而是和宿主机共用一个<strong>Network Namespace</strong>。简单来说就是容器并没有一个隔离的网络环境而是使用宿主机的网络环境。host模式中除了网络外其余的资源都是实现隔离的。</p>
+<h4 id="container_模式"><strong>container 模式</strong></h4><p>&emsp;container模式，指定新建的容器和已存在的容器共享一个<strong>Network Namespace</strong>，新建的容器没有自身的网卡和IP而是和指定的容器共享IP和端口范围。container模式中除了网络外其余的资源也是隔离的，两个容器间的进程可通过<strong><code>lo</code></strong>设备通信。</p>
+<h4 id="none_模式"><strong>none 模式</strong></h4><p>&emsp;none模式，容器拥有独立的<strong>Network Namespace</strong>但没有进行任何的网络设置，容器内只有<code>lookback</code>设备，没有网卡、IP和路由等信息。用户可根据需求进行添加和配置。</p>
+<h4 id="bridge_模式"><strong>bridge 模式</strong></h4><p>&emsp;bridge模式，此模式为容器的默认模式。<br>&emsp;当Docker启动时，Docker会在宿主机上创建<strong><code>docker0</code></strong>虚拟接口，并会随机分配一个本地未被占用的私有IP地址(常见地址<code>172.17.42.1/16</code>)。<br>&emsp;当容器(container)启动时，会创建一个<strong><code>veth pair</code></strong>设备，<strong><code>veth pair</code></strong>是<strong>一对</strong>虚拟接口。从一个<code>veth</code>接口发出的数据必会直接到达此接口的<code>peer veth</code>。由于此特性，<strong><code>veth pair</code></strong>常用于连接两个网络接口，两个接口设备之间会形成虚拟链路用于完成数据的进出。Docker创建的<strong><code>veth pair</code></strong>，一端为容器(container)内的网络接口，通常是<code>eth0</code>，<code>eth0</code>的IP与<code>docker0</code>的IP属于同一网段确保通信正常；另一端则在宿主机上并被挂载到<strong><code>docker0</code></strong>设备上，通常为<strong><code>vethxxxxxxx</code></strong>。<br>&emsp;Docker网络设备关系如下图所示，<a href="http://dockerpool.com/static/books/docker_practice/advanced_network/README.html" target="_blank" rel="external">图片来源</a><br><img src="http://7xk64o.com1.z0.glb.clouddn.com/docker_network_interface.png" alt="docker_network_interface.png"></p>
+<p>&emsp;启动两个容器(container)后宿主机上网络设备情况：<br><figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$&gt; ifconfig</span><br><span class="line">docker0: flags=<span class="number">4163</span>&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span class="number">1500</span></span><br><span class="line">        inet <span class="number">172.17</span><span class="number">.42</span><span class="number">.1</span>  netmask <span class="number">255.255</span><span class="number">.0</span><span class="number">.0</span>  broadcast <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line">		<span class="keyword">...</span> <span class="keyword">...</span></span><br><span class="line">enp1s0: flags=<span class="number">4163</span>&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span class="number">1500</span></span><br><span class="line">        inet <span class="number">10.0</span><span class="number">.2</span><span class="number">.222</span>  netmask <span class="number">255.255</span><span class="number">.255</span><span class="number">.0</span>  broadcast <span class="number">10.0</span><span class="number">.2</span><span class="number">.255</span></span><br><span class="line">		<span class="keyword">...</span> <span class="keyword">...</span></span><br><span class="line">lo: flags=<span class="number">73</span>&lt;UP,LOOPBACK,RUNNING&gt;  mtu <span class="number">65536</span></span><br><span class="line">        inet <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>  netmask <span class="number">255.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line">		<span class="keyword">...</span> <span class="keyword">...</span></span><br><span class="line">veth273d670: flags=<span class="number">4163</span>&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span class="number">1500</span></span><br><span class="line">        inet6 fe80::d81b:1aff:fe8c:<span class="number">2850</span>  prefixlen <span class="number">64</span>  scopeid <span class="number">0x20</span>&lt;link&gt;</span><br><span class="line">		<span class="keyword">...</span> <span class="keyword">...</span></span><br><span class="line">veth490482d: flags=<span class="number">4163</span>&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span class="number">1500</span></span><br><span class="line">        inet6 fe80::f880:ebff:fe8c:e5bc  prefixlen <span class="number">64</span>  scopeid <span class="number">0x20</span>&lt;link&gt;</span><br><span class="line">		<span class="keyword">...</span> <span class="keyword">...</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;通过<strong><code>brctl show</code></strong>命令查看挂载在<code>docker0</code>上的<code>veth</code>的设备情况<br><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$&gt; brctl show</span><br><span class="line">bridge <span class="property">name</span>     bridge <span class="property">id</span>               STP enabled     interfaces</span><br><span class="line">docker0         <span class="number">8000.0242809</span>a1ff9       no              veth273d670</span><br><span class="line">                                                                			veth490482d</span><br></pre></td></tr></table></figure></p>
+<h3 id="端口映射"><strong>端口映射</strong></h3><p>&emsp;端口映射用在<strong>bridge模式</strong></p>
+<h4 id="随机端口映射"><strong>随机端口映射</strong></h4><p>&emsp;为了使外部能访问到容器(container)内，需要在宿主机和容器中做端口映射。<br>&emsp;可在启动容器(container)时使用<strong><code>-P</code></strong>参数进行端口映射，<strong><code>-P</code></strong>参数能让Docker随机映射宿主机的<code>49000~49900</code>的某个端口到容器(container)内部开放的端口。<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker <span class="keyword">run</span> -<span class="keyword">d</span> -P ubuntu:14.04 python <span class="keyword">app</span>.py</span><br></pre></td></tr></table></figure></p>
+<h4 id="指定端口映射"><strong>指定端口映射</strong></h4><p>&emsp;<strong><code>-p</code></strong>参数默认映射<code>TCP</code>，若想映射<code>UDP</code>则需指定<strong><code>-p 80:5225/udp</code></strong><br>&emsp;格式：<strong><code>-p hostPort:containerPort</code></strong>、<strong><code>-p ip:hostPort:containerPort</code></strong><br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker run --name nginx -it -d -<span class="tag">p</span> <span class="number">80</span>:<span class="number">5225</span> centos:nginx</span><br><span class="line">$&gt; docker ps -<span class="tag">a</span></span><br><span class="line">CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS                     PORTS                          NAMES</span><br><span class="line"><span class="number">5107099</span>c0d1a        centos:nginx         <span class="string">"/bin/bash"</span>              <span class="number">49</span> minutes ago      Up <span class="number">1</span> seconds               <span class="number">80</span>/tcp, <span class="number">0.0</span>.<span class="number">0.0</span>:<span class="number">80</span>-&gt;<span class="number">5225</span>/tcp   nginx</span><br></pre></td></tr></table></figure></p>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/docker/">docker</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+
+				
+					<a href="/2016/01/06/elasticsearch/" title="Elasticsearch使用小结">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
