@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-02-29T15:05:54.000Z</updated>
+  <updated>2016-03-02T09:14:59.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,11 +15,95 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title><![CDATA[Elasticsearch使用小结]]></title>
+    <link href="http://yoursite.com/2016/01/06/elasticsearch/"/>
+    <id>http://yoursite.com/2016/01/06/elasticsearch/</id>
+    <published>2016-01-06T03:33:00.000Z</published>
+    <updated>2016-03-02T09:14:59.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="Elasticsearch_集群配置"><strong>Elasticsearch 集群配置</strong></h2><p>&emsp;同一个集群中<code>cluster.name</code>相同。Elasticsearch能通过多播发现节点，具有相同<code>cluster.name</code>的Elasticsearch实例自动组成集群，但为了快速发现及避免网络拓扑变化带来的问题，一般会在主节点使用<code>discovery.zen.ping.unicast.hosts</code>指定其他节点。</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$&gt; vim /usr/local/elasticsearch/config/elasticsearch<span class="class">.yml</span></span><br><span class="line"></span><br><span class="line">path<span class="class">.data</span>: /data</span><br><span class="line">path<span class="class">.logs</span>: /var/wwwlog/elasticsearch</span><br><span class="line">path<span class="class">.plugins</span>: /usr/local/elasticsearch/plugins</span><br><span class="line">network<span class="class">.host</span>: <span class="number">0.0</span>.<span class="number">0.0</span></span><br><span class="line">http<span class="class">.port</span>: <span class="number">9200</span></span><br><span class="line">bootstrap<span class="class">.mlockall</span>: true</span><br><span class="line">indices<span class="class">.fielddata</span><span class="class">.cache</span><span class="class">.size</span>: <span class="number">75%</span></span><br><span class="line">indices<span class="class">.breaker</span><span class="class">.fielddata</span><span class="class">.limit</span>: <span class="number">85%</span></span><br><span class="line">threadpool<span class="class">.search</span><span class="class">.queue_size</span>: <span class="number">10000</span></span><br><span class="line"></span><br><span class="line">#集群配置_主节点</span><br><span class="line">cluster<span class="class">.name</span>: elasticsearch_cluster_mogl</span><br><span class="line">node<span class="class">.name</span>: <span class="string">"master_node_10.0.6.6"</span></span><br><span class="line">node<span class="class">.master</span>: true</span><br><span class="line">node<span class="class">.data</span>: true</span><br><span class="line">discovery<span class="class">.zen</span><span class="class">.ping</span><span class="class">.multicast</span><span class="class">.enabled</span>: false</span><br><span class="line">discovery<span class="class">.zen</span><span class="class">.ping</span><span class="class">.unicast</span><span class="class">.hosts</span>: [<span class="string">"10.0.6.5"</span>, <span class="string">"10.0.1.155"</span>]</span><br></pre></td></tr></table></figure>
+<h2 id="Elasticsearch启动_&amp;_停止"><strong>Elasticsearch启动 &amp; 停止</strong></h2><ul>
+<li><p><strong>启动</strong></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/elasticsearch/bin/elasticsearch <span class="operator">-d</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>停止</strong><br>  &emsp;可通过<strong><code>kill</code></strong>命令，也可通过ES的API停止。如果有集群(多于一个节点)，最好通过API停止。</p>
+  <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> kill &lt;<span class="constant">PID&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#集群通过ES的API停止</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#关闭所有节点</span></span><br><span class="line"><span class="variable">$&gt;</span> curl -<span class="constant">XPOST </span>‘<span class="symbol">http:</span>/<span class="regexp">/localhost:9200/</span><span class="constant">_cluster/</span>nodes/<span class="constant">_shutdown’</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#关闭本地节点</span></span><br><span class="line"><span class="variable">$&gt;</span> curl -<span class="constant">XPOST </span><span class="string">'http://localhost:9200/_cluster/nodes/_local/_shutdown'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>集群重启</strong><br>  &emsp;当Elasticsearch需要升级或更改配置时，需要重启Elasticsearch集群。若希望整个集群持续提供服务则需要进行<strong>Rolling restart</strong>逐个节点进行重启，但逐个重启Elasticsearch节点会造成Elasticsearch对分片的重新分配，这样会带来很大的IO和带宽压力而且由于重启的时间会异常漫长(需要重新计算分片等)。因此在使用<strong>Rolling restart</strong>前需要<strong>关闭分片自动分配机制</strong></p>
+<ol>
+<li><p>关闭分片自动分配机制</p>
+ <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl -XPUT 'http:<span class="comment">//localhost:9200/_cluster/settings' -d '&#123;</span></span><br><span class="line">	<span class="string">"transient"</span> : &#123;</span><br><span class="line">		<span class="string">"cluster.routing.allocation.enable"</span> : <span class="string">"none"</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;'</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>集群逐个节点进行操作：停止Elasticsearch、修改配置/升级Elasticsearch、启动Elasticsearch </p>
+</li>
+<li>待所有节点都配置完启动成功后，切记要重新开启分片自动分配机制 <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl -XPUT 'http:<span class="comment">//localhost:9200/_cluster/settings' -d '&#123;</span></span><br><span class="line">	<span class="string">"transient"</span> : &#123;</span><br><span class="line">		<span class="string">"cluster.routing.allocation.enable"</span> : <span class="string">"all"</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;'</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li><p><strong>集群恢复优化</strong><br>  &emsp;若集群由于特殊原因全部停止而需要重新启动时，则需要考虑节点新增时分片的频繁变动导致的问题。需要对集群恢复做优化配置，具体参考<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/important-configuration-changes.html#_recovery_settings" target="_blank" rel="external">此文档</a></p>
+  <figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#每个节点添加配置(假设有10个节点)</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># 集群中的N个节点启动后,才允许进行恢复处理</span></span><br><span class="line">gateway.recover_after_nodes: <span class="number">8</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor"># 设置初始化恢复过程的超时时间,超时时间从上一个配置中配置的N个节点启动后算起</span></span><br><span class="line">gateway.recover_after_time: <span class="number">5</span>m</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">## 设置这个集群中期望有多少个节点.一旦这N个节点启动(并且recover_after_nodes也符合),立即开始恢复过程(不等待recover_after_time超时)</span></span><br><span class="line">gateway.expected_nodes: <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#minimum_master_nodes: 2</span></span><br></pre></td></tr></table></figure>
+<p>  以上配置表示：至少等待8个节点上线。8个节点上线后，等待5分钟，或者10个节点上线后，才进行数据恢复，这取决于哪个条件先达到。</p>
+</li>
+</ul>
+<h2 id="Elasticsearch_API"><strong>Elasticsearch API</strong></h2><ul>
+<li><p><strong>查看集群健康度</strong></p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XGET <span class="string">http:</span><span class="comment">//localhost:9200/_cluster/health?pretty</span></span><br></pre></td></tr></table></figure>
+<p>  &emsp;需要重点关注<strong>status</strong></p>
+<ul>
+<li>green：主分片和副本分片都可用</li>
+<li>yellow：所有主分片可用，副本分片存在异常。当集群节点只有一个时，集群status为yellow，因为只有一个节点副本分片无法分配。</li>
+<li>red：存在不可用的主分片。当Elasticsearch在启动时会检查主分片，有时会因为数据量较大需要较长时间。只需等所有主分片都检测加载且没问题后status会自动变化。在启动Elasticsearch时最好调用命令查看状态，关注集群启动情况。</li>
+</ul>
+</li>
+<li><p><strong>查看所有索引大小及状态</strong><br>  &emsp;查看所有索引的大小和状态(open/close)</p>
+  <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">curl</span> <span class="string">'http://localhost:9200/_cat/indices?bytes=kb'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>删除索引</strong></p>
+  <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> curl -<span class="constant">XDELETE </span><span class="string">'http://localhost:9200/logstash-2015.*'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>插入数据</strong></p>
+  <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$&gt; curl -XPUT 'http:<span class="comment">//localhost:9200/twitter/tweet/1' -d '&#123;</span></span><br><span class="line">	<span class="string">"user"</span> : <span class="string">"kimchy"</span>,</span><br><span class="line">	<span class="string">"post_date"</span> : <span class="string">"2009-11-15T14:12:12"</span>,</span><br><span class="line">	<span class="string">"message"</span> : <span class="string">"trying out Elastic Search"</span></span><br><span class="line">&#125;'</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="Elasticsearch_优化配置"><strong>Elasticsearch 优化配置</strong></h2><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ES_MIN_MEM</span></span><br><span class="line">ES_MAX_MEM</span><br></pre></td></tr></table></figure>
+<p>&emsp;修改文件<strong><code>/usr/local/elasticsearch/bin/elasticsearch.in.sh</code></strong><br>&emsp;内存在32G以内的系统中，尽可能的给大，两个值保持一致。</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">indices<span class="class">.fielddata</span><span class="class">.cache</span><span class="class">.size</span>: <span class="number">75%</span></span><br><span class="line">indices<span class="class">.breaker</span><span class="class">.fielddata</span><span class="class">.limit</span>: <span class="number">85%</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>indices.fielddata.cache.size</strong><br>  设置字段缓存大小。当对字段进行排序或聚合时，会将使用到的字段都加载进内存以提高访问速度。将字段都载入内存非常消耗资源，故应确保<code>fielddata.cache</code>的大小足够大以保证结果能被缓存。ES默认缓存大小为无限大，之所以要设置缓存大小是为了防止缓存数据过大导致OOM。</li>
+<li><strong>indices.breaker.fielddata.limit</strong><br>  限制字段缓存大小。设置此值为了防止查询缓存字段过大。若需要加载到内存的缓存结果大于<code>indices.fielddata.cache.size</code>且小于<code>indices.breaker.fielddata.limit</code>，ES会接受查询并缓存结果。但数据量大于<code>indices.breaker.fielddata.limit</code>ES便会拒绝查询并抛出异常。</li>
+</ul>
+<p>&emsp;<code>indices.breaker.fielddata.limit</code>和<code>indices.breaker.fielddata.limit</code>的关系类似于<code>soft nofile</code>和<code>hard nofile</code>。</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">threadpool<span class="class">.search</span><span class="class">.queue_size</span>: <span class="number">10000</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;控制待处理请求队列大小。当Kibana需要同时查询多个数据或查询数据量比较大时需要增大此值以满足需求。</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bootstrap.<span class="string">mlockall:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;不让JVM写入SWAP，避免降低ES的性能</p>
+<h2 id="Curator"><strong>Curator</strong></h2><p>&emsp;使用<strong>Curator</strong>对旧索引进行close/open/delete。<br>&emsp;对于旧索引使用率不高但占用大量资源，对旧索引进行close或delete有利于优化Elasticsearch集群。</p>
+<ul>
+<li><p><strong>安装</strong></p>
+  <figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip <span class="keyword">install</span> elasticsearch-curator</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>使用</strong></p>
+  <figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">curator</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">timeout</span> <span class="comment">36000</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">host</span> <span class="comment">localhost</span> <span class="comment">close</span> <span class="comment">indices</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">time</span><span class="literal">-</span><span class="comment">unit</span> <span class="comment">days</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">timestring</span> <span class="comment">'%Y</span><span class="string">.</span><span class="comment">%m</span><span class="string">.</span><span class="comment">%d'</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">prefix</span> <span class="comment">test1</span><span class="literal">-</span></span><br><span class="line"><span class="comment">curator</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">timeout</span> <span class="comment">36000</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">host</span> <span class="comment">localhost</span> <span class="comment">close</span> <span class="comment">indices</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">older</span><span class="literal">-</span><span class="comment">than</span> <span class="comment">30</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">time</span><span class="literal">-</span><span class="comment">unit</span> <span class="comment">days</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">timestring</span> <span class="comment">'%Y</span><span class="string">.</span><span class="comment">%m</span><span class="string">.</span><span class="comment">%d'</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">prefix</span> <span class="comment">test2_</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>&emsp;关闭前缀为<code>test1-</code>的所有索引<br>&emsp;关闭前缀为<code>test2_</code>且旧于<code>30</code>天的索引</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="Elasticsearch_集群配置"><strong>Elasticsearch 集群配置</strong></h2><p>&emsp;同一个集群中<code>cluster.name</code>相同。Elasticsearch能通过多播发现节点，具有相同<c]]>
+    </summary>
+    
+      <category term="EFK/ELK" scheme="http://yoursite.com/tags/EFK-ELK/"/>
+    
+      <category term="OPS" scheme="http://yoursite.com/categories/OPS/"/>
+    
+  </entry>
+  
+  <entry>
     <title><![CDATA[ElastAlert]]></title>
     <link href="http://yoursite.com/2016/01/03/elastalert/"/>
     <id>http://yoursite.com/2016/01/03/elastalert/</id>
     <published>2016-01-03T14:24:37.000Z</published>
-    <updated>2016-02-29T15:05:54.000Z</updated>
+    <updated>2016-02-29T15:07:06.000Z</updated>
     <content type="html"><![CDATA[<p>&emsp;使用EFK(Elasticsearch、Fluentd、Kibana)对日志进行收集分析可视化后，希望通过分析日志能从中发现异常并报警。Elasticsearch有提供此功能的产品<a href="https://www.elastic.co/products/watcher" target="_blank" rel="external">Watcher</a>，但需要收费。开源的方案中有<a href="https://github.com/Yelp/elastalert" target="_blank" rel="external">ElastAlert</a>，于是花了点时间实验。经过一段时间使用后，感觉效果并不太好(或许是自己还没有玩透吧)，功能挺全面但配置较麻烦而且误报不少(可能我配置参数没调好吧)，关键是具参考价值高的资料不多(<a href="https://elastalert.readthedocs.org/en/latest/" target="_blank" rel="external">官方文档</a>、<a href="http://engineeringblog.yelp.com/2015/10/elastalert-alerting-at-scale-with-elasticsearch.html" target="_blank" rel="external">开发团队博客</a>)。不过既然试用了，还是简单记录一下备忘。</p>
 <h2 id="安装"><strong>安装</strong></h2><p>&emsp;详细的最新文档参考<a href="https://elastalert.readthedocs.org/en/latest/index.html" target="_blank" rel="external">Elastalert官方文档</a></p>
 <h4 id="环境依赖"><strong>环境依赖</strong></h4><ul>
@@ -1901,28 +1985,6 @@
     </summary>
     
       <category term="tmux" scheme="http://yoursite.com/tags/tmux/"/>
-    
-      <category term="linux" scheme="http://yoursite.com/categories/linux/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[Autossh反向连接]]></title>
-    <link href="http://yoursite.com/2015/05/23/autossh/"/>
-    <id>http://yoursite.com/2015/05/23/autossh/</id>
-    <published>2015-05-23T11:54:39.000Z</published>
-    <updated>2015-05-23T13:19:06.000Z</updated>
-    <content type="html"><![CDATA[<p>&emsp;一般我们管理内网机器常用的方式都是NAT/VPN。SSH对Linux用户来说再熟悉不过了，其实我们可以通过ssh反向连接来管理内网的机器，而autossh顾名思义则是在ssh由于某种原因断开后自动重连的工具。autossh配合ssh反向连接可以很轻松的管理内网机器。(需要一台外网机器)</p>
-<h2 id="autossh安装"><strong>autossh安装</strong></h2><p>&emsp;在内网机器上安装autossh<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install autossh</span><br></pre></td></tr></table></figure></p>
-<h2 id="ssh免密码登录"><strong>ssh免密码登录</strong></h2><p>&emsp;内网机器需要能ssh免密码登录到外网机器，在内网机器上生成公钥并复制到外网主机<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa -P <span class="string">''</span> <span class="operator">-f</span> ~/.ssh/id_rsa</span><br><span class="line">ssh-copy-id -p port user@ip</span><br></pre></td></tr></table></figure></p>
-<h2 id="启动autossh"><strong>启动autossh</strong></h2><p>&emsp;在内网机器上对autossh进行配置<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">autossh -o <span class="string">"StrictHostKeyChecking no"</span> -M <span class="number">8888</span> <span class="operator">-f</span>NR <span class="number">20001</span>:localhost:<span class="number">22</span> user@ip -p port</span><br><span class="line">  -o <span class="string">"StrictHostKeyChecking no"</span>：取消ssh首次连接时的确认</span><br><span class="line">  -M port：autossh通过port端口监控连接状态，若连接有问题则会自动重连(port随意定义)</span><br><span class="line">  <span class="operator">-f</span>：后台运行</span><br><span class="line">  -N：不执行远程命令，仅作端口转发</span><br><span class="line">  -R：绑定映射端口，外网port:localhost:内网port</span><br><span class="line">  user@ip -p port：外网的ssh用户及ssh端口</span><br></pre></td></tr></table></figure></p>
-<h2 id="反向连接"><strong>反向连接</strong></h2><p>&emsp;在外网机器上通过ssh反向连接管理内网机器<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -p <span class="number">20001</span> root@localhost</span><br></pre></td></tr></table></figure></p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>&emsp;一般我们管理内网机器常用的方式都是NAT/VPN。SSH对Linux用户来说再熟悉不过了，其实我们可以通过ssh反向连接来管理内网的机器，而autossh顾名思义则是在ssh由于某种原因断开后自动重连的工具。autossh配合ssh反向连接可以很轻松的管理内网机]]>
-    </summary>
-    
-      <category term="autossh" scheme="http://yoursite.com/tags/autossh/"/>
     
       <category term="linux" scheme="http://yoursite.com/categories/linux/"/>
     
