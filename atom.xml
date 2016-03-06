@@ -1036,6 +1036,138 @@
   </entry>
   
   <entry>
+    <title><![CDATA[LVS笔记]]></title>
+    <link href="http://yoursite.com/2015/09/30/LVS/"/>
+    <id>http://yoursite.com/2015/09/30/LVS/</id>
+    <published>2015-09-30T07:56:41.000Z</published>
+    <updated>2016-03-06T13:04:06.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="安装"><strong>安装</strong></h2><ul>
+<li><p>安装依赖</p>
+  <figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; yum <span class="keyword">install</span> Kernel-devel gcc openssl openssl-devel popt</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看系统是否支持ipvs</p>
+  <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$&gt; modprobe -l|<span class="keyword">grep</span> ipvs</span><br><span class="line">kernel<span class="regexp">/net/</span>netfilter<span class="regexp">/ipvs/i</span>p_vs.ko</span><br><span class="line">kernel<span class="regexp">/net/</span>netfilter<span class="regexp">/ipvs/i</span>p_vs_rr.ko</span><br><span class="line">kernel<span class="regexp">/net/</span>netfilter<span class="regexp">/ipvs/i</span>p_vs_wrr.ko</span><br><span class="line">kernel<span class="regexp">/net/</span>netfilter<span class="regexp">/ipvs/i</span>p_vs_lc.ko</span><br><span class="line">kernel<span class="regexp">/net/</span>netfilter<span class="regexp">/ipvs/i</span>p_vs_wlc.ko</span><br><span class="line">kernel<span class="regexp">/net/</span>netfilter<span class="regexp">/ipvs/i</span>p_vs_lblc.ko</span><br><span class="line">kernel<span class="regexp">/net/</span>netfilter<span class="regexp">/ipvs/i</span>p_vs_lblcr.ko</span><br><span class="line">kernel<span class="regexp">/net/</span>netfilter<span class="regexp">/ipvs/i</span>p_vs_dh.ko</span><br><span class="line">kernel<span class="regexp">/net/</span>netfilter<span class="regexp">/ipvs/i</span>p_vs_sh.ko</span><br><span class="line">kernel<span class="regexp">/net/</span>netfilter<span class="regexp">/ipvs/i</span>p_vs_sed.ko</span><br><span class="line">kernel<span class="regexp">/net/</span>netfilter<span class="regexp">/ipvs/i</span>p_vs_nq.ko</span><br><span class="line">kernel<span class="regexp">/net/</span>netfilter<span class="regexp">/ipvs/i</span>p_vs_ftp.ko</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>YUM安装</p>
+  <figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum <span class="keyword">install</span> ipvsadm</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>检查安装</p>
+  <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> ipvsadm</span><br><span class="line"><span class="constant">IP</span> <span class="constant">Virtual</span> <span class="constant">Server</span> version <span class="number">1.2</span>.<span class="number">1</span> (size=<span class="number">4096</span>)</span><br><span class="line"><span class="constant">Prot</span> <span class="constant">LocalAddress</span><span class="symbol">:Port</span> <span class="constant">Scheduler</span> <span class="constant">Flags</span></span><br><span class="line">  -&gt; <span class="constant">RemoteAddress</span><span class="symbol">:Port</span>           <span class="constant">Forward</span> <span class="constant">Weight</span> <span class="constant">ActiveConn</span> <span class="constant">InActConn</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><code>ipvsadm</code></strong>命令详解</p>
+  <figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">ipvsadm -A|E -t|u|f virutal-service-address:port [-s scheduler] [-p</span><br><span class="line">[timeout]] [-M netmask]</span><br><span class="line">ipvsadm -D -t|u|f virtual-service-address</span><br><span class="line">ipvsadm -C</span><br><span class="line">ipvsadm -R</span><br><span class="line">ipvsadm -S [-n]</span><br><span class="line">ipvsadm -a|e -t|u|f service-address:port -r real-server-address:port</span><br><span class="line">[-g|i|m] [-w weight]</span><br><span class="line">ipvsadm -d -t|u|f service-address -r server-address</span><br><span class="line">ipvsadm -L|l [options]</span><br><span class="line">ipvsadm -Z [-t|u|f service-address]</span><br><span class="line">ipvsadm --set tcp tcpfin udp</span><br><span class="line">ipvsadm --start-daemon state [--mcast-interface interface]</span><br><span class="line">ipvsadm --stop-daemon</span><br><span class="line">ipvsadm -h</span><br><span class="line">命令选项解释：有两种命令选项格式，长的和短的，具有相同的意思。在实际使用时，两种都可以。</span><br><span class="line">-<span class="ruby"><span class="constant">A</span> --add-service 在内核的虚拟服务器表中添加一条新的虚拟服务器记录。也就是增加一台新的虚拟服务器。</span><br><span class="line"></span>-<span class="ruby"><span class="constant">E</span> --edit-service 编辑内核虚拟服务器表中的一条虚拟服务器记录。</span><br><span class="line"></span>-<span class="ruby"><span class="constant">D</span> --delete-service 删除内核虚拟服务器表中的一条虚拟服务器记录。</span><br><span class="line"></span>-<span class="ruby"><span class="constant">C</span> --clear 清除内核虚拟服务器表中的所有记录。</span><br><span class="line"></span>-<span class="ruby"><span class="constant">R</span> --restore 恢复虚拟服务器规则</span><br><span class="line"></span>-<span class="ruby"><span class="constant">S</span> --save 保存虚拟服务器规则，输出为-<span class="constant">R</span> 选项可读的格式</span><br><span class="line"></span>-<span class="ruby">a --add-server 在内核虚拟服务器表的一条记录里添加一条新的真实服务器记录。也就是在一个虚拟服务器中增加一台新的真实服务器</span><br><span class="line"></span>-<span class="ruby">e --edit-server 编辑一条虚拟服务器记录中的某条真实服务器记录</span><br><span class="line"></span>-<span class="ruby">d --delete-server 删除一条虚拟服务器记录中的某条真实服务器记录</span><br><span class="line"></span>-<span class="ruby"><span class="constant">L</span>|-l --list 显示内核虚拟服务器表</span><br><span class="line"></span>-<span class="ruby"><span class="constant">Z</span> --zero 虚拟服务表计数器清零（清空当前的连接数量等）</span><br><span class="line"></span>-<span class="ruby">-set tcp tcpfin udp 设置连接超时值</span><br><span class="line"></span>-<span class="ruby">-start-daemon 启动同步守护进程。他后面可以是master 或backup，用来说明<span class="constant">LVS</span> <span class="constant">Router</span> 是master 或是backup。在这个功能上也可以采用keepalived的<span class="constant">VRRP</span> 功能。</span><br><span class="line"></span>-<span class="ruby">-stop-daemon 停止同步守护进程</span><br><span class="line"></span>-<span class="ruby">h --help 显示帮助信息</span><br><span class="line"></span>其他的选项:</span><br><span class="line">-<span class="ruby">t --tcp-service service-address 说明虚拟服务器提供的是tcp 的服务</span><br><span class="line"></span>[vip:port] or [real-server-ip:port]</span><br><span class="line">-<span class="ruby">u --udp-service service-address 说明虚拟服务器提供的是udp 的服务</span><br><span class="line"></span>[vip:port] or [real-server-ip:port]</span><br><span class="line">-<span class="ruby">f --fwmark-service fwmark 说明是经过iptables 标记过的服务类型。</span><br><span class="line"></span>-<span class="ruby">s --scheduler scheduler 使用的调度算法，有这样几个选项rr|wrr|lc|wlc|lblc|lblcr|dh|sh|sed|nq,默认的调度算法是： wlc.</span><br><span class="line"></span>-<span class="ruby">p --persistent [timeout] 持久稳固的服务。这个选项的意思是来自同一个客户的多次请求，将被同一台真实的服务器处理。timeout 的默认值为<span class="number">300</span> 秒。</span><br><span class="line"></span>-<span class="ruby"><span class="constant">M</span> --netmask netmask persistent granularity mask</span><br><span class="line"></span>-<span class="ruby">r --real-server server-address 真实的服务器[<span class="constant">Real</span>-<span class="constant">Server</span><span class="symbol">:port</span>]</span><br><span class="line"></span>-<span class="ruby">g --gatewaying 指定<span class="constant">LVS</span> 的工作模式为直接路由模式（也是<span class="constant">LVS</span> 默认的模式）</span><br><span class="line"></span>-<span class="ruby">i --ipip 指定<span class="constant">LVS</span> 的工作模式为隧道模式</span><br><span class="line"></span>-<span class="ruby">m --masquerading 指定<span class="constant">LVS</span> 的工作模式为<span class="constant">NAT</span> 模式</span><br><span class="line"></span>-<span class="ruby">w --weight weight 真实服务器的权值，数值越大，权重越高</span><br><span class="line"></span>-<span class="ruby">-mcast-interface interface 指定组播的同步接口</span><br><span class="line"></span>-<span class="ruby">c --connection 显示<span class="constant">LVS</span> 目前的连接 如：ipvsadm -<span class="constant">L</span> -c</span><br><span class="line"></span>-<span class="ruby">-timeout 显示tcp tcpfin udp 的timeout 值 如：ipvsadm -<span class="constant">L</span> --timeout</span><br><span class="line"></span>-<span class="ruby">-daemon 显示同步守护进程状态</span><br><span class="line"></span>-<span class="ruby">-stats 显示统计信息</span><br><span class="line"></span>-<span class="ruby">-rate 显示速率信息</span><br><span class="line"></span>-<span class="ruby">-sort 对虚拟服务器和真实服务器排序输出</span><br><span class="line"></span>-<span class="ruby">-numeric -n 输出<span class="constant">IP</span> 地址和端口的数字形式</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="LVS工作模式"><strong>LVS工作模式</strong></h3><p>&emsp;LVS有<strong><code>3</code></strong>种工作模式：<strong>LVS-NAT</strong>、<strong>LVS-DR</strong>、<strong>LVS-TUN</strong>。下面分别进行说明及配置实例。</p>
+<h2 id="LVS-NAT"><strong>LVS-NAT</strong></h2><p>&emsp;<strong>LVS-NAT</strong>模式客户端将请求数据包VIP，LB将数据包中的目标地址修改成RS中的一台并转发，RS处理完后将数据报回复给LB，LB将回复数据包中的源地址修改成VIP后发送给客户端。所有进出的流量都需要进过LB并进行NAT转发。</p>
+<h3 id="简要工作流程"><strong>简要工作流程</strong></h3><ol>
+<li>client向VIP发送请求(SOURCE：client_ip，DEST：LB_VIP)</li>
+<li>LB接收请求后根据调度算法选择RS，将连接信息记录hash表，修改<code>DEST</code>地址为RS的IP并将请求转发给该RS(SOURCE：client_ip，DEST：RS_IP)</li>
+<li>RS接收请求后，查看目的地址为自身IP于是处理请求，将处理结果回复给LB(SOURCE：RS_IP，DEST：<strong>client_ip</strong>)</li>
+<li>LB接收RS的回复包，将源地址修改为VIP后发送给client(SOURCE：LB_VIP，DEST：client_ip)</li>
+<li>以后此连接后续的请求到达LB时，LB直接查询hash表后直接转发给RS。连接释放或超时后，LB自动将记录从hash表中删除。</li>
+</ol>
+<h3 id="LVS-NAT配置"><strong>LVS-NAT配置</strong></h3><ol>
+<li>LVS-NAT模式只需要在LoadBalance上配置，RealServer并不需要特殊配置只需要将<strong>网关指向LoadBalance</strong>即可<code>route add default gw VIP</code>)</li>
+<li><p>开启ip_forward，关闭ICMP重定向<br>&emsp;NAT模式下，必须打开Load Balancer的ip_forward，关闭ICMP重定向</p>
+<figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#turn OFF icmp redirects (1 on, 0 off)</span></span><br><span class="line">echo <span class="string">"0"</span> &gt;/<span class="keyword">proc</span>/sys/net/ipv4/conf/all/send_redirects</span><br><span class="line">echo <span class="string">"0"</span> &gt;/<span class="keyword">proc</span>/sys/net/ipv4/conf/default/send_redirects</span><br><span class="line">echo <span class="string">"0"</span> &gt;/<span class="keyword">proc</span>/sys/net/ipv4/conf/eth0/send_redirects</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>只有LVS-NAT模式才支持端口转发</p>
+<figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#NAT模式LoadBalance上必须开启IP路由转发</span></span><br><span class="line">echo <span class="number">1</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/ip_forward</span><br><span class="line"></span><br><span class="line"><span class="comment">#-A 新增虚拟服务器(VIP)/-t tcp服务/-s 调度算法(rr|wrr|lc|wlc|lblc|lblcr|dh|sh|sed|nq)</span></span><br><span class="line">ipvsadm -A -t <span class="number">192</span>.<span class="number">168</span>.<span class="number">244</span>.<span class="number">132</span>:<span class="number">80</span> -s rr</span><br><span class="line"></span><br><span class="line"><span class="comment">#-a 添加RealServer服务器/-t tcp服务/-r RealServer服务器IP:Port/-m LVS-NAT模式</span></span><br><span class="line">ipvsadm -a -t <span class="number">192</span>.<span class="number">168</span>.<span class="number">244</span>.<span class="number">132</span>:<span class="number">80</span> -r <span class="number">192</span>.<span class="number">168</span>.<span class="number">27</span>.<span class="number">131</span>:<span class="number">8080</span> -m</span><br><span class="line">ipvsadm -a -t <span class="number">192</span>.<span class="number">168</span>.<span class="number">244</span>.<span class="number">132</span>:<span class="number">80</span> -r <span class="number">192</span>.<span class="number">168</span>.<span class="number">27</span>.<span class="number">130</span>:<span class="number">8080</span> -m</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>若要修改调度算法则</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#修改调度算法</span></span><br><span class="line"><span class="comment">#-E --edit-service 编辑内核虚拟服务器表中的一条虚拟服务器记录。</span></span><br><span class="line"><span class="title">ipvsadm</span> -E -t <span class="number">192.168.244.132:80</span> -s wrr</span><br><span class="line"></span><br><span class="line"><span class="comment">#-e --edit-server 编辑一条虚拟服务器记录中的某条真实服务器记录</span></span><br><span class="line">ipvsadm -e -t <span class="number">192.168.244.132:80</span> -r <span class="number">192.168.27.130:8080</span> -m -w <span class="number">2</span></span><br><span class="line">ipvsadm -e -t <span class="number">192.168.244.132:80</span> -r <span class="number">192.168.27.131:8080</span> -m -w <span class="number">1</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="关于ICMP重定向"><strong>关于ICMP重定向</strong></h4><p>&emsp;当路由器检测到主机使用了非最优路由时，会通过向该主机发送ICMP重定向报文，请求改变主机的路由使其达到最优路由。<br>&emsp;LVS-NAT模式中ICMP重定向之所以会产生个人分析如下(或许会有误)：</p>
+<ol>
+<li>当<strong>简要工作流程</strong>说明中的<code>3</code>、<code>4</code>步骤，当RS处理完请求，回复处理结果给LB(SOURCE：RS_IP，DEST：<strong>client_ip</strong>)</li>
+<li>当LB接收到回复包时，检查发现源和目的地址为<code>SOURCE：RS_IP，DEST：client_ip</code>，判断此回复包并不需要经过LB而只需直接给GateWay即可，于是发送ICMP重定向报文给RS。(ICMP重定向前路由路径：<code>RS——&gt;LB——&gt;GW——&gt;client</code>，LB认为此路由并非最优路由而应该是：<code>RS——&gt;GW——&gt;client</code>。)</li>
+<li>当RS接收到LB发送的ICMP重定向包后，会修改路由表直接将回复包交给GW。此时回复包并没有被LB改写源和目的地址，LVS-NAT模式出现问题。</li>
+</ol>
+<h4 id="LVS-NAT特殊情况处理"><strong>LVS-NAT特殊情况处理</strong></h4><p>&emsp;在LVS-NAT模式中可能会遇到一种特殊情况，需要对RS额外的特殊处理，此情况是当client、LB和RS都处于同一网段。<br>&emsp;机器路由表中默认会有一条到同网段的路由规则<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$&gt; route -<span class="keyword">n</span></span><br><span class="line">内核 IP 路由表</span><br><span class="line">目标            网关            子网掩码        标志  跃点   引用  使用 接口</span><br><span class="line">0.0.0.0         192.168.1.1     0.0.0.0         UG    0      0        0 wlan0</span><br><span class="line">192.168.1.0     0.0.0.0         255.255.255.0   <span class="keyword">U</span>     9      0        0 wlan0</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;当RS和client处于同一网段时，原本是需要回复给LB的回复包(SOURCE：RS_IP，DEST：<strong>client_ip</strong>)，由于RS查自身路由表发现有到同网段的路由规则，不会将回复包传给LB而是直接将包回复给client，从而造成LVS-NAT模式出现问题。<br>&emsp;因此针对client、LB和RS处于同一网段的特殊情况，RS需要将到同网段的路由规则删除，让RS的所有流量都通过LB<br><figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#根据自身实际情况修改</span><br><span class="line">$&gt; route <span class="winutils">del</span> -<span class="winutils">net</span> <span class="number">192</span>.<span class="number">168</span>.<span class="number">1</span>.<span class="number">0</span> netmask <span class="number">255</span>.<span class="number">255</span>.<span class="number">255</span>.<span class="number">0</span> dev wlan0</span><br></pre></td></tr></table></figure></p>
+<h2 id="LVS-DR"><strong>LVS-DR</strong></h2><p>&emsp;LVS-DR模式应该是最为常用的模式。LVS-DR模式并未涉及IP地址的变换，主要是MAC地址的变换，因此对ARP协议会涉及较多。</p>
+<h3 id="简要工作流程-1"><strong>简要工作流程</strong></h3><ol>
+<li>client向VIP发送请求</li>
+<li>LB接收请求后根据调度算法选择RS，将连接信息记录hash表，修改<code>DEST_MAC</code>目的MAC地址为RS的MAC地址，然后将请求转发给RS。</li>
+<li>RS处理请求得出结果后(RS的lo:0接口绑定VIP)，<strong>直接</strong>将请求结果回复给client</li>
+<li>以后此连接后续的请求到达LB时，LB直接查询hash表后修改<code>DEST_MAC</code>后直接转发给RS。连接释放或超时后，LB自动将记录从hash表中删除。</li>
+</ol>
+<h3 id="LVS-DR模式注意事项"><strong>LVS-DR模式注意事项</strong></h3><ol>
+<li>LB和RS<strong>必须在同一广播域内</strong>, LB修改目的MAC地址后转发给RS</li>
+<li>LVS-DR的LB不需要开启路由转发ip_forward</li>
+<li>LVS-DR模式中，RS必须绑定VIP(LB只修改目的MAC后转发给RS，包的目标IP还是VIP，若RS接收到包后查看目标IP不为自己会丢弃，故RS上需要绑定VIP)(<strong><code>/sbin/ifconfig lo:0 inet VIP netmask 255.255.255.255</code></strong>)</li>
+<li>RS的VIP掩码为255.255.255.255，广播地址为本身，防止RS发出ARP广播使得LB实际的VIP与RS的VIP发生冲突</li>
+<li>关闭RS的ARP查询(内核2.6.x)</li>
+</ol>
+<h3 id="LVS-DR模式配置"><strong>LVS-DR模式配置</strong></h3><ul>
+<li><strong>环境说明</strong><br>LB：VIP_eth0:0_10.0.2.222        eth0_10.0.2.56<br>RS1: VIP_lo:0_10.0.2.222        eth0_10.0.2.51<br>RS2: VIP_lo:0_10.0.2.222        eth0_10.0.2.29</li>
+</ul>
+<ul>
+<li><p><strong>LB配置</strong></p>
+<figure class="highlight tcl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#配置</span></span><br><span class="line">VIP=<span class="number">10.0</span><span class="number">.2</span><span class="number">.222</span></span><br><span class="line">/sbin/ifconfig eth0:<span class="number">0</span> <span class="variable">$VIP</span> broadcast <span class="variable">$VIP</span> netmask <span class="number">255.255</span><span class="number">.255</span><span class="number">.0</span> up</span><br><span class="line"><span class="comment">#/sbin/route add -host 10.0.2.222 dev eth0:0</span></span><br><span class="line">echo <span class="string">"0"</span> &gt;/<span class="keyword">proc</span>/sys/net/ipv4/ip_forward</span><br><span class="line">/sbin/ipvsadm -A -t $VIP:80 -s<span class="symbol"> wrr</span> </span><br><span class="line">/sbin/ipvsadm -a -t $VIP:80 -r 10.0.2.51:80 -g -w 3</span><br><span class="line">/sbin/ipvsadm -a -t $VIP:80 -r 10.0.2.29:80 -g -w 1</span><br><span class="line"></span><br><span class="line">#查看</span><br><span class="line">$&gt;<span class="symbol"> ipvsadm</span> -ln<span class="symbol"></span><br><span class="line">IP</span> Virtual<span class="symbol"> Server</span> version 1.2.1 (size=4096)<span class="symbol"></span><br><span class="line">Prot</span> LocalAddress:Port<span class="symbol"> Scheduler</span> Flags</span><br><span class="line">  -&gt;<span class="symbol"> RemoteAddress:Port</span> <span class="symbol">          Forward</span> Weight<span class="symbol"> ActiveConn</span> InActConn<span class="symbol"></span><br><span class="line">TCP</span>  10.0.2.222:80<span class="symbol"> wrr</span></span><br><span class="line">  -&gt; 10.0.2.29:80<span class="symbol">                 Route</span>   1      0          0         </span><br><span class="line">  -&gt; 10.0.2.51:80<span class="symbol">                 Route</span>   3      0          0</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>RS配置</strong><br>&emsp;RS的VIP掩码必须为<code>255.255.255.255</code></p>
+<figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">VIP</span>=<span class="number">10</span>.<span class="number">0</span>.<span class="number">2</span>.<span class="number">222</span></span><br><span class="line">echo <span class="string">"1"</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/conf/all/arp_ignore    </span><br><span class="line">echo <span class="string">"2"</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/conf/all/arp_announce    </span><br><span class="line">echo <span class="string">"1"</span>&gt;/<span class="keyword">proc</span>/sys/net/ipv4/conf/eth0/arp_ignore    </span><br><span class="line">echo <span class="string">"2"</span>&gt;/<span class="keyword">proc</span>/sys/net/ipv4/conf/eth0/arp_announce    </span><br><span class="line">ifconfig lo:<span class="number">0</span> $<span class="type">VIP</span> netmask <span class="number">255</span>.<span class="number">255</span>.<span class="number">255</span>.<span class="number">255</span> broadcast $<span class="type">VIP</span></span><br><span class="line"><span class="comment">#/sbin/route add -host 10.0.2.222 dev lo:0</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="配置说明"><strong>配置说明</strong></h4><ul>
+<li><p><strong>arp_ignore</strong>——定义接收到ARP请求时的响应级别<br>  <strong><code>0</code></strong>：默认，只用本地配置的有响应地址都给予响应<br>  <strong><code>1</code></strong>：仅仅在目标IP是本地地址，并且是配置在请求进来的接口上的时候才给予响应(仅在请求的目标地址配置请求到达的接口上的时候，才给予响应)<br>  <strong>arp_ignore=1</strong><br>  &emsp;reply only if the target IP address is local address configured on the incoming interface<br>  &emsp;只回复目标IP是配置在本地入口设备的arp请求;即当RS的网卡(假定为eth0)接收到arp请求，如果需要查询的IP没有绑定在eth0接口上(RS的VIP绑定在lo:0)则不响应这个arp请求</p>
+</li>
+<li><p><strong>arp_announce</strong>——定义将自己的地址向外通告时的级别<br>  <strong><code>0</code></strong>：默认，表示使用配置在任何接口的任何地址向外通告<br>  <strong><code>1</code></strong>：试图仅向目标网络通告与其网络匹配的地址<br>  <strong><code>2</code></strong>：仅向与本地接口上地址匹配的网络进行通告<br>  <strong>arp_announce=2</strong><br>  &emsp;Always use the best local address for this target.In this mode we ignore the source address in the IP packet and try to select local address that we prefer for talks with the target host. Such local address is selected by looking for primary IP addresses on all our subnets on the outgoing interface that include the target IP address. If no suitable local address is found we select the first local address we have on the outgoing interface or on all other interfaces, with the hope we will receive reply for our request and even sometimes no matter the source IP address we announce<br>  &emsp;对查询目标使用最适当的本地地址.在此模式下将忽略IP数据包的源地址并尝试选择能和该地址通信的本地地址.首要是选择所有的网络接口的子网中外出访问子网中包含该目标IP地址的本地地址. 如果没有合适的地址被发现,将选择当前的发送网络接口或其他的有可能接收到该ARP回应的网络接口来进行发送;<br>  &emsp;个人理解：当RS需要向外通信就要获得网关的MAC，此时会发送广播一个arp请求，默认是将自身的IP作为SourceIP封装在arp请求包里，所以当<code>lo:0</code>接口发送这个arp请求包时<strong>SourceIP是VIP</strong>，arp请求包里的内容是SIP=VIP/SMAC=eth0_ mac；DIP=gateway_ip/DMAC=255.255.255.255，这样当网关收到这个arp请求时就会更新自身的arp表”VIP RealServer_eth0_mac”，若所有RealServer都发送这样的arp请求则会造成网关的arp表混乱。简而言之，将arp_announce设置成2是为了不让SourceIP为VIP产生arp通告而只有eth0上的IP可进行arp通告。</p>
+</li>
+</ul>
+<h2 id="LVS-TUN"><strong>LVS-TUN</strong></h2><p>&emsp;当LB和RS不在同一个网络时，则需使用到LVS-TUN模式实现负载均衡。</p>
+<h3 id="简要工作流程-2"><strong>简要工作流程</strong></h3><ol>
+<li>client向VIP发送请求</li>
+<li>LB接收请求后根据调度算法选择RS，将连接信息记录hash表，然后将此请求包重新封装到新的数据包中(新IP包中的目的IP为RS的IP)，将新IP包转发给RS</li>
+<li>RS接收到新IP包后，首先将新IP包解封装，处理client请求(RS的tunl0接口绑定VIP)，得到处理结果后<strong>直接</strong>回复给client</li>
+<li>以后此连接后续的请求到达LB时，LB直接查询hash表后封装成新IP包直接转发给RS。连接释放或超时后，LB自动将记录从hash表中删除</li>
+</ol>
+<h3 id="LVS-TUN配置"><strong>LVS-TUN配置</strong></h3><ul>
+<li><p><strong>LB配置</strong></p>
+<figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">VIP</span>=<span class="number">10</span>.<span class="number">0</span>.<span class="number">2</span>.<span class="number">222</span></span><br><span class="line">/sbin/ifconfig eth0:<span class="number">0</span> $<span class="type">VIP</span> broadcast $<span class="type">VIP</span> netmask <span class="number">255</span>.<span class="number">255</span>.<span class="number">255</span>.<span class="number">0</span> up</span><br><span class="line">/sbin/ipvsadm -A -t $<span class="type">VIP</span>:<span class="number">80</span> -s wrr</span><br><span class="line">/sbin/ipvsadm -a -t $<span class="type">VIP</span>:<span class="number">80</span> -r <span class="number">10</span>.<span class="number">0</span>.<span class="number">2</span>.<span class="number">51</span>:<span class="number">80</span> -i -w <span class="number">1</span></span><br><span class="line">/sbin/ipvsadm -a -t $<span class="type">VIP</span>:<span class="number">80</span> -r <span class="number">10</span>.<span class="number">0</span>.<span class="number">2</span>.<span class="number">29</span>:<span class="number">80</span> -i -w <span class="number">1</span></span><br><span class="line">echo <span class="string">"0"</span> &gt;/<span class="keyword">proc</span>/sys/net/ipv4/ip_forward</span><br><span class="line">echo <span class="string">"1"</span> &gt;/<span class="keyword">proc</span>/sys/net/ipv4/conf/all/send_redirects</span><br><span class="line">echo <span class="string">"1"</span> &gt;/<span class="keyword">proc</span>/sys/net/ipv4/conf/default/send_redirects</span><br><span class="line">echo <span class="string">"1"</span> &gt;/<span class="keyword">proc</span>/sys/net/ipv4/conf/eth0/send_redirects</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>RS配置</strong></p>
+<figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">VIP</span>=<span class="number">10</span>.<span class="number">0</span>.<span class="number">2</span>.<span class="number">222</span></span><br><span class="line">ifconfig tunl0 $<span class="type">VIP</span> netmask <span class="number">255</span>.<span class="number">255</span>.<span class="number">255</span>.<span class="number">255</span> broadcast $<span class="type">VIP</span></span><br><span class="line">echo <span class="number">1</span> &gt;/<span class="keyword">proc</span>/sys/net/ipv4/conf/eth0/arp_ignore</span><br><span class="line">echo <span class="number">2</span> &gt;/<span class="keyword">proc</span>/sys/net/ipv4/conf/eth0/arp_announce</span><br><span class="line">echo <span class="number">1</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/conf/all/arp_ignore</span><br><span class="line">echo <span class="number">2</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/conf/all/arp_announce</span><br><span class="line">echo <span class="number">0</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/conf/tunl0/rp_filter</span><br><span class="line">echo <span class="number">0</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv4/conf/all/rp_filter</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="关于rp_filter"><strong>关于rp_filter</strong></h4><p>&emsp;rp_filter—-逆向路径过滤，借助接口的路由信息及源地址判断数据包是否合理。<br>&emsp;简要检查流程—-若接口eth0接受到一个数据包(SIP=10.0.2.114, DIP=10.0.12.222, DEV=eth0)，当响应包需要出去时候rp_filter查询路由表，<sip=10.0.12.222, dip="10.0.1.114">此包的输出接口是否为eth0，若不是则rp_filter失败，丢弃该响应包。<br>&emsp;tunl0是必须关闭rp_filter的，否则LVS-TUN模式能向VIP发出请求但无法收到RealServer的响应</sip=10.0.12.222,></p>
+<p><strong>个人分析过程：</strong></p>
+<ul>
+<li>CIP-客户端IP</li>
+<li>VIP-LVS的虚拟IP</li>
+<li>LBIP-LB的内部地址</li>
+<li>SIP-源地址</li>
+<li>DIP-目标地址</li>
+<li>RIP-RealServer的IP</li>
+</ul>
+<ol>
+<li>客户端CIP访问LVS的VIP    LB上的数据包    <strong><code>[SIP=CIP, DIP=VIP]</code></strong></li>
+<li>LVS-TUN根据算法将请求转给RealServer的DIP        RealServer上的数据包(此数据包是ipip封装包)    <strong><code>[SIP=LBIP, DIP=RIP [SIP=CIP, DIP=VIP]]</code></strong></li>
+<li>RealServer接收到ipip数据包，解封后交给tunl0    tunl0接收的数据包    <strong><code>[SIP=CIP, DIP=VIP, DEV=tunl0]</code></strong></li>
+<li>RealServer应用层处理后得出响应包, 响应包<strong><code>[SIP=VIP, DIP=CIP]</code></strong></li>
+<li>rp_filter对响应包进行逆向路由过滤，在路由表查找<strong><code>[SIP=VIP, DIP=CIP]</code></strong>的路由条目，发现无匹配则选择默认路由从eth0出，得出<strong><code>[SIP=VIP, DIP=CIP, DEV=eth0]</code></strong>，发现DEV和进来的不同(3中tunl0的数据包)，于是丢弃该响应包</li>
+</ol>
+<h4 id="LVS-TUN问题集"><strong>LVS-TUN问题集</strong></h4><ul>
+<li>若配置完后访问不成功，检查是否加载ipip模块<code>lsmod|grep tun</code>，加载ipip模块<code>modprobe ipip &amp;&amp; modprobe ip_gre</code></li>
+<li>RealServer上可以利用iptables做端口转发<code>iptables -t nat -A PREROUTING -d $VIP -p tcp -m tcp --dport 80 -j DNAT --to-destination $VIP:8080</code></li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="安装"><strong>安装</strong></h2><ul>
+<li><p>安装依赖</p>
+  <figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="l]]>
+    </summary>
+    
+      <category term="LVS" scheme="http://yoursite.com/tags/LVS/"/>
+    
+      <category term="OPS" scheme="http://yoursite.com/categories/OPS/"/>
+    
+  </entry>
+  
+  <entry>
     <title><![CDATA[HAProxy]]></title>
     <link href="http://yoursite.com/2015/09/28/haproxy/"/>
     <id>http://yoursite.com/2015/09/28/haproxy/</id>
@@ -1731,7 +1863,7 @@
     <link href="http://yoursite.com/2015/07/04/review-tcp-ip-2/"/>
     <id>http://yoursite.com/2015/07/04/review-tcp-ip-2/</id>
     <published>2015-07-04T14:25:15.000Z</published>
-    <updated>2015-07-27T13:41:17.000Z</updated>
+    <updated>2016-03-04T15:15:04.000Z</updated>
     <content type="html"><![CDATA[<h2 id="IP网际协议"><strong>IP网际协议</strong></h2><p>&emsp;IP提供的是不可靠、无连接的数据报传输服务。</p>
 <ul>
 <li>不可靠：不能保证IP数据报能成功到达目的地，既可能<strong>丢包</strong>。可靠性需要由上层提供，如TCP的超时重传机制等。IP有一个简单的错误处理办法，当IP数据报被丢弃后，会发送ICMP消息告诉发送端错误情况。</li>
@@ -1869,7 +2001,7 @@
 <li>搜索匹配网络地址的路由</li>
 <li>搜索默认路由</li>
 </ul>
-<h3 id="ICMP重定向"><strong>ICMP重定向</strong></h3><p>&emsp;当路由器检测到某台主机使用非最优路由的时候，可以通过向该主机发送ICMP重定向报文，请求改变该主机的路由。(ICMP重定向报文只能由路由器生成，针对主机使用而不是路由器)<br>&emsp;ICMP重定向报文结构：<br><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">————————————</span><br><span class="line"><span class="string">|类型 5|代码 0~3|检验和|</span></span><br><span class="line">————————————</span><br><span class="line"><span class="string">|应该使用的路由器IP地址|</span></span><br><span class="line">———————————————</span><br><span class="line"><span class="string">|IP首部+原IP首部后的前8个字节|</span></span><br><span class="line">———————————————</span><br></pre></td></tr></table></figure></p>
+<h3 id="ICMP重定向"><strong>ICMP重定向</strong></h3><p>&emsp;当路由器检测到某台主机使用非最优路由的时候，可以通过向该主机发送ICMP重定向报文，请求改变该主机的路由。(ICMP重定向报文一般由路由器生成，针对主机使用而不是路由器)<br>&emsp;Linux系统中控制ICMP重定向的相关文件<code>/proc/sys/net/ipv4/conf/all/send_redirects</code>、<code>/proc/sys/net/ipv4/conf/default/send_redirects</code>、<code>/proc/sys/net/ipv4/conf/&lt;interface_device&gt;/send_redirects</code>。<strong><code>0</code></strong>为关闭，<strong><code>1</code></strong>为开启。<br>&emsp;ICMP重定向报文结构：<br><figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">————————————</span><br><span class="line"><span class="string">|类型 5|代码 0~3|检验和|</span></span><br><span class="line">————————————</span><br><span class="line"><span class="string">|应该使用的路由器IP地址|</span></span><br><span class="line">———————————————</span><br><span class="line"><span class="string">|IP首部+原IP首部后的前8个字节|</span></span><br><span class="line">———————————————</span><br></pre></td></tr></table></figure></p>
 <ul>
 <li>类型——5，表示是ICMP重定向(详见之前的表格)</li>
 <li>代码——0~3，0——网络重定向、1——主机重定向、2——服务类型和网络重定向、3——服务类型和主机重定向</li>
@@ -1929,59 +2061,6 @@
     <![CDATA[<h2 id="链路层主要目的"><strong>链路层主要目的</strong></h2><p>&emsp;TCP/IP支持多种链路层协议，不同的网络硬件设备使用不同链路层协议，如：以太网协议、令牌环、FDDI和PPP等。链路层主要有三个目的：</p>
 <ul>
 <li>为IP]]>
-    </summary>
-    
-      <category term="TCP/IP" scheme="http://yoursite.com/tags/TCP-IP/"/>
-    
-      <category term="TCP/IP" scheme="http://yoursite.com/categories/TCP-IP/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[重读《TCP/IP详解卷一》之概述]]></title>
-    <link href="http://yoursite.com/2015/06/25/review-tcp-ip-0/"/>
-    <id>http://yoursite.com/2015/06/25/review-tcp-ip-0/</id>
-    <published>2015-06-25T14:28:41.000Z</published>
-    <updated>2015-07-26T12:52:46.000Z</updated>
-    <content type="html"><![CDATA[<p>&emsp;《TCP/IP详解卷一》此书在学校期间就已经读过，当时还是花了一定的精力和时间去读的。前段时间在看有关LVS方面的资料，其中涉及网络方面的知识，这让我发现自己关于TCP/IP方面的细节知识已经有点模糊。于是决定再重新仔细的阅读《TCP/IP详解卷一》这边经典书籍，顺便做个笔记记录，方便以后查阅。</p>
-<h2 id="分层"><strong>分层</strong></h2><p>有别于OSI七层模型，TCP/IP协议族分为四层：</p>
-<ul>
-<li>应用层：处理应用程序细节，例如：Telnet远程登录、FTP文件传输协议、HTTP协议等。信息单元称之为<strong>数据(data)</strong></li>
-<li>传输层：主要负责提供端对端通信，主要有两个不通的传输协议：TCP(传输控制协议)、UDP(用户数据报协议)。信息单元称之为<strong>段(segment)</strong></li>
-<li>网络层：负责处理分组在网络的活动，即路由寻址。网络层协议包括：IP协议、ICMP协议和IGMP协议。信息单元称之为<strong>包/分组(Packet)</strong></li>
-<li>链路层：主要包括设备驱动及网络设备接口，链路层协议：以太网、令牌环网、FDDI等。信息单元称之为<strong>帧(frame)</strong></li>
-</ul>
-<h2 id="IP地址"><strong>IP地址</strong></h2><p>IPv4地址长32bit，分成5类</p>
-<ul>
-<li>A类地址：0.0.0.~127.255.255.255，0-网络号(7位)-主机号(24位)</li>
-<li>B类地址：128.0.0.0~192.255.255.255，10-网络号(14位)-主机号(16位)</li>
-<li>C类地址：192.0.0.0~223.255.255.255，110-网络号(21位)-主机号(8位)</li>
-<li>D类地址：224.0.0.0~239.255.255.255，1110-多播组号(28位)</li>
-<li>E类地址：240.0.0.0~255.255.255.255，11110-保留(27位)</li>
-</ul>
-<p>保留地址(私有地址)：</p>
-<ul>
-<li>127.0.0.0/8</li>
-<li>10.0.0.0/8</li>
-<li>169.254.0.0/16</li>
-<li>172.16.0.0/12~172.31.0.0/12</li>
-<li>192.168.0.0/16</li>
-<li>E类地址(用于实验)</li>
-</ul>
-<h2 id="封装"><strong>封装</strong></h2><p>数据从<code>应用层——&gt;传输层——&gt;网络层——&gt;链路层</code>逐层传递时，每层都会对收到的数据添加首部信息/尾部信息</p>
-<ul>
-<li>应用层：用户数据</li>
-<li>传输层：用户数据+TCP首部                                    此数据单元(以TCP为例)称为——<strong>TCP报文(TCP segment)</strong></li>
-<li>网络层：用户数据+TCP首部+IP首部                            此数据单元称为——<strong>分组(packet)</strong></li>
-<li>链路层：以太网尾部+应用数据+TCP首部+IP首部+以太网首部    此数据单元称为——<strong>帧(frame)</strong>，由于以太网物理性质限制<code>46B&lt; 应用数据+TCP首部+IP首部&lt; 1500B</code></li>
-</ul>
-<h2 id="端口号"><strong>端口号</strong></h2><ul>
-<li>1~1023        知名服务端口(<code>/etc/services</code>查看常用熟知端口)</li>
-<li>1024~65535    随机端口(之所以最大端口号为65535是因为TCP/UDP头部采用<code>16bit</code>来标识端口，故最大为<code>2^16</code>)</li>
-</ul>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>&emsp;《TCP/IP详解卷一》此书在学校期间就已经读过，当时还是花了一定的精力和时间去读的。前段时间在看有关LVS方面的资料，其中涉及网络方面的知识，这让我发现自己关于TCP/IP方面的细节知识已经有点模糊。于是决定再重新仔细的阅读《TCP/IP详解卷一》这边经典书籍]]>
     </summary>
     
       <category term="TCP/IP" scheme="http://yoursite.com/tags/TCP-IP/"/>
