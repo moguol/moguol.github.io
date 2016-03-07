@@ -208,7 +208,7 @@
 </ul>
 <h4 id="零窗口_与_糊涂窗口">零窗口 与 糊涂窗口</h4><p>&emsp;TCP使用<code>滑动窗口</code>来进行流量控制需要注意<strong>零窗口</strong>与<strong>糊涂窗口</strong>：</p>
 <ul>
-<li><strong>零窗口</strong>：如上面所说，当发送方窗口大小为<code>0</code>且接收方回复的<code>window=0</code>表明无法再接收数据时，发送方会停止发送数据并等待。当接收方缓存区有空间后，接收方会回复一个<code>ACK</code>给发送方告诉发送方自己的窗口大小让发送方发送数据。但如果接收方发送的这个<code>ACK</code>包丢失了，那么发送方就以为接收方窗口一直为<code>0</code>就无止境的等待。<br>&emsp;&emsp;为防止此情况出现，TCP使用<strong>Zero Window Probe技术</strong>。当发送方窗口大小为<code>0</code>时，发送方会向接收方发送<strong>零窗口探测包</strong>，让接收方回复<code>ACK</code>通告它的窗口。有些设计会规定若三次探测包后接收方窗口大小依旧通告为<code>0</code>，则发送方会发一个<code>RST</code>复位报文中断连接。</li>
+<li><strong>零窗口</strong>：如上面所说，当发送方窗口大小为<code>0</code>且接收方回复的<code>window=0</code>表明无法再接收数据时，发送方会停止发送数据并等待。当接收方缓存区有空间后，接收方会回复一个<code>ACK</code>给发送方告诉发送方自己的窗口大小让发送方发送数据。但如果接收方发送的这个<code>ACK</code>包丢失了，那么发送方就以为接收方窗口一直为<code>0</code>就无止境的等待。(TCP不对<code>ACK</code>包进行确认保证，故此<code>ACK</code>包一旦丢失发送方则无法知道接收方有可用缓存空间)<br>&emsp;&emsp;为防止此情况出现，TCP使用<strong>Zero Window Probe技术</strong>。当发送方窗口大小为<code>0</code>时，发送方会向接收方发送<strong>零窗口探测包</strong>，让接收方回复<code>ACK</code>通告它的窗口。有些设计会规定若三次探测包后接收方窗口大小依旧通告为<code>0</code>，则发送方会发一个<code>RST</code>复位报文中断连接。</li>
 <li><strong>糊涂窗口综合症</strong>：如上图的例子，当接收方通告自身窗口<code>window=0</code>时，发送方就会停止发送数据并等待。假若过了一段时间，接收方缓冲区有空间但空间很小比如说只有<code>1</code>字节的空间，此时接收方通告自身窗口<code>window=1</code>而发送方为了传输这<code>1字节</code>的数据需要耗费<code>40字节</code>开销(IP首部20字节+TCP首部20字节)，这种花费大开销传输少数据的情况称之为<em>糊涂窗口综合症</em>。<br>&emsp;&emsp;为了解决<em>糊涂窗口综合症</em>，特意针对是发送方引起的还是接收方引起的糊涂窗口分为两种情况的解决方法：<ul>
 <li>发送方引起的糊涂窗口：Nagle算法。1)等到 Window Size&gt;=MSS 或是 Data Size &gt;=MSS；2)等待时间或是超时200ms。两个条件满足其中一个就发数据，否则一直等待攒数据到满足条件为止。</li>
 <li>接收方引起的糊涂窗口：接收方引起的糊涂窗口又可分为两种解决办法<ol>
@@ -219,20 +219,20 @@
 </ul>
 </li>
 </ul>
-<h3 id="TCP重传机制"><strong>TCP重传机制</strong></h3><p>&emsp;TCP是一个可靠的传输协议，为了保证数据成功到达接收方就必须有数据丢失后的重传机制，因为1)数据可能在传输过程中丢失，2)即使接收方成功接受到数据，当回复<code>ACK</code>时，这个<code>ACK</code>数据包也可能会丢失。<br>&emsp;TCP重传机制是通过在发送数据时设置<strong>定时器</strong>来解决丢包问题，当<code>定时器</code>溢出时仍没有收到<code>ACK</code>确认，TCP则任务该数据已经丢失变回重新传输该数据。TCP重传机制的重点在于<strong>如何确定超时时间</strong>和<strong>如何确定重传频率</strong>。<br>&emsp;TCP重传机制的<strong>定时器</strong>可分为四种类型：</p>
+<h3 id="TCP重传机制"><strong>TCP重传机制</strong></h3><p>&emsp;TCP是一个可靠的传输协议，为了保证数据成功到达接收方就必须有数据丢失后的重传机制，因为1)数据可能在传输过程中丢失，2)即使接收方成功接受到数据，当回复<code>ACK</code>时，这个<code>ACK</code>数据包也可能会丢失。<br>&emsp;TCP重传机制是通过在发送数据时设置<strong>定时器</strong>来解决丢包问题，当<code>定时器</code>溢出时仍没有收到<code>ACK</code>确认，TCP则认为该数据已经丢失便会重新传输该数据。TCP重传机制的重点在于<strong>如何确定超时时间</strong>和<strong>如何确定重传频率</strong>。<br>&emsp;TCP重传机制的<strong>定时器</strong>可分为四种类型：</p>
 <ul>
 <li>重传定时器</li>
 <li>坚持定时器</li>
 <li>保活定时器</li>
 <li>2MSL定时器</li>
 </ul>
-<h4 id="重传定时器">重传定时器</h4><p>&emsp;为了确认数据是否丢失或被丢弃而设定，是对数据<code>ACK</code>确认包等待的时间。当TCP发送数据时，就创建针对该数据的<em>重传定时器</em>。若定时器超时前收到<code>ACK</code>确认包，则撤消<em>重传定时器</em>；若定时器超时后还没有收到<code>ACK</code>确认包，则重传该数据，并将<em>重传定时器</em>复位重新计时。<br>&emsp;如果重传失败，TCP会尝试多次重传，至于重传多少次后放弃则不同系统设计不同，Linux系统与<code>/proc/sys/net/ipv4/tcp_retries1</code> <code>/proc/sys/net/ipv4/tcp_retries2</code>有关，关于这两个选项参数更详细内容请点击<a href="https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt" target="_blank" rel="external">这里</a><br>&emsp;TCP多次重传的间隔并不都是一样的，TCP重传间隔采用<strong>指数退避(exponential backoff)</strong>策略，既两次重传时间间隔是一个倍乘关系(每次增加1倍)。如书中的例子重传时间间隔为<code>1 3 6 12 24 48 64 64 64 64...</code>；Linux下可能是这样<code>1 2 4 8 16 32 64 64*8</code>(<code>tcp_retries2</code>默认为<code>15</code>)。</p>
+<h4 id="重传定时器">重传定时器</h4><p>&emsp;为了确认数据是否丢失或被丢弃而设定，是对数据<code>ACK</code>确认包等待的时间。当TCP发送数据时，就创建针对该数据的<em>重传定时器</em>。若定时器超时前收到<code>ACK</code>确认包，则撤消<em>重传定时器</em>；若定时器超时后还没有收到<code>ACK</code>确认包，则重传该数据，并将<em>重传定时器</em>复位重新计时。<br>&emsp;如果重传失败，TCP会尝试多次重传，至于重传多少次后放弃则不同系统设计不同，Linux系统与<strong><code>/proc/sys/net/ipv4/tcp_retries1</code></strong>(放弃回应一个TCP连接请求前﹐需要进行多少次重试) 、<strong><code>/proc/sys/net/ipv4/tcp_retries2</code></strong>(在丢弃激活(已建立通讯状况)的TCP连接之前﹐需要进行多少次重试)有关，关于这两个选项参数更详细内容请点击<a href="https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt" target="_blank" rel="external">这里</a><br>&emsp;TCP多次重传的间隔并不都是一样的，TCP重传间隔采用<strong>指数退避(exponential backoff)</strong>策略，既两次重传时间间隔是一个倍乘关系(每次增加1倍)。如书中的例子重传时间间隔为<code>1 3 6 12 24 48 64 64 64 64...</code>；Linux下可能是这样<code>1 2 4 8 16 32 64 64*8</code>(<code>tcp_retries2</code>默认为<code>15</code>)。</p>
 <h4 id="坚持定时器">坚持定时器</h4><p>&emsp;其实<code>坚持定时器</code>在<strong>零窗口</strong>的时候就已经提到过。当接收方的窗口大小为<code>0</code>时，会通告自身<code>通告窗口</code>已为<code>0</code>让发送方停止发送数据。等到接收方的缓冲区空闲<code>通告窗口</code>恢复后，接收方会发送<code>ACK</code>包通告自身窗口大小。因为TCP是不会对<code>ACK</code>包进行确认的，既这个带<code>通告窗口</code>大小的<code>ACK</code>包可能会丢失。假若此<code>ACK</code>包丢失，发送方认为接收方窗口仍为<code>0</code>继续等待，接收方认为自己已经通知发送方自己窗口大小而等待发送方的数据，双方都陷入等待当中。为了避免这个<code>ACK</code>包丢失而导致的双方等待，当接收方通告自身窗口大小为<code>0</code>时，发送方会启用<strong>坚持定时器</strong>，当<strong>坚持定时器</strong>超时后，发送方会主动发送<code>探测包</code>询问接收方的窗口大小。在计算<strong>坚持定时器</strong>时同样是使用<strong>指数退避</strong>，比如说首次坚持定时器超时时间为<code>1.5秒</code>，则后续超时时间为<code>3 6 12</code>。但不会一直增加下去<strong>坚持定时器</strong>总是在<strong><code>5~60</code></strong>之间，达到<code>60</code>后就一直以<code>60</code>为超时时间。</p>
-<h4 id="保活定时器">保活定时器</h4><p>&emsp;其实TCP的保活定时器就是类似于HTTP的Keepalive功能，<strong>保活定时器</strong>是用于检测对方是否发送异常，如果有异常则及时关闭连接释放资源。当<strong>保活定时器</strong>超时后会检查连接是否空闲太久，若空闲时间超过设定时间则发送探测报文。通过对方是否响应、响应是否符合预期，来判断对方是否正常，若不正常则关闭连接释放资源。<br>&emsp;在Linux系统中是由<code>/proc/sys/net/ipv4/tcp_keepalive_time</code>、<code>/proc/sys/net/ipv4/tcp_keepalive_intvl</code>、<code>/proc/sys/net/ipv4/tcp_keepalive_probes</code>三个内核参数决定。</p>
+<h4 id="保活定时器">保活定时器</h4><p>&emsp;其实TCP的保活定时器就是类似于HTTP的Keepalive功能，<strong>保活定时器</strong>是用于检测对方是否发送异常，如果有异常则及时关闭连接释放资源。当<strong>保活定时器</strong>超时后会检查连接是否空闲太久，若空闲时间超过设定时间则发送探测报文。通过对方是否响应、响应是否符合预期，来判断对方是否正常，若不正常则关闭连接释放资源。<br>&emsp;在Linux系统中是由<strong><code>/proc/sys/net/ipv4/tcp_keepalive_time</code></strong>、<strong><code>/proc/sys/net/ipv4/tcp_keepalive_intvl</code></strong>、<strong><code>/proc/sys/net/ipv4/tcp_keepalive_probes</code></strong>三个内核参数决定。</p>
 <ul>
-<li>/proc/sys/net/ipv4/tcp_keepalive_time<br>  最后一次数据交换到TCP发送第一个保活探测报文的时间，即允许连接空闲的时间，默认为7200s</li>
-<li>/proc/sys/net/ipv4/tcp_keepalive_intvl<br>  保活探测报文的重传时间，默认为75s</li>
-<li>/proc/sys/net/ipv4/tcp_keepalive_probes<br>  保活探测报文的发送次数，默认为9次</li>
+<li><strong>/proc/sys/net/ipv4/tcp_keepalive_time</strong><br>  最后一次数据交换到TCP发送第一个保活探测报文的时间，即允许连接空闲的时间，默认为7200s</li>
+<li><strong>/proc/sys/net/ipv4/tcp_keepalive_intvl</strong><br>  保活探测报文的重传时间，默认为75s</li>
+<li><strong>/proc/sys/net/ipv4/tcp_keepalive_probes </strong><br>  保活探测报文的发送次数，默认为9次</li>
 </ul>
 <p>&emsp;默认情况下Linux的一次完整的保活探测时间，既Linux下TCP认为一个连接出现异常后关闭的时间：<br>tcp_keepalive_time + tcp_keepalive_intvl × tcp_keepalive_probes = <code>7200 + 75 × 9</code> = <code>7875</code></p>
 <h4 id="2MSL定时器">2MSL定时器</h4><p>&emsp;TCP的<code>TIME_WAIT状态</code>也称之为<strong><code>2MSL等待状态</code></strong>，之前的章节也已说过。TCP连接的一端发起主动关闭，在四次挥手主动关闭方发送完最后一个<code>ACK</code>包后既进入<code>TIME_WAIT</code>状态，必须等待<strong><code>2MSL</code></strong>的时间后才能释放该TCP连接。之所以必须等待<code>2MSL</code>时间主要有以下两个原因：</p>
@@ -284,7 +284,7 @@
 </ol>
 </li>
 </ul>
-<p>&emsp;&emsp;&emsp;&emsp;超时：<code>慢启动</code>——&gt;<code>超时</code>——&gt;<code>ssthresh=cwnd/2 重新慢启动</code>——&gt;<code>cwnd=ssthresh</code>——&gt;<code>拥塞避免算法(cwnd=cwnd+1/cwnd)</code><br>&emsp;&emsp;&emsp;&emsp;重复ACK：<code>慢启动</code>——&gt;<code>3重复ACK</code>——&gt;<code>快速恢复算法+快速重传 ssthresh=cwnd/2</code>——&gt;<code>cwnd=ssthresh</code>——&gt;<code>拥塞避免算法(cwnd=cwnd+1/cwnd)</code><br>&emsp;&emsp;&emsp;&emsp;<strong>当<code>cwnd</code> <code>&lt;=</code> <code>ssthresh</code>时，慢启动(指数增长)；当<code>cwnd</code> <code>&gt;</code> <code>ssthresh</code>，拥塞避免算法(线性增长)</strong></p>
+<p>&emsp;&emsp;&emsp;&emsp;超时：<code>慢启动</code>——&gt;<code>超时</code>——&gt;<code>ssthresh=cwnd/2 重新慢启动</code>——&gt;<code>cwnd=ssthresh</code>——&gt;<code>拥塞避免算法(cwnd=cwnd+1/cwnd)</code><br>&emsp;&emsp;&emsp;&emsp;重复ACK：<code>慢启动</code>——&gt;<code>3重复ACK</code>——&gt;<code>快速恢复算法+快速重传 ssthresh=cwnd/2</code>——&gt;<code>cwnd=ssthresh+3MSS</code>——&gt;<code>拥塞避免算法(cwnd=cwnd+1/cwnd)</code><br>&emsp;&emsp;&emsp;&emsp;<strong>当<code>cwnd</code> <code>&lt;=</code> <code>ssthresh</code>时，慢启动(指数增长)；当<code>cwnd</code> <code>&gt;</code> <code>ssthresh</code>，拥塞避免算法(线性增长)</strong></p>
 
 				</div>
 
