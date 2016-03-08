@@ -265,7 +265,8 @@
 <ul>
 <li>当TCP完成三次握手后，会给该连接设定两个变量<strong><code>cwnd</code></strong>和<strong>ssthresh</strong>。<strong><code>cwnd</code></strong>初始化值为<code>1个报文段</code>(该值通常为MSS-40[IP+TCP header])，<strong><code>ssthresh</code></strong>初始化值一般为<code>65535字节</code></li>
 <li>首先TCP使用<strong>慢启动</strong>，<strong><code>cwnd</code></strong>指数增长，但<strong><code>cwnd</code></strong>并不会无限制增长，当<strong><code>cwnd</code></strong><code>&gt;</code>接收方的<strong>通告窗口</strong>时以<strong>通告窗口</strong>为标准。<strong>拥塞窗口</strong>是发送方的流量控制、<strong>通告窗口</strong>是接收方的流量控制。当<em>拥塞窗口</em> <code>&lt;</code> <em>通告窗口</em>时，由<em>拥塞窗口</em>(发送方)控制发送速率(既为慢启动)；当<em>拥塞窗口</em> <code>&gt;</code> <em>通告窗口</em>时，由<em>通告窗口</em>(接收方)控制发送速率。</li>
-<li>TCP在两种情况下会认为数据包已经丢失(详看重传机制)——<strong>超时</strong> 或 <strong>收到3个重复ACK</strong>，TCP对这两种情况处理又所有不同：<ol>
+<li>假设通过窗口无限大，慢启动过程中<code>cwnd</code>一直呈指数增长，但一直指数增长下去终会达到网络最大负载而导致网络崩溃，为了防止此情况发生会设置一个<strong>慢启动门限</strong>——<strong><code>ssthresh</code></strong>，当<code>cwnd</code>到达<code>ssthresh</code>既<code>cwnd==ssthresh</code>时，进入拥塞避免算法(每收到一个<code>ACK</code>不再像慢启动那样<code>+1cwnd</code>而是<code>+1/cwnd</code>，既<code>cwnd = cwnd + 1/cwnd</code>)，进入拥塞避免后呈线性增长。</li>
+<li>上面说的都是在拥塞没有发送的情况下，但一旦拥塞出现TCP则会有响应的措施。TCP在两种情况下会认为数据包已经丢失(详看重传机制)——<strong>超时</strong> 或 <strong>收到3个重复ACK</strong>，此时TCP认为已进入拥塞状态。TCP对这两种情况处理又所有不同：<ol>
 <li>假若在<strong>慢启动</strong>过程中出现<strong>超时</strong><ul>
 <li>出现超时后则需要重新设置<strong>ssthresh</strong>。数据包超时后<strong>慢启动门限ssthresh</strong>会被设置为当前<strong>拥塞窗口</strong>的一半，既<strong><code>ssthresh=cwnd/2</code></strong></li>
 <li><strong><code>cwnd</code></strong>重新初始化，既<code>cwnd</code>=1。重新开始慢启动过程</li>
