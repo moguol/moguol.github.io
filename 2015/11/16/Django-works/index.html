@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" Django残作记 | Hexo " />
+	<meta name="twitter:title" content=" Django残作记 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" Django残作记 | Hexo ">
+	<meta property="og:description" content=" Django残作记 | Hexo " />
+	<meta name="twitter:description" content=" Django残作记 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2015/11/16/Django-works/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2015-11-16">2015-11-16</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/Python/">Python</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2015/11/16/Django-works/" itemprop="url"><span itemprop="name">Django残作记</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<p>&emsp;最近在整理电脑里的资料时发现了这个未完成的作品，虽然半路停了但毕竟是第一次写所以还是决定写篇博文纪念一下那些埋头的日夜。<br>&emsp;话还要从看完<a href="http://djangobook.py3k.cn/2.0/" target="_blank" rel="external">The Django Book</a>说起，当看完The Django Book后寻思要利用Django做些什么。经过考虑后，决定尝试着自己写一个日志分析展示系统。当初的考虑是Fluentd采集日志，然后存入MongoDB专门用于存日志的一种集合，后台运行Python的统计程序将统计结果存到MongoDB中，最后由Django进行数据的可视化展示。<br>&emsp;为了完成这个练习作品，还特意跑去了解前端方面的知识(HTML/CSS/jQuety/Bootstrap)，入门的时候最难毫无头绪而且身边也没有懂前端的人，只能是边Google边学边用，最终勉强能应付。不过就在写着的过程中，突然发现有<strong>ELK</strong>这个日志分析可视化开源方案，粗略了解后发觉功能还是挺完善的。虽然公司有个日志平台，但相比之下过于简陋，于是打算提议引入ELK这个系统，为此我就立马跑去研究起ELK而这个练习作品也就搁置了。目前公司已使用起ELK系统，文档还在整理，待整理完毕后发篇博文记录。<br>&emsp;以下是展示时间，毕竟是第一次写而且前端后端都弄还是挺累人的，就凑合看吧【摊手。。。</p>
+<ul>
+<li><p>登录界面<br>  &emsp;登录页面是根据国外的一个教程网站上的页面改的。</p>
+  <center><br>  <img src="http://7xk64o.com1.z0.glb.clouddn.com/Django_Works_Login.jpeg" alt="Django_Works_Login.jpeg"><br>  </center>
+</li>
+<li><p>用户管理</p>
+  <center><br>  <img src="http://7xk64o.com1.z0.glb.clouddn.com/Django_Works_user1.jpeg" alt="Django_Works_user1.jpeg"><br>  </center>
+</li>
+<li><p>添加用户</p>
+  <center><br>  <img src="http://7xk64o.com1.z0.glb.clouddn.com/Django_Works_user2.jpeg" alt="Django_Works_user2.jpeg"><br>  </center>
+</li>
+<li><p>highcharts<br>  &emsp;为了展示日志数据，还专门去研究了一下highcharts。</p>
+  <center><br>  <img src="http://7xk64o.com1.z0.glb.clouddn.com/Django_Works_highcharts.jpeg" alt="Django_Works_highcharts.jpeg"><br>  </center>
+</li>
+</ul>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/Django/">Django</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+					<a href="/2015/11/17/Django-Q-Object/" title="Django Q对象">&larr; Prev</a>
+				
+
+				
+					<a href="/2015/11/15/Django-Book/" title="Django Book笔记">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
