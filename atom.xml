@@ -1307,7 +1307,7 @@
     <link href="http://yoursite.com/2015/09/30/LVS/"/>
     <id>http://yoursite.com/2015/09/30/LVS/</id>
     <published>2015-09-30T07:56:41.000Z</published>
-    <updated>2016-03-06T13:04:06.000Z</updated>
+    <updated>2016-03-18T08:07:23.000Z</updated>
     <content type="html"><![CDATA[<h2 id="安装"><strong>安装</strong></h2><ul>
 <li><p>安装依赖</p>
   <figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; yum <span class="keyword">install</span> Kernel-devel gcc openssl openssl-devel popt</span><br></pre></td></tr></table></figure>
@@ -1421,6 +1421,20 @@
 <li>若配置完后访问不成功，检查是否加载ipip模块<code>lsmod|grep tun</code>，加载ipip模块<code>modprobe ipip &amp;&amp; modprobe ip_gre</code></li>
 <li>RealServer上可以利用iptables做端口转发<code>iptables -t nat -A PREROUTING -d $VIP -p tcp -m tcp --dport 80 -j DNAT --to-destination $VIP:8080</code></li>
 </ul>
+<h2 id="LVS调度算法"><strong>LVS调度算法</strong></h2><p>&emsp;目前LVS已实现<strong><code>10</code></strong>种调度算法：</p>
+<ul>
+<li><strong>rr：轮叫调度（Round-Robin Scheduling）</strong><br>  &emsp;将请求按顺序轮流分配给后端的RS，均等对待所有RS，不考虑RS实际连接与负载情况。</li>
+<li><strong>wrr：加权轮叫调度（Weighted Round-Robin Scheduling）</strong><br>  &emsp;带权重的轮叫调度，根据RS权重的大小分配请求。</li>
+<li><strong>lc：最小连接调度（Least-Connection Scheduling）</strong><br>  &emsp;将新的请求分配给当前连接数最小的RS。通过RS当前所活跃的连接数来估计负载情况，LB记录每个RS已建立的连接数目，当一个请求被调度到某台RS，其连接数<strong><code>+1</code></strong>；当连接中止或超时，其连接数<strong><code>-1</code></strong></li>
+<li><strong>wlc：加权最小连接调度（Weighted Least-Connection Scheduling）</strong><br>  &emsp;用权重表示RS处理性能，默认权重都为<strong><code>1</code></strong>(可<strong>动态</strong>设置)。此算法在调度新连接时尽可能使服务器的已建立连接数和其权值成比例。<br>  &emsp;wcl算法计算公式：<code>overhead = (active * 256 + inactive) / weight</code></li>
+<li><strong>lblc：基于局部性的最少链接（Locality-Based Least Connections Scheduling）</strong><br>  &emsp;此算法是针对请求报文的<strong>目标IP地址</strong>的负载均衡调度，主要用于Cache集群系统。算法的设计目标是在RS的负载基本平衡情况下，将相同<strong>目标IP地址</strong>的请求调度到同一台RS上。<br>  &emsp;此调度算法先根据请求的目标 IP 地址找出该目标 IP 地址最近使用的服务器，若该服务器是可用的且没有超载，将请求发送到该服务器；若服务器不存在，或者该服务器超载且有服务器处于其一半的工作负载，则用“最少链接”的原则选出一个可用的服务器，将请求发送到该服务器</li>
+<li><strong>lblcr：带复制的基于局部性最少链接（Locality-Based Least Connections with Replication Scheduling）</strong><br>  &emsp;此调度算法同样根据<strong>目的IP地址</strong>进行负载均衡，也主要用于Cache集群系统。和lblc仅维护一个目的IP到一台RS的关系，而lblcr维护一个目的IP到<strong>一组</strong>RS的关系。<br>  &emsp;LBLCR 调度算法将热点映射到一组 Cache 服务器（RS集合），当热点的请求负载增加时，会增加集合里的 Cache 服务器，来处理不断增长的负载；当热点的请求负载降低时，会减少集合里的 Cache 服务器数目。</li>
+<li><strong>dh：目标地址散列调度（Destination Hashing Scheduling）</strong><br>  &emsp;针对<strong>目标IP地址</strong>的负载均衡，通过一个Hash函数将一个目标IP地址映射到一台服务器。</li>
+<li><strong>sh：源地址散列调度（Source Hashing Scheduling）</strong><br>  &emsp;针对<strong>源IP地址</strong>的负载均衡，通过一个Hash函数将一个源IP地址映射到一台服务器。</li>
+<li><strong>sed：最短预期延时调度（Shortest Expected Delay Scheduling）</strong><br>  &emsp;基于wlc调度算法，不在考虑非活动状态。算法计算公式：<code>overhead = （active+1）*256 / weight</code></li>
+<li><strong>nq：不排队调度（Never Queue Scheduling）</strong><br>  &emsp;无队列，若RS连接数为<code>0</code>则直接分配，不需要进行SED运算。</li>
+</ul>
+<p>&emsp;<a href="https://bbs.konotes.org/thread-4290-1-1.html" target="_blank" rel="external">参考文章</a></p>
 ]]></content>
     <summary type="html">
     <![CDATA[<h2 id="安装"><strong>安装</strong></h2><ul>
