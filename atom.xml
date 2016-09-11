@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-06-18T15:44:40.000Z</updated>
+  <updated>2016-09-11T09:55:02.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,81 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[Celery浅记]]></title>
+    <link href="http://yoursite.com/2016/08/15/celery/"/>
+    <id>http://yoursite.com/2016/08/15/celery/</id>
+    <published>2016-08-15T14:00:37.000Z</published>
+    <updated>2016-09-11T09:55:02.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="介绍"><strong>介绍</strong></h2><p>&emsp;最近工作要异步执行任务，需要用到<a href="http://docs.celeryproject.org/en/latest/" target="_blank" rel="external">Celery</a>故简单记录一下使用过程。<br>&emsp;Celery常用于实时处理任务队列或任务调度，Celery适用于以下场景：</p>
+<ul>
+<li>异步执行任务：当需要发送邮件或执行耗时操作时，程序需要等待执行结果才能继续。若将这些任务交给Celery异步执行，可大大提高效率。</li>
+<li>定时任务：Celery支持定时任务调度，可用于实现crontab之类的功能。</li>
+</ul>
+<h2 id="基础概念"><strong>基础概念</strong></h2><p>&emsp;Celery一般的工作流程如下所示：<br><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">|</span> <span class="comment">Producer</span> <span class="comment">(Python)</span> <span class="comment">|</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span>&gt; <span class="comment">|</span> <span class="comment">Broker</span> <span class="comment">(Redis/RabbitMQ)</span> <span class="comment">|</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span>&gt; <span class="comment">|</span> <span class="comment">Celery</span> <span class="comment">Worker</span> <span class="comment">(1</span><span class="string">.</span><span class="string">.</span><span class="comment">N)</span> <span class="comment">|</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span>&gt; <span class="comment">|</span> <span class="comment">Backend</span> <span class="comment">(Redis/RabbitMQ)</span> <span class="comment">|</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><strong><code>Producer</code></strong>：<strong>任务生产者</strong>。这里使用的是Python，通过Python调用Celery的API生产任务。</li>
+<li><strong><code>Broker</code></strong>：<strong>消息代理</strong>。接收Producer生产的任务，存入任务队列后依序将任务分派给Celery Worker。目前Celery支持的Broker有：<a href="http://docs.celeryproject.org/en/latest/getting-started/brokers/index.html" target="_blank" rel="external">Celery Broker</a>。最常用的就是RabbitMQ和Redis</li>
+<li><strong><code>Celery Worker</code></strong>：<strong>任务消费者</strong>。用于执行任务，通常需要使用<code>celery -A [celery.task] worker -l INFO</code>命令运行Celery Worker。</li>
+<li><strong><code>Backend</code></strong>：<strong>任务结果存储</strong>。存储任务执行的结果以便查询，默认支持和Broker差不多，常用的也是RabbitMQ和Redis。是否存储结果是可选的，若不设置Backend则不存储任务结果。</li>
+</ul>
+<h2 id="安装"><strong>安装</strong></h2><p>&emsp;安装使用pip即可，这里使用的Broker为Redis所以在安装Celery时一起将相关依赖给装上<br><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Redis</span></span><br><span class="line">pip <span class="keyword">install</span> celery[redis]</span><br><span class="line"></span><br><span class="line"><span class="comment">#RabbitMQ</span></span><br><span class="line">pip <span class="keyword">install</span> celery[librabbitmq,msgpack]</span><br></pre></td></tr></table></figure></p>
+<h2 id="应用实例"><strong>应用实例</strong></h2><h3 id="配置"><strong>配置</strong></h3><p>&emsp;要使用Celery先要告知Celery使用什么Broker、Backend等一系列信息，故需要进行相关配置。配置大致可分两种形式，一种是直接将Broker等信息写到代码中，一种是将信息先写入配置文件，然后在代码中加载配置。为了方便管理配置，我习惯使用后者。</p>
+<ul>
+<li>配置文件——<strong><code>celeryconfig.py</code></strong><br>  &emsp;配置文件中有些涉及到定时任务调度，后面会提到可先忽略。  <figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">from celery.schedules import crontab</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#Redis作为Broker</span></span><br><span class="line">BROKER_URL = <span class="string">'redis://localhost:6379/0'</span></span><br><span class="line"><span class="preprocessor">#Redis作为Backend</span></span><br><span class="line">CELERY_RESULT_BACKEND = <span class="string">'redis://localhost:6379/1'</span></span><br><span class="line"><span class="preprocessor">#任务结果过期时间(seconds)</span></span><br><span class="line">CELERY_TASK_RESULT_EXPIRES = <span class="number">60</span> * <span class="number">60</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#BROKER_TRANSPORT_OPTIONS = &#123;'visibility_timeout': 144000&#125;</span></span><br><span class="line"><span class="preprocessor">#CELERY_IGNORE_RESULT = True</span></span><br><span class="line"><span class="preprocessor">#CELERYD_MAX_TASKS_PER_CHILD = 100</span></span><br><span class="line"></span><br><span class="line">CELERY_TASK_SERIALIZER = <span class="string">'json'</span></span><br><span class="line">CELERY_RESULT_SERIALIZER = <span class="string">'json'</span></span><br><span class="line">CELERY_ACCEPT_CONTENT = [<span class="string">'json'</span>]</span><br><span class="line"><span class="preprocessor">#CELERY_TASK_SERIALIZER = 'msgpack'</span></span><br><span class="line"><span class="preprocessor">#CELERY_ACCEPT_CONTENT = ['json', 'msgpack']</span></span><br><span class="line">CELERY_TIMEZONE = <span class="string">'Asia/Shanghai'</span></span><br><span class="line">CELERY_ENABLE_UTC = False</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="创建任务(task)"><strong>创建任务(task)</strong></h3><p>&emsp;使用Celery的API创建任务非常简单，两步即可完成：</p>
+<ol>
+<li>实例化Celery对象，命名为<code>celery</code></li>
+<li>使用<strong><code>@celery.task</code></strong>装饰器装饰任务函数</li>
+</ol>
+<ul>
+<li><p>任务程序——<strong><code>tasks.py</code></strong><br>  &emsp;默认Celery Worker是不允许以root用户启动，若需要以root用户启动则需配置<code>platforms.C_FORCE_ROOT = True</code></p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">from celery import Celery, platforms</span><br><span class="line">import paramiko</span><br><span class="line"></span><br><span class="line">#实例化Celery对象</span><br><span class="line">celery = <span class="function"><span class="title">Celery</span><span class="params">(__name__)</span></span></span><br><span class="line">#从配置文件加载配置</span><br><span class="line">celery.<span class="function"><span class="title">config_from_object</span><span class="params">(<span class="string">'celeryconfig'</span>)</span></span></span><br><span class="line">#允许root启动</span><br><span class="line"><span class="id">#platforms</span><span class="class">.C_FORCE_ROOT</span> = True</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">@celery<span class="class">.task</span></span><br><span class="line">def <span class="function"><span class="title">add</span><span class="params">(x, y)</span></span>:</span><br><span class="line">	return x + y</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#设置重试</span><br><span class="line">@celery.<span class="function"><span class="title">task</span><span class="params">(bind=True, default_retry_delay=<span class="number">300</span>, max_retries=<span class="number">5</span>)</span></span></span><br><span class="line">def <span class="function"><span class="title">add_retry</span><span class="params">(x, y)</span></span></span><br><span class="line">	return x + y</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>调用任务——<strong><code>test.py</code></strong><br>  &emsp;调用已写好的任务程序产生任务<br>  &emsp;<code>add.delay(1, 1)</code>其实是<code>add.apply_async(1, 1)</code>的简写。</p>
+  <figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">from</span> tasks import <span class="built_in">add</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">add</span>.delay(<span class="number">1</span>, <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>运行Celery Worker<br>  &emsp;需要运行Celery Worker去执行任务，可结合Supervisor</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> your_project_dir</span><br><span class="line">celery -A tasks worker <span class="operator">-l</span> INFO</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="定时任务"><strong>定时任务</strong></h3><p>&emsp;Celery支持任务调度，使用Celery Beat执行定时任务</p>
+<ul>
+<li><p>配置文件——<strong><code>crontab_celeryconfig.py</code></strong> </p>
+  <figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">from celery.schedules <span class="keyword">import</span> crontab</span><br><span class="line"><span class="constant"></span><br><span class="line">BROKER_URL</span> = 'redis:<span class="comment">//localhost:6379/2'</span></span><br><span class="line"><span class="constant">CELERY_RESULT_BACKEND</span> = 'redis:<span class="comment">//localhost:6379/3'</span></span><br><span class="line"><span class="constant"></span><br><span class="line">CELERY_TASK_SERIALIZER</span> = 'json'</span><br><span class="line"><span class="constant">CELERY_RESULT_SERIALIZER</span> = 'json'</span><br><span class="line"><span class="constant">CELERY_ACCEPT_CONTENT</span> = ['json']</span><br><span class="line"><span class="constant">CELERY_TIMEZONE</span> = 'Asia/Shanghai'</span><br><span class="line"><span class="constant">CELERY_ENABLE_UTC</span> = False</span><br><span class="line"><span class="constant"></span><br><span class="line">CELERYBEAT_SCHEDULE</span> = &#123;</span><br><span class="line">	<span class="string">"add"</span>: &#123;</span><br><span class="line">		<span class="string">"task"</span>: <span class="string">"crontab_tasks.sendmail"</span>,</span><br><span class="line">		<span class="string">"schedule"</span>: crontab(minute='*/<span class="number">1</span>')</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>任务程序——<strong>crontab_tasks.py</strong></p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> celery <span class="keyword">import</span> Celery</span><br><span class="line"></span><br><span class="line">crontab_celery = Celery(__name__)</span><br><span class="line">crontab_celery.config_from_object(<span class="string">'crontab_celeryconfig'</span>)</span><br><span class="line"></span><br><span class="line"><span class="decorator">@crontab_celery.task</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sendmail</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">print</span> <span class="string">"Celery Crontab Tast Test"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Celery Worker &amp; Beat<br>  &emsp;启动Celery的Worker和Beat，每分钟定时执行<code>sendmail()</code>函数</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">celery -A crontab_tasks worker -B <span class="operator">-l</span> INFO <span class="operator">-s</span> /tmp/celerybeat-schedule</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="后续"><strong>后续</strong></h2><p>&emsp;目前只是简单的使用了Celery的基础功能，更多高级功能以后用到再继续补上</p>
+<ul>
+<li><p>手动指定路由(Route)和队列(Queue)<br>  当使用RabbitMQ作为Broker时，可手动指定任务的队列和路由。Celery默认所有任务都到<code>celery</code>的队列中。详细参考以下文章：</p>
+<ul>
+<li><a href="http://docs.celeryproject.org/en/latest/userguide/routing.html#manual-routing" target="_blank" rel="external">Celery官方Routing文档</a></li>
+<li><a href="http://lsq.me/2013/12/20/python/celery-manual-routing/" target="_blank" rel="external">Celery 如何手动路由任务</a></li>
+<li><a href="http://linpingta.cn/blog/2016/03/19/celery-2/" target="_blank" rel="external">Celery 概念：分布式、路由队列与工作流</a></li>
+</ul>
+</li>
+<li><p>flower<br>  &emsp;flower提供Web界面对Celery进行监控</p>
+</li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="介绍"><strong>介绍</strong></h2><p>&emsp;最近工作要异步执行任务，需要用到<a href="http://docs.celeryproject.org/en/latest/" target="_blank" rel="externa]]>
+    </summary>
+    
+      <category term="python" scheme="http://yoursite.com/tags/python/"/>
+    
+      <category term="Python" scheme="http://yoursite.com/categories/Python/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[Python回炉记]]></title>
@@ -1826,7 +1901,7 @@
     <link href="http://yoursite.com/2015/09/28/haproxy/"/>
     <id>http://yoursite.com/2015/09/28/haproxy/</id>
     <published>2015-09-28T02:38:07.000Z</published>
-    <updated>2015-09-28T02:49:50.000Z</updated>
+    <updated>2016-08-13T05:39:44.000Z</updated>
     <content type="html"><![CDATA[<p>&emsp;HAProxy能用做负载均衡服务器，也可以用于做四层(TCP)、七层(HTTP)代理</p>
 <h2 id="HAProxy安装"><strong>HAProxy安装</strong></h2><p>&emsp;从<a href="http://www.haproxy.org/#down" target="_blank" rel="external">这里</a>下载HAProxy的源码包，此处用的是：</p>
 <ul>
@@ -1844,7 +1919,7 @@
 <li><strong>$ModLoad imudp</strong>：imudp是模块名，支持UDP协议</li>
 <li><strong>$UDPServerRun 514</strong>：允许514端口接收使用UDP和TCP协议转发过来的日志，rsyslog默认在514端口监听UDP</li>
 <li><strong>local3</strong>：此为facility参数，描述提交的日志信息的应用程序或进程。如邮件、内核和FTP等，local0~7为用户自定义。详细请查看<a href="https://en.wikipedia.org/wiki/Syslog#Facility" target="_blank" rel="external">这里</a></li>
-<li><code>&amp; ~</code>：停止对日志消息的进一步处理，并且不要在本地写入。如果没有此重定向规则，日志消息会被重复写入到本地<code>/var/log/message</code>文件</li>
+<li><code>&amp; ~</code>：停止对日志消息的进一步处理，并且不要在本地写入。如果没有此重定向规则，日志消息会被重复写入到本地<code>/var/log/message</code>文件<br>  或者可这么写：<code>*.info;mail.none;authpriv.none;cron.none;local3.none   /var/log/messages</code></li>
 </ul>
 </li>
 <li><p>修改rsyslog配置文件<strong><code>/etc/sysconfig/rsyslog</code></strong></p>
@@ -1977,7 +2052,7 @@
 </li>
 </ul>
 <h3 id="req_+_rsp操作"><strong>req + rsp操作</strong></h3><p>&emsp;HAProxy还有一系列的<code>req</code>操作，这部分了解甚少，以后再补吧<br><code>reqadd reqallow reqdel reqdeny reqiallow reqidel reqideny reqipass reqirep reqisetbe reqitarpit reqpass reqrep</code><br><code>rspadd rspdel rspdeny rspidel rspideny rspirep rsprep</code></p>
-<h2 id="启动/重启"><strong>启动/重启</strong></h2><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#启动</span><br><span class="line"><span class="regexp">/usr/</span>local<span class="regexp">/haproxy/</span>sbin<span class="regexp">/haproxy -f /u</span>sr<span class="regexp">/local/</span>haproxy<span class="regexp">/etc/</span>haproxy.cfg</span><br><span class="line"></span><br><span class="line">#重启</span><br><span class="line"><span class="regexp">/usr/</span>local<span class="regexp">/haproxy/</span>sbin<span class="regexp">/haproxy -f /u</span>sr<span class="regexp">/local/</span>haproxy<span class="regexp">/etc/</span>haproxy.cfg -st `cat <span class="regexp">/usr/</span>local<span class="regexp">/haproxy/</span>haproxy.pid`</span><br></pre></td></tr></table></figure>
+<h2 id="启动/重启"><strong>启动/重启</strong></h2><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#启动</span><br><span class="line"><span class="regexp">/usr/</span>local<span class="regexp">/haproxy/</span>sbin<span class="regexp">/haproxy -f /u</span>sr<span class="regexp">/local/</span>haproxy<span class="regexp">/etc/</span>haproxy.cfg</span><br><span class="line"></span><br><span class="line">#平滑重启</span><br><span class="line"><span class="regexp">/usr/</span>local<span class="regexp">/haproxy/</span>sbin<span class="regexp">/haproxy -f /u</span>sr<span class="regexp">/local/</span>haproxy<span class="regexp">/etc/</span>haproxy.cfg -sf `cat <span class="regexp">/usr/</span>local<span class="regexp">/haproxy/</span>haproxy.pid`</span><br></pre></td></tr></table></figure>
 ]]></content>
     <summary type="html">
     <![CDATA[<p>&emsp;HAProxy能用做负载均衡服务器，也可以用于做四层(TCP)、七层(HTTP)代理</p>
@@ -2204,78 +2279,6 @@
     </summary>
     
       <category term="openvpn" scheme="http://yoursite.com/tags/openvpn/"/>
-    
-      <category term="OPS" scheme="http://yoursite.com/categories/OPS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[Twemproxy简记]]></title>
-    <link href="http://yoursite.com/2015/08/15/twemproxy/"/>
-    <id>http://yoursite.com/2015/08/15/twemproxy/</id>
-    <published>2015-08-15T03:01:06.000Z</published>
-    <updated>2016-02-28T03:13:03.000Z</updated>
-    <content type="html"><![CDATA[<p>&emsp;Twemproxy是Twitter开源的Redis/Memcache代理软件。</p>
-<h2 id="基础环境"><strong>基础环境</strong></h2><ul>
-<li>CentOS 6.4 64bit</li>
-<li>Twemproxy 0.4.1</li>
-<li>Redis 2.8.24</li>
-</ul>
-<h2 id="安装Twemproxy"><strong>安装Twemproxy</strong></h2><ul>
-<li><p><strong>安装依赖</strong></p>
-  <figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; yum -y <span class="keyword">install</span> libtool</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>安装autoconf</strong><br>  <strong>autoconf</strong>的版本必须在<strong><code>2.6.4</code></strong>以上</p>
-  <figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> wget http:<span class="comment">//ftp.gnu.org/gnu/autoconf/autoconf-2.68.tar.gz</span></span><br><span class="line"><span class="variable">$&gt;</span> tar -zxf autoconf-<span class="number">2.68</span>.tar.gz</span><br><span class="line"><span class="variable">$&gt;</span> cd autoconf-<span class="number">2.68</span></span><br><span class="line"><span class="variable">$&gt;</span> ./configure --prefix=/usr/local/</span><br><span class="line"><span class="variable">$&gt;</span> make &amp;&amp; make install</span><br><span class="line"></span><br><span class="line"><span class="variable">$&gt;</span> autoconf -V</span><br><span class="line">autoconf (GNU Autoconf) <span class="number">2.68</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>安装Twemproxy</strong><br>  &emsp;如果需要twemproxy支持<code>redis_auth</code>则要选择<code>0.4.1</code>版本，若redis没有设置认证则并非必须使用<code>0.4.1</code>。<a href="https://drive.google.com/folderview?id=0B6pVMMV5F5dfMUdJV25abllhUWM&amp;usp=drive_web#list" target="_blank" rel="external">下载twemproxy.0.4.1.tar.gz</a> (需要梯子)<br>  &emsp;configure时可以指定debug的log输出级别 “full、log、yes、no”，默认是no。</p>
-  <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">tar -zxf twemproxy.tar.gz</span><br><span class="line"><span class="keyword">cd</span> twemproxy-<span class="number">0.4</span>.<span class="number">1</span>/</span><br><span class="line">autoreconf -fvi</span><br><span class="line">./configure --prefix=/usr/local/twemproxy --enable-<span class="keyword">debug</span>=<span class="built_in">log</span></span><br><span class="line"><span class="keyword">make</span> &amp;&amp; <span class="keyword">make</span> install</span><br><span class="line"></span><br><span class="line">/usr/local/twemproxy/sbin/nutcracker --<span class="keyword">version</span></span><br><span class="line">This <span class="keyword">is</span> nutcracker-<span class="number">0.4</span>.<span class="number">1</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="配置Twemproxy"><strong>配置Twemproxy</strong></h2><p>&emsp;<strong><code>/usr/local/twemproxy/conf/nutcracker.yml</code></strong><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">web_redis:</span><br><span class="line">  listen: <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">22122</span></span><br><span class="line">  <span class="built_in">hash</span>: fnv1a_64</span><br><span class="line">  <span class="built_in">hash</span>_tag: <span class="string">"&#123;&#125;"</span></span><br><span class="line">  distribution: ketama</span><br><span class="line">  auto_eject_hosts: <span class="literal">true</span></span><br><span class="line">  redis: <span class="literal">true</span></span><br><span class="line">  redis_auth: redis_password</span><br><span class="line">  server_retry_timeout: <span class="number">3000</span></span><br><span class="line">  server_failure_<span class="built_in">limit</span>: <span class="number">1</span></span><br><span class="line">  servers:</span><br><span class="line">   - <span class="number">10.0</span>.<span class="number">6.5</span>:<span class="number">6379</span>:<span class="number">1</span></span><br><span class="line">   - <span class="number">10.0</span>.<span class="number">6.6</span>:<span class="number">6379</span>:<span class="number">1</span></span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>web_redis：实例别名</li>
-<li>listen：监听ip及端口</li>
-<li>hash：hash算法<ul>
-<li>one_at_a_time</li>
-<li>md5</li>
-<li>crc16</li>
-<li>crc32 (crc32 implementation compatible with libmemcached)</li>
-<li>crc32a (correct crc32 implementation as per the spec)</li>
-<li>fnv1_64</li>
-<li>fnv1a_64</li>
-<li>fnv1_32</li>
-<li>fnv1a_32</li>
-<li>hsieh</li>
-<li>murmur</li>
-<li>jenkins</li>
-</ul>
-</li>
-<li>hash_tag: 使用key的一部分作为键值，比如：”user:{user1}:ids”、”user:{user1}:tweets”使用<code>user1</code>作为hash会映射到同一台redis上</li>
-<li>distribution: 分片算法<ul>
-<li>ketama：一致性Hash。据服务器构造出一个hash ring，并为ring上的节点分配hash范围。ketama的优势在于单个节点添加、删除之后，会最大程度上保持整个群集中缓存的key值可以被重用。</li>
-<li>modula：取模。据key值的hash值取模，根据取模的结果选择对应的服务器。</li>
-<li>random：随机。无论key值的hash是什么，都随机的选择一个服务器作为key值操作的目标。这种分片适合只读缓存。</li>
-</ul>
-</li>
-<li>auto_eject_hosts: twemproxy是否应该根据server的连接状态重建群集。连接状态是由server_failure_limit阀值来控制。 默认是false。 （是否在节点故障无法响应时自动摘除该节点，如果作为存储需要设置为为false）</li>
-<li>redis: 是否是redis代理，如果是false则是memcached代理。</li>
-<li>redis_auth:　后端redis若需要认证则需此选项。</li>
-<li>server_retry_timeout：单位是毫秒，控制服务器连接的时间间隔（重新连接一个临时摘掉的故障节点的间隔），在auto_eject_host被设置为true的时候产生作用。默认是30000 毫秒。</li>
-<li>server_failure_limit: 控制连接服务器的次数（节点故障无法响应多少次从一致性Hash环临时摘掉它），在auto_eject_host被设置为true的时候产生作用。默认是2。</li>
-<li>servers: 代理的服务器列表，该列表会使用distribution配置的分片算法进行分片。</li>
-</ul>
-<h2 id="启动Twemproxy"><strong>启动Twemproxy</strong></h2><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 测试配置文件</span><br><span class="line"><span class="regexp">/usr/</span>local<span class="regexp">/twemproxy/</span>sbin<span class="regexp">/nutcracker -t /u</span>sr<span class="regexp">/local/</span>twemproxy<span class="regexp">/conf/</span>nutcracker.yml</span><br><span class="line"></span><br><span class="line"># 启动Twemproxy</span><br><span class="line"><span class="regexp">/usr/</span>local<span class="regexp">/twemproxy/</span>sbin<span class="regexp">/nutcracker -d -c /u</span>sr<span class="regexp">/local/</span>twemproxy<span class="regexp">/conf/</span>nutcracker.yml -p <span class="regexp">/usr/</span>local<span class="regexp">/twemproxy/</span>run<span class="regexp">/twemproxy.pid -o /u</span>sr<span class="regexp">/local/</span>twemproxy<span class="regexp">/run/</span>twemproxy.log</span><br></pre></td></tr></table></figure>
-<h2 id="测试Twemproxy"><strong>测试Twemproxy</strong></h2><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> /usr/local/redis/bin/redis-cli -p <span class="number">22122</span> -a redis_password</span><br><span class="line"></span><br><span class="line"><span class="prompt">127.0.0.1:22122&gt;</span> set name mogl</span><br><span class="line"><span class="constant">OK</span></span><br><span class="line"><span class="prompt">127.0.0.1:22122&gt;</span> get name</span><br><span class="line"><span class="string">"mogl"</span></span><br><span class="line"><span class="prompt">127.0.0.1:22122&gt;</span></span><br></pre></td></tr></table></figure>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>&emsp;Twemproxy是Twitter开源的Redis/Memcache代理软件。</p>
-<h2 id="基础环境"><strong>基础环境</strong></h2><ul>
-<li>CentOS 6.4 64bit</li>
-<li>Twemproxy 0.]]>
-    </summary>
-    
-      <category term="twemproxy" scheme="http://yoursite.com/tags/twemproxy/"/>
     
       <category term="OPS" scheme="http://yoursite.com/categories/OPS/"/>
     
