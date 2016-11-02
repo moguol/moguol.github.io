@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" Python库札记 | Hexo " />
+	<meta name="twitter:title" content=" Python库札记 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" Python库札记 | Hexo ">
+	<meta property="og:description" content=" Python库札记 | Hexo " />
+	<meta name="twitter:description" content=" Python库札记 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2016/09/11/python-library-module/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2016-09-11">2016-09-11</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/Python/">Python</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2016/09/11/python-library-module/" itemprop="url"><span itemprop="name">Python库札记</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<p>&emsp;Python库非常多，为方便快速查询，将自己之前用到的库做个简单汇总记录，不定期持续更新。</p>
+<h3 id="目录"><strong>目录</strong></h3><ul>
+<li><a href="#shutil">shutil</a></li>
+<li><a href="#glob">glob</a></li>
+<li><a href="#shlex">shlex</a></li>
+<li><a href="#argparse">argparse</a></li>
+<li><a href="#re">re</a></li>
+<li><a href="#os">os</a></li>
+<li><a href="#sys">sys</a></li>
+<li><a href="#time">time</a></li>
+<li><a href="#datetime">datetime</a></li>
+<li><a href="#paramiko">paramiko</a></li>
+<li><a href="#subprocess">subprocess</a></li>
+<li><a href="#functools">functools</a></li>
+<li><a href="#smtplib">smtplib</a></li>
+<li><a href="#requests">requests</a></li>
+<li><a href="#hashlib">hashlib</a></li>
+<li><a href="#multiprocessing">multiprocessing</a></li>
+<li><a href="#MySQLdb">MySQLdb</a></li>
+<li><a href="#ConfigParser">ConfigParser</a></li>
+<li><a href="#lxml">lxml</a></li>
+<li><a href="#BeautifulSoup">BeautifulSoup</a></li>
+</ul>
+<p><span id="shutil"></span></p>
+<h3 id="shutil"><strong>shutil</strong></h3><p>&emsp;<strong><a href="http://python.usyiyi.cn/python_278/library/shutil.html" target="_blank" rel="external">shutil</a></strong>模块提供目录和文件的高级操作</p>
+<ul>
+<li><p>复制操作</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> shutil</span><br><span class="line"></span><br><span class="line"><span class="comment">#将文件src复制到文件或目录dest，保留文件权限</span></span><br><span class="line">shutil.copy(src, dest)</span><br><span class="line"></span><br><span class="line"><span class="comment">#在shutil.copy的基础上加上copystat()，即将文件的访问/修改时间等信息也复制</span></span><br><span class="line">shutil.copy2(src, dest)</span><br><span class="line"></span><br><span class="line"><span class="comment">#复制文件src的内容（不包含元数据）到文件dest(不支持目录复制，dest中必须包含文件名)</span></span><br><span class="line">shutil.copyfile(src, dest)</span><br><span class="line"></span><br><span class="line"><span class="comment">#将类文件对象src.log的内容复制到类文件对象dest.log</span></span><br><span class="line">shutil.copyfileobj(open(<span class="string">'src.log'</span>,<span class="string">'r'</span>), open(<span class="string">'dest.log'</span>, <span class="string">'w'</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">#递归拷贝src。symlinks=True则软链接文件也会被复制</span></span><br><span class="line">shutil.copytree(src, dest, symlinks=<span class="keyword">True</span>, ignore=shutil.ignore_patterns(<span class="string">'*.pyc'</span>, <span class="string">'*.swap'</span>))</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>移动&amp;删除操作</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#递归方式移动文件或目录</span></span><br><span class="line">shutil.move(src, dest)</span><br><span class="line"></span><br><span class="line"><span class="comment">#递归删除文件</span></span><br><span class="line">shutil.rmtree(folder1, folder2)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>压缩文件<br>&emsp;压缩文件。将目录”/usr/local/project”压缩到”/home/mogl/test.tar.gz”<br>&emsp;压缩包支持类型：zip/tar/gztar/bztar</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shutil.make_archive(<span class="string">"/home/mogl/test"</span>, <span class="string">'gztar'</span>, root_dir=<span class="string">"/usr/local/project"</span>)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><span id="glob"></span></p>
+<h3 id="glob"><strong>glob</strong></h3><p>&emsp;<strong><a href="http://python.usyiyi.cn/python_278/library/glob.html" target="_blank" rel="external">glob</a></strong>模块提供Unix Shell规则的文件匹配功能<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> glob</span><br><span class="line"></span><br><span class="line">glob.glob(<span class="string">'*.png'</span>)</span><br><span class="line">glob.glob(<span class="string">'[0-9].*'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#返回迭代器</span></span><br><span class="line">files = glob.iglob(<span class="string">'*.log'</span>)</span><br><span class="line"><span class="keyword">for</span> each_file <span class="keyword">in</span> files:</span><br><span class="line">    <span class="keyword">print</span> each_file</span><br></pre></td></tr></table></figure></p>
+<p><span id="shlex"></span></p>
+<h3 id="shlex"><strong>shlex</strong></h3><p>&emsp;<a href="https://docs.python.org/2/library/shlex.html" target="_blank" rel="external">shlex</a>模块提供简单的Unix Shell命令参数词法分析功能，可结合<a href="#subprocess">subprocess</a>使用。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> shlex</span><br><span class="line"></span><br><span class="line">shlex.split(<span class="string">"ls -lht /tmp"</span>)</span><br><span class="line"><span class="comment">#['ls', '-lht', '/tmp']</span></span><br></pre></td></tr></table></figure></p>
+<p><span id="argparse"></span></p>
+<h3 id="argparse"><strong>argparse</strong></h3><p>&emsp;<strong><a href="http://python.usyiyi.cn/python_278/library/argparse.html" target="_blank" rel="external">argparse</a></strong>是用于命令行参数解析的模块，功能非常强大，目前所用到的只是简单功能，直接上实例<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"></span><br><span class="line">parser = argparse.ArgumentParser(description=<span class="string">'descritption'</span>, epilog=<span class="string">"author:mogl"</span>)</span><br><span class="line"></span><br><span class="line">parser.add_argument(<span class="string">'-d'</span>, <span class="string">'--directory'</span>, action=<span class="string">'store_true'</span>, help=<span class="string">'Only search directory'</span>)</span><br><span class="line">parser.add_argument(<span class="string">'-i'</span>, <span class="string">'--ignore-case'</span>, action=<span class="string">'store_true'</span>, help=<span class="string">'Ignore case search'</span>)</span><br><span class="line">parser.add_argument(<span class="string">'-S'</span>, <span class="string">'--srcport'</span>, help=<span class="string">'sorce port'</span>, type=int, required=<span class="keyword">True</span>)</span><br><span class="line">parser.add_argument(<span class="string">'-D'</span>, <span class="string">'--destport'</span>, help=<span class="string">'dest port'</span>, type=int, default=<span class="number">80</span>)</span><br><span class="line">parser.add_argument(<span class="string">'file_name'</span>, nargs=<span class="string">'+'</span>, help=<span class="string">'The file name'</span>)</span><br><span class="line"></span><br><span class="line">args = parser.parse_args()</span><br><span class="line"></span><br><span class="line"><span class="comment">#获取参数值</span></span><br><span class="line"><span class="keyword">print</span> args.ignore_case</span><br><span class="line"><span class="keyword">print</span> args.srcport</span><br><span class="line"><span class="keyword">print</span> args.destport</span><br><span class="line"></span><br><span class="line"><span class="comment">#python test.py -S 124 test mogl</span></span><br><span class="line"><span class="comment">#False</span></span><br><span class="line"><span class="comment">#124</span></span><br><span class="line"><span class="comment">#80</span></span><br><span class="line"><span class="comment">#['test', 'mogl']</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p><strong>参数</strong><br>  参数可分为两种：</p>
+<ul>
+<li>选项参数(optional)<br>  <code>parser.add_argument(&#39;-i&#39;, &#39;--ignore-case&#39;, action=&#39;store_true&#39;, help=&#39;Ignore case search&#39;)</code><br>  选项参数默认使用<code>-</code>做前缀标识</li>
+<li>位置参数(positional)<br>  <code>parser.add_argument(&#39;file_name&#39;, nargs=&#39;+&#39;, help=&#39;The file name&#39;)</code></li>
+</ul>
+</li>
+<li><p><strong>选项参数解析</strong><br>   &emsp;选项参数默认返回<strong><code>None</code></strong>，可用<code>default</code>参数指定默认值。如果该参数是必须的则使用<code>required=True</code><br>  <code>parser.add_argument(&#39;-i&#39;, &#39;--ignore-case&#39;, action=&#39;store_true&#39;, help=&#39;Ignore case search&#39;)</code><br>  <code>parser.add_argument(&#39;-S&#39;, &#39;--srcport&#39;, help=&#39;sorce port&#39;, type=int, required=True)</code></p>
+<ul>
+<li><code>&#39;-i&#39;, &#39;--ignore-case&#39;</code><br>  参数长短语法</li>
+<li><code>action=&#39;store_true&#39;</code><br>  表明该参数不接受参数传递，即不接收诸如<code>-i test</code>、<code>--ignore-case=true</code></li>
+<li><code>type=int</code><br>  若不使用<code>action=&#39;store_true&#39;</code>则可表明接受参数传递，使用<code>type</code>指定传入类型(<code>type=int|str|complax</code>)</li>
+<li><code>help=&#39;sorce port&#39;</code><br>  该参数的说明</li>
+</ul>
+</li>
+<li><p><strong>位置参数</strong><br>  &emsp;若指定了位置参数，则运行程序时必须传入该参数才能运行<br>  <code>parser.add_argument(&#39;file_name&#39;, nargs=&#39;+&#39;, help=&#39;The file name&#39;)</code></p>
+<ul>
+<li><code>nargs</code><br>  将多个参数关联在一起。<code>+</code>将多个参数存到一个列表里,至少要有一个参数否则报错</li>
+</ul>
+</li>
+<li><p><strong>action</strong><br>  &emsp;argparse默认设置6个action：</p>
+<ul>
+<li>store<br>  保存参数值，可能会先将参数值转换成另一个数据类型。若没有显式指定动作，则默认为该动作。</li>
+<li>store_const<br>  保存一个被定义为参数规格一部分的值，而不是一个来自参数解析而来的值。这通常用于实现非布尔值的命令行标记。</li>
+<li>store_ture/store_false<br>  保存相应的布尔值。这两个动作被用于实现布尔开关。</li>
+<li>append<br>  将值保存到一个列表中。若参数重复出现，则保存多个值。</li>
+<li>append_const<br>  将一个定义在参数规格中的值保存到一个列表中。</li>
+<li>version<br>  打印关于程序的版本信息，然后退出</li>
+</ul>
+</li>
+</ul>
+<p><span id="re"></span></p>
+<h3 id="re"><strong>re</strong></h3><p>&emsp;<strong><a href="http://python.usyiyi.cn/python_278/library/re.html" target="_blank" rel="external">re</a></strong>提供正则表达式匹配操作，是处理字符串最常用的库。</p>
+<h4 id="正则表达式语法"><strong>正则表达式语法</strong></h4><p>&emsp;使用re库前，先大致了解正则表达式的基本语法，正好顺便总结一下有关正则表达式的内容。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">符号</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>基本关键字</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:center">.</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">常规模式下匹配除<code>\n</code>外的所有字符，DOTALL模式下<code>\n</code>也匹配</td>
+</tr>
+<tr>
+<td style="text-align:center">^</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">常规模式下匹配字符串开头，MULTILINE模式下匹配每行开头</td>
+</tr>
+<tr>
+<td style="text-align:center">$</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">常规模式下匹配字符串结尾，MULTILINE模式下匹配行尾</td>
+</tr>
+<tr>
+<td style="text-align:center">*</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配*前面内容零次或多次，贪婪匹配</td>
+</tr>
+<tr>
+<td style="text-align:center">+</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配+前面内容零次或多次，贪婪匹配</td>
+</tr>
+<tr>
+<td style="text-align:center">?</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配?前面内容零次或1次</td>
+</tr>
+<tr>
+<td style="text-align:center">{m}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配{m}前面内容m次</td>
+</tr>
+<tr>
+<td style="text-align:center">{m,n}</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配{m,n}前面内容m~n次</td>
+</tr>
+<tr>
+<td style="text-align:center">*? +? ?? {m,n}?</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">* + ? {m,n}都是贪婪匹配，后面加上?后为非贪婪匹配</td>
+</tr>
+<tr>
+<td style="text-align:center">[]</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配[]内字符集的任一字符，<code>^</code>表示不匹配，<code>-</code>并用给出一段范围字符</td>
+</tr>
+<tr>
+<td style="text-align:center">单竖线</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">或，只匹配其中一个</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>分组关键字</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:center">(…)</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配括号内任意正则表达式并形成一个分组</td>
+</tr>
+<tr>
+<td style="text-align:center">(?P<code>&lt;name&gt;</code>…)</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">为符合匹配的分组命名</td>
+</tr>
+<tr>
+<td style="text-align:center">(?#…)</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">注释，(?#..)里的内容会被忽略</td>
+</tr>
+<tr>
+<td style="text-align:center">(?=…)</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配结果后面的字符串需要满足表达式<code>...</code>。<strong>python_re_test</strong>——<code>.*(?=_test)</code>则匹配到字符串<strong>python_re</strong></td>
+</tr>
+<tr>
+<td style="text-align:center">(?!…)</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配结果后面的字符串必须不满足表达式<code>...</code></td>
+</tr>
+<tr>
+<td style="text-align:center">(?&lt;=…)</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配结果前面的字符串需要满足表达式<code>...</code>。<strong>python_re_test</strong>——<code>(?&lt;=python_).*</code>则匹配字符串<strong>re_test</strong></td>
+</tr>
+<tr>
+<td style="text-align:center">(?&lt;!…)</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配结果前面的字符串必须不满足表达式<code>...</code></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>特殊关键字</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:center">\d</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配数字，相当于[0-9]</td>
+</tr>
+<tr>
+<td style="text-align:center">\D</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配非数字，相当于[^0-9]</td>
+</tr>
+<tr>
+<td style="text-align:center">\s</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配空白字符，相当于[\t\r\n\f\v]</td>
+</tr>
+<tr>
+<td style="text-align:center">\S</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配非空白字符，相当于[^\t\r\n\f\v]</td>
+</tr>
+<tr>
+<td style="text-align:center">\w</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配字母或数字，相当于[0-9a-zA-Z]</td>
+</tr>
+<tr>
+<td style="text-align:center">\W</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配非字母或数字，相当于[^0-9a-zA-Z]</td>
+</tr>
+<tr>
+<td style="text-align:center">\b</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配字符串边界</td>
+</tr>
+<tr>
+<td style="text-align:center">\B</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配非字符串边界</td>
+</tr>
+<tr>
+<td style="text-align:center">\A</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配字符串开头</td>
+</tr>
+<tr>
+<td style="text-align:center">\Z</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">匹配字符串结尾</td>
+</tr>
+</tbody>
+</table>
+<h4 id="re库flags参数"><strong>re库flags参数</strong></h4><p>&emsp;Python的re库API中可指定<strong>flags</strong>参数，通过这些flags参数指定正则表达式选项通常使用类似<code>re.I</code>这样的简写，比如<code>re.compile(pattern, [flags])</code>函数——<code>re.compile(pattern, re.I)</code>。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">符号</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">re.A</td>
+<td></td>
+<td>ASCII</td>
+<td></td>
+<td style="text-align:left">使\w\W\b\B\d\D匹配ASCII字符</td>
+</tr>
+<tr>
+<td style="text-align:center">re.I</td>
+<td></td>
+<td>IGNORECASE</td>
+<td></td>
+<td style="text-align:left">忽略大小写</td>
+</tr>
+<tr>
+<td style="text-align:center">re.L</td>
+<td></td>
+<td>LOCALE</td>
+<td></td>
+<td style="text-align:left">使\w\W\b\B匹配本地字符集</td>
+</tr>
+<tr>
+<td style="text-align:center">re.M</td>
+<td></td>
+<td>MULTILINE</td>
+<td></td>
+<td style="text-align:left">多行模式，<code>^</code> 匹配每行开头，<code>$</code>匹配每行结尾</td>
+</tr>
+<tr>
+<td style="text-align:center">re.X</td>
+<td></td>
+<td>VERBOSE</td>
+<td></td>
+<td style="text-align:left">详细模式，忽略空格和<code>#</code>后面的注释</td>
+</tr>
+<tr>
+<td style="text-align:center">re.U</td>
+<td></td>
+<td>UNICODE</td>
+<td></td>
+<td style="text-align:left">使\w\W\b\B\d\D匹配unicode字符集</td>
+</tr>
+</tbody>
+</table>
+<h4 id="re库正则函数"><strong>re库正则函数</strong></h4><ul>
+<li><p>re.compile(pattern[, flags])<br>  &emsp;将模式和标识编译成正则表达式对象，方便给<code>search()</code>、<code>match()</code>和<code>findall()</code>等函数使用。</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">pattern = re.compile(<span class="string">r'[0-9]+'</span>)</span><br><span class="line"><span class="keyword">print</span> pattern.findall(<span class="string">'abc123d'</span>)</span><br><span class="line"><span class="comment">#123</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>re.search(pattern, string[, flags])<br>  &emsp;在字符串<code>string</code>中查找匹配<code>pattern</code>表达式的串，成功则返回<strong>MatchObject</strong>对象，失败则返回<strong>None</strong></p>
+<ul>
+<li><p>re.search (string[, pos[, endpos]])<br>  &emsp;对于已编译的正则表达式对象，<code>search()</code>函数可指定搜索的起始结束位置</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="comment">#使用compile()</span></span><br><span class="line">pattern = re.compile(<span class="string">"a+"</span>)</span><br><span class="line"><span class="keyword">print</span> pattern.search(<span class="string">"aabcde"</span>).group(<span class="number">0</span>)		<span class="comment">#=&gt;aa</span></span><br><span class="line"><span class="keyword">print</span> pattern.search(<span class="string">"aabcde"</span>, <span class="number">1</span>).group(<span class="number">0</span>) 	<span class="comment">#=&gt;a</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#不使用compile()</span></span><br><span class="line">regx = re.search(<span class="string">r'a+'</span>, <span class="string">'aabcde'</span>)</span><br><span class="line"><span class="keyword">print</span> regx.group(<span class="number">0</span>)		<span class="comment">#=&gt;aa</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>re.match(pattern, string[, flags])<br>  &emsp;在字符串<code>string</code><strong>开头位置</strong>查找匹配<code>pattern</code>表达式的串(必须是<strong>开头位置</strong>)</p>
+<ul>
+<li>re.match(string[, pos[, endpos]])<br>  &emsp;同样对于已编译的正则对象可指定位置<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pattern = re.compile(<span class="string">"a+"</span>)</span><br><span class="line"><span class="keyword">print</span> pattern.match(<span class="string">'aabcde'</span>).group(<span class="number">0</span>) 	<span class="comment">#=&gt;aa</span></span><br><span class="line"><span class="keyword">print</span> pattern.match(<span class="string">'xaabcde'</span>)			<span class="comment">#=&gt;None</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>re.findall(pattern, string[, flags])<br>  &emsp;在字符串<code>string</code>中查找<strong>所有</strong>匹配<code>pattern</code>的串，成功则返回列表，失败则返回空列表。<br>  &emsp;<code>re.search()</code>和<code>re.match()</code><strong>仅匹配一次</strong>。</p>
+<ul>
+<li>re.findall(string[, pos[, endpos]])<br>  &emsp;同样对于已编译的正则对象可指定位置<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pattern = re.compile(<span class="string">"\d+"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> pattern.search(<span class="string">'ab12cd34'</span>).group(<span class="number">0</span>)		<span class="comment">#=&gt;12</span></span><br><span class="line"><span class="keyword">print</span> pattern.match(<span class="string">'ab12cd34'</span>)				<span class="comment">#=&gt;None</span></span><br><span class="line"><span class="keyword">print</span> pattern.findall(<span class="string">'ab12cd34'</span>)				<span class="comment">#=&gt;['12', '34']</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>re.finditer(pattern, string[, flags])<br>  &emsp;<code>re.finditer()</code>和<code>re.findall()</code>类似，只是<code>re.finditer()</code>返回一个迭代器对象。</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pattern = re.compile(<span class="string">"\d+"</span>)</span><br><span class="line"><span class="keyword">for</span> each_iter <span class="keyword">in</span> piter:</span><br><span class="line">   	<span class="keyword">print</span> each_iter.group(<span class="number">0</span>)</span><br><span class="line"><span class="comment">#=&gt;12</span></span><br><span class="line"><span class="comment">#=&gt;34</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>re.sub(pattern, rep_string, string[, count, flags])</p>
+</li>
+<li>re.subn(pattern, rep_string, string[, count, flags])<br>  &emsp;在字符串<code>string</code>中查找匹配<code>pattern</code>的字符串并用<code>rep_string</code>替换。<code>rep_string</code>可以是一个<strong>函数</strong>，成功则返回替换后的字符串，否则返回原字符串。<br>  &emsp;<code>re.subn()</code>和<code>re.sub()</code>类似，只是<code>re.subn()</code>返回替换后的字符串和<strong>替换次数</strong>。  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pattern = re.compile(<span class="string">r'(name|full_name)'</span>)</span><br><span class="line">pattern.sub(<span class="string">'mogl'</span>, <span class="string">'name test python re full_name'</span>)</span><br><span class="line"><span class="comment">#=&gt;'mogl test python re mogl'</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="MatchObject对象"><strong>MatchObject对象</strong></h4><p>&emsp;<code>re.match()</code>、<code>re.search()</code>和<code>re.finditer()</code>若成功匹配的话都是返回一个<strong>MatchObject</strong>对象。(<code>re.findall()</code>返回列表)<br>&emsp;MatchObject对象可调用几个函数：</p>
+<ul>
+<li><code>group()</code>：返回匹配的完整字符串</li>
+<li><code>groups()</code>：返回分组信息</li>
+<li><code>groupdict()</code>：返回所有命名分组字典</li>
+<li><code>start()</code>：返回匹配字符串的起始位置</li>
+<li><code>end()</code>：返回匹配字符串的结束位置</li>
+<li><code>span()</code>：返回起始位置和结束位置的元组</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">mystr = <span class="string">'12ab34cd'</span></span><br><span class="line"></span><br><span class="line">pattern = re.compile(<span class="string">r'(\d+)(?P&lt;letter&gt;[a-zA-Z]+)'</span>)</span><br><span class="line"></span><br><span class="line">m = pattern.search(mystr)</span><br><span class="line"></span><br><span class="line">m.group()	<span class="comment">#=&gt;'12ab'</span></span><br><span class="line"></span><br><span class="line">m.start()	<span class="comment">#=&gt;0</span></span><br><span class="line"></span><br><span class="line">m.end()		<span class="comment">#=&gt;4</span></span><br><span class="line"></span><br><span class="line">m.span()	<span class="comment">#=&gt;(0, 4)</span></span><br><span class="line"></span><br><span class="line">m.groups()	<span class="comment">#=&gt;('12', 'ab')</span></span><br><span class="line"></span><br><span class="line">m.groupdict()	<span class="comment">#=&gt;&#123;'letter': 'ab'&#125;</span></span><br><span class="line"></span><br><span class="line">m.group(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>)	<span class="comment">#=&gt;('12ab', '12', 'ab')</span></span><br></pre></td></tr></table></figure>
+<p><span id="os"></span></p>
+<h3 id="os"><strong>os</strong></h3><p>&emsp;<a href="http://python.usyiyi.cn/translate/python_278/library/os.html" target="_blank" rel="external">os</a>模块提供统一的操作系统功能。</p>
+<ul>
+<li><p><strong>os.getcwd()</strong><br>  获取当前工作目录</p>
+</li>
+<li><p><strong>os.chdir(path)</strong><br>  修改工作目录</p>
+</li>
+<li><p><strong>os.listdir(path)</strong><br>  列出path下所有文件/目录，不支持递归和通配符</p>
+</li>
+<li><p><strong>os.walk(path)</strong><br>  深度遍历path下所有文件/目录</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> root, dirs, files <span class="keyword">in</span> os.walk(<span class="string">'/tmp'</span>):</span><br><span class="line">       <span class="keyword">print</span> <span class="string">"root=%s, dirs=%s, files=%s"</span> % (root, dirs, files)**</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>os.mkdir(path)</strong><br>  创建目录，若path已存在则抛出异常</p>
+</li>
+<li><p><strong>os.makedirs(‘/path/subpath’)</strong><br>  递归创建多级目录，相当于Linux命令<code>mkdir -p</code></p>
+</li>
+<li><p><strong>os.rmdir(path)</strong><br>  删除空目录</p>
+</li>
+<li><p><strong>os.removedirs(path)</strong><br>  递归删除path下的子目录，目录非空则异常</p>
+</li>
+<li><p><strong>os.remove(file)</strong><br>  删除文件，若file为目录则抛出异常</p>
+</li>
+<li><p><strong>os.rename(path1, path2)</strong><br>  重命名</p>
+</li>
+<li><p><strong>os.renames(path1, path2)</strong><br>  重命名，会创建path2目标路径</p>
+</li>
+<li><p><strong>os.chmod(path, mode)</strong><br>  修改权限</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">os.chmod(<span class="string">'/tmp/test'</span>, <span class="number">0777</span>)**</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>os.chown(path, uid, gid)</strong><br>  修改拥有者</p>
+</li>
+<li><p><strong>os.access(path, mode)</strong><br>  权限测试</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">os.access(<span class="string">'/tmp/test.txt'</span>, os.W_OK)**</span><br><span class="line">os.access(<span class="string">'/tmp/test.txt'</span>, os.R_OK)**</span><br><span class="line">os.access(<span class="string">'/tmp/test.txt'</span>, os.X_OK)**</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="os-path"><strong>os.path</strong></h4><p>&emsp;<a href="http://python.usyiyi.cn/translate/python_278/library/os.path.html" target="_blank" rel="external">os.path</a>提供操作路径的函数。</p>
+<ul>
+<li><p><strong>os.path.abspath(path)</strong><br>  获取绝对路径</p>
+</li>
+<li><p><strong>os.path.realpath(path)</strong><br>  软连接的真实路径</p>
+</li>
+<li><p><strong>os.path.basename(path)</strong><br>  获取文件名，以<code>/</code>结尾的路径返回空</p>
+</li>
+<li><p><strong>os.path.dirname(path)</strong><br>  获取目录名</p>
+</li>
+<li><p><strong>os.path.exists(path)</strong><br>  判断<code>path</code>路径是否存在</p>
+</li>
+<li><p><strong>os.path.isfile(path) / os.path.isdir(path) / os.path.islink(path) / os.path.ismount(path)</strong><br>  判断<code>path</code>是否为文件/目录/软连接/挂载点</p>
+</li>
+<li><p><strong>os.path.split(path)</strong><br>  将<code>path</code>切分为<code>(目录, 文件名)</code></p>
+</li>
+<li><p><strong>os.path.splitext(path)</strong><br>  将<code>path</code>切分为<code>(目录/主文件名, 后缀名)</code></p>
+</li>
+<li><p><strong>os.path.join(path1, path2)</strong><br>  拼接路径</p>
+</li>
+</ul>
+<p><span id="sys"></span></p>
+<h3 id="sys"><strong>sys</strong></h3><p>&emsp;<a href="http://python.usyiyi.cn/translate/python_278/library/sys.html" target="_blank" rel="external">sys</a>模块，主要处理Python环境的变量使得程序与系统环境有交互。</p>
+<ul>
+<li><strong>sys.argv[x]</strong><br>  获取命令行参数列表。<code>0</code>表示程序名，<code>1</code>表示第一个命令行第一个参数，以此类推。</li>
+<li><strong>sys.exit(num)</strong><br>  程序退出状态码，<code>sys.exit(0)</code>表示正常退出。</li>
+<li><strong>sys.path</strong><br>  返回模块的搜索路径。</li>
+<li><strong>sys.stdout / sys.stdin / sys.stderr</strong><br>  标准输出/输入/错误输出</li>
+</ul>
+<p><span id="time"></span></p>
+<h3 id="time"><strong>time</strong></h3><p>&emsp;<a href="http://python.usyiyi.cn/translate/python_278/library/time.html" target="_blank" rel="external">time</a>模块主要提供和时间相关的函数。</p>
+<ul>
+<li><strong>time.time()</strong><br>  返回距离纪元(1970-01-01 00:00:00)开始的秒数，返回值为浮点数。</li>
+<li><strong>time.ctime()</strong><br>  返回字符串型易读的时间，诸如：<code>Wed Oct  1 20:18:59 2016</code></li>
+<li><strong>time.clock()</strong><br>  返回当前进程消耗的CPU时间(秒)</li>
+<li><p><strong>time.gmtime() / time.localtime()</strong><br>  <code>time.gmtime()</code>和<code>time.localtime()</code>的结果都是使用<strong>struct_time</strong>格式显示，可使用<strong><code>time.asctime()</code></strong>转变成<code>time.ctime()</code>的字符串格式显示。<br>  <code>time.gmtime()</code>获取的是UTC时间，<code>time.localtime()</code>获取的是当前时区的时间。在中国：<code>time.gmtime() = time.localtime() + 8hour</code></p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">time.gmtime()</span><br><span class="line"><span class="comment">#time.struct_time(tm_year=2016, tm_mon=10, tm_mday=5, tm_hour=15, tm_min=29, tm_sec=14, tm_wday=2, tm_yday=279, tm_isdst=0)</span></span><br><span class="line"></span><br><span class="line">time.localtime()</span><br><span class="line"><span class="comment">#time.struct_time(tm_year=2016, tm_mon=10, tm_mday=5, tm_hour=23, tm_min=30, tm_sec=4, tm_wday=2, tm_yday=279, tm_isdst=0)</span></span><br><span class="line"></span><br><span class="line">time.asctime(time.localtime())</span><br><span class="line"><span class="comment">#'Wed Oct  5 23:30:35 2016'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>time.strptime()</strong><br>  将字符串格式时间转成struct_time格式时间</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">time.strptime(time.ctime())</span><br><span class="line"><span class="comment">#time.struct_time(tm_year=2016, tm_mon=10, tm_mday=5, tm_hour=23, tm_min=37, tm_sec=17, tm_wday=2, tm_yday=279, tm_isdst=-1)</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>time.strftime()</strong><br>  将时间格式化输出</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">time.strftime(<span class="string">"%Y-%m-%d %H:%M:%S"</span>, time.localtime())</span><br><span class="line"><span class="comment">#'2016-10-05 23:39:23'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>time.sleep(num)</strong><br>  进程sleep时间</p>
+</li>
+</ul>
+<p><span id="datetime"></span></p>
+<h3 id="datetime"><strong>datetime</strong></h3><p>&emsp;<a href="http://python.usyiyi.cn/documents/python_278/library/datetime.html" target="_blank" rel="external">datetime</a>模块提供操作日期和时间函数。<br>&emsp;<a href="http://python.usyiyi.cn/documents/python_278/library/datetime.html" target="_blank" rel="external">datetime</a>模块常用的有四个类别，这些对象都是<strong>不可变</strong>对象：</p>
+<ul>
+<li><code>datetime.date</code>：用于操作日期</li>
+<li><code>datetime.time</code>：用于操作时分秒</li>
+<li><code>datetime.datetime</code>：用于操作日期和时分秒</li>
+<li><code>datetime.timedelta</code>：用于操作时间间隔</li>
+</ul>
+<h4 id="datetime-date"><strong>datetime.date</strong></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> date</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> date.today()</span><br><span class="line"><span class="comment">#2016-10-05</span></span><br><span class="line"></span><br><span class="line">now = date.today()</span><br><span class="line"><span class="comment">#2016-10-05</span></span><br><span class="line">tomorrow = now.replace(day=<span class="number">06</span>)</span><br><span class="line"><span class="comment">#2016-10-06</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#date.weekday()，星期一返回0，以此类推</span></span><br><span class="line">now.weekday()</span><br><span class="line"><span class="comment">#2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#date.isoformat()，返回`YYYY-MM-DD`</span></span><br><span class="line">now.isoformat()</span><br><span class="line"><span class="comment">#'2016-10-06'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#date.strftime(format)，格式化时间输出</span></span><br><span class="line">now.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>)</span><br><span class="line"><span class="string">'2016-10-06 00:00:00'</span></span><br></pre></td></tr></table></figure>
+<h4 id="datetime-time"><strong>datetime.time</strong></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> datetime</span><br><span class="line"></span><br><span class="line">mytime = datetime.time(<span class="number">23</span>, <span class="number">59</span>, <span class="number">10</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> mytime</span><br><span class="line"><span class="comment">#23:59:10</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"hour: %s, minute: %s, second: %s"</span> % (mytime.hour, mytime.minute, mytime.second)</span><br><span class="line"><span class="comment">#hour: 23, minute: 59, second: 10</span></span><br><span class="line"></span><br><span class="line">mytime2 = mytime.replace(hour=<span class="number">22</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> mytime2</span><br><span class="line"><span class="comment">#22:59:10</span></span><br></pre></td></tr></table></figure>
+<h4 id="datetime-datetime"><strong>datetime.datetime</strong></h4><p><code>datetime.datetime</code>和<code>datetime.time</code>差不多<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">start = datetime.datetime.now()</span><br><span class="line"><span class="comment">#2016-10-06 23:47:29.105713</span></span><br><span class="line"></span><br><span class="line">end = datetime.datetime.now()</span><br><span class="line"><span class="comment">#2016-10-06 23:47:45.449751</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> (end - start).seconds</span><br><span class="line"><span class="comment">#16</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="datetime-timedelta"><strong>datetime.timedelta</strong></h4><p>&emsp;主要用于做时间的加减操作。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">today = datetime.datetime.today()</span><br><span class="line"><span class="comment">#2016-10-06 23:41:46.170686</span></span><br><span class="line"></span><br><span class="line">delta = datetime.timedelta(days=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">yesterday = today - delta</span><br><span class="line"><span class="comment">#2016-10-05 23:41:46.170686</span></span><br></pre></td></tr></table></figure></p>
+<p><span id="paramiko"></span></p>
+<h3 id="paramiko"><strong>paramiko</strong></h3><p>&emsp;<a href="http://www.paramiko.org/" target="_blank" rel="external">paramiko</a>模块提供ssh远程登录等相关功能。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> paramiko</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ssh_command</span><span class="params">(ip, username, passwd, cmd, port=<span class="number">22</span>)</span>:</span></span><br><span class="line">    <span class="string">"""paramiko demo"""</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">    	ssh = paramiko.SSHClient()</span><br><span class="line">    	<span class="comment">#允许连接不在know_hosts文件中的主机</span></span><br><span class="line">    	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())</span><br><span class="line">    	ssh.connect(ip, port, username, passwd, timeout=<span class="number">30</span>)</span><br><span class="line">    	stdin, stdout, stderr = ssh.exec_command(cmd)</span><br><span class="line">    <span class="keyword">except</span> Exception, e:</span><br><span class="line">    	<span class="keyword">raise</span> <span class="string">"%s ssh connect error: %s"</span> % (ip, e)</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">    	ssh.close()</span><br><span class="line">    std_result = &#123;<span class="string">'stdout'</span>: stdout.readlines(),</span><br><span class="line">    			<span class="string">'stderr'</span>: stderr.readlines()</span><br><span class="line">    			&#125;</span><br><span class="line">    <span class="keyword">return</span> std_result</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#paramiko模块还支持sftp传输功能</span></span><br><span class="line"></span><br><span class="line">scp=paramiko.Transport((host_ip, ssh_port))</span><br><span class="line">scp.connect(username=ssh_username, password=ssh_passowrd)</span><br><span class="line">sftp=paramiko.SFTPClient.from_transport(scp)</span><br><span class="line"><span class="comment">#如果之前已有一个建立连接的ssh对象，则可直接复用该ssh连接对象</span></span><br><span class="line"><span class="comment">#sftp = paramiko.SFTPClient.from_transport(ssh.get_transport())</span></span><br><span class="line"><span class="comment">#sftp = ssh.open_sftp()</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#下载文件</span></span><br><span class="line">sftp.get(<span class="string">'/tmp/remote_file'</span>,<span class="string">'/tmp/local_file'</span>)</span><br><span class="line"><span class="comment">#上传文件</span></span><br><span class="line">sftp.put(<span class="string">'/home/local_file'</span>,<span class="string">'/tmp/remote_file'</span>)</span><br><span class="line">scp.close()</span><br></pre></td></tr></table></figure></p>
+<p><span id="subprocess"></span></p>
+<h3 id="subprocess"><strong>subprocess</strong></h3><p>&emsp;<a href="http://python.usyiyi.cn/python_278/library/subprocess.html" target="_blank" rel="external">subprocess</a>模块允许创建新进程并获取返回值/输出信息，常用来调用系统命令。<br>&emsp;常用已封装好的函数有三个：</p>
+<ul>
+<li><strong>subprocess.call()</strong><br>  返回<strong>exit code</strong>。不管<code>exit code</code>是什么都不会抛出异常。</li>
+<li><strong>subprocess.check_call()</strong><br>  返回<strong>exit code</strong>并检查<strong>exit code</strong>。<code>exit code</code>为<code>0</code>则成功，否则抛出<code>subprocess.CalledProcessError</code>异常。</li>
+<li><strong>subprocess.check_output()</strong><br>  返回输出信息且检查<strong>exit code</strong>。<code>exit code</code>不为0则抛出<code>subprocess.CalledProcessError</code>异常。<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"></span><br><span class="line"><span class="comment">#结果相同，返回的是exit code</span></span><br><span class="line">subprocess.call([<span class="string">'echo'</span>, <span class="string">'test'</span>])</span><br><span class="line">subprocess.call(<span class="string">"echo test"</span>, shell=<span class="keyword">True</span>)</span><br><span class="line">subprocess.check_call([<span class="string">'echo'</span>, <span class="string">'test'</span>])</span><br><span class="line"><span class="comment">#test</span></span><br><span class="line"><span class="comment">#0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#返回的是输出信息</span></span><br><span class="line">subprocess.check_output([<span class="string">'echo'</span>, <span class="string">'test'</span>])</span><br><span class="line"><span class="comment">#'test\n'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#可用shlex模块解析参数而不使用`shell=True`</span></span><br><span class="line">subprocess.call(shlex.split(<span class="string">"echo test"</span>))</span><br><span class="line"><span class="comment">#test</span></span><br><span class="line"><span class="comment">#0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#忽略输出，只获取exit code</span></span><br><span class="line"><span class="keyword">with</span> open(os.devnull, <span class="string">'w'</span>) <span class="keyword">as</span> devnull:</span><br><span class="line">    exit_code = subprocess.call([<span class="string">"echo"</span>, <span class="string">"test"</span>], stdout=devnull, stderr=devnull, shell=<span class="keyword">True</span>)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="subprocess-Popen()"><strong>subprocess.Popen()</strong></h4><p>&emsp;<code>subprocess.call</code>、<code>subprocess.check_call</code>和<code>subprocess.check_output</code>都是基于<code>subprocess.Popen()</code>的封装。在创建了<code>Popen</code>对象后，父进程不会主动等待子进程需要调用<code>wait()</code>方法使其等待。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">subprocess.Popen(<span class="string">'ps aux|grep ipython'</span>, shell=<span class="keyword">True</span>).wait()</span><br><span class="line"><span class="comment">#命令输出</span></span><br><span class="line"><span class="comment">#=&gt;mogl     28580  0.0  0.3  32568 15332 pts/26   Sl+  16:35   0:01 /usr/bin/python /usr/local/bin/ipython</span></span><br><span class="line"><span class="comment">#返回值</span></span><br><span class="line"><span class="comment">#=&gt;0</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;可使用<strong><code>subprocess.PIPE</code></strong>改变输入输出对象并获取子进程的更详细信息<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">child = subprocess.Popen(<span class="string">'ps aux|grep ipython'</span>, shell=<span class="keyword">True</span>, stdout=subprocess.PIPE)</span><br><span class="line"></span><br><span class="line">child.pid</span><br><span class="line"><span class="comment">#25556</span></span><br><span class="line"></span><br><span class="line">child.stdout.readlines()</span><br><span class="line"><span class="comment">#mogl     28580  0.0  0.3  32568 15332 pts/26   Sl+  16:35   0:01 /usr/bin/python /usr/local/bin/ipython</span></span><br><span class="line"></span><br><span class="line">child.poll</span><br><span class="line"><span class="comment">#检查子进程是否已终止。没终止返回空，终止返回exit code</span></span><br><span class="line"></span><br><span class="line">child.wait()</span><br><span class="line"><span class="comment">#0</span></span><br><span class="line"></span><br><span class="line">child.returncode</span><br><span class="line"><span class="comment">#0</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;<strong><code>subprocess.PIPE</code></strong>还可以将多个子进程的输入输出连接<br>&emsp;<code>communicate()</code>是Popen对象的方法，该方法会阻塞父进程，直到子进程完成。<code>child2</code>的输出也在PIPE中，需要调用<code>child2.communicate()</code>读取。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">child1 = subprocess.Popen([<span class="string">"ls"</span>,<span class="string">"-l"</span>], stdout=subprocess.PIPE)</span><br><span class="line">child2 = subprocess.Popen([<span class="string">"wc"</span>], stdin=child1.stdout,stdout=subprocess.PIPE)</span><br><span class="line">out = child2.communicate()</span><br></pre></td></tr></table></figure></p>
+<p><span id="functools"></span></p>
+<h3 id="functools"><strong>functools</strong></h3><p>&emsp;<a href="http://python.usyiyi.cn/python_278/library/functools.html" target="_blank" rel="external">functools</a>提供高阶函数功能。主要包含<code>cmp_to_key</code>、<code>partial</code>、<code>reduce</code>、<code>total_ordering</code>、<code>update_wrapper</code>和<code>wraps</code>这几个函数。</p>
+<ul>
+<li><p><strong>functools.cmp_to_key(func)</strong><br>  <code>functools.cmp_to_key()</code>是Python2.7新增的函数，用于将比较函数转成key函数，需要在接受key函数作为参数的函数中才使用。其实是为了兼容Python3，拿<code>sorted()</code>函数为例：Python2版本的<code>sorted()</code>函数支持<code>cmp</code>参数来处理用户自定义的排序函数，但Python3后将<code>cmp</code>参数移除了，所以需要使用到<code>cmp_to_key</code>将自定义的排序函数转成key函数</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Python2</span></span><br><span class="line">sorted([<span class="number">5</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">1</span>, <span class="number">3</span>], cmp=<span class="keyword">lambda</span> x, y: y-x)</span><br><span class="line"><span class="comment">#=&gt;[5, 4, 3, 2, 1]</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#Python3</span></span><br><span class="line">sorted([<span class="number">5</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">1</span>, <span class="number">3</span>], key=cmp_to_key(<span class="keyword">lambda</span> x, y: y-x))</span><br><span class="line"><span class="comment">#=&gt;[5, 4, 3, 2, 1]</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>functools.total_ordering(cls)</strong><br>  <code>functools.total_ordering()</code>也是Python2.7新增的函数，主要用于简化比较函数的写法。当某个类定义了<strong><code>__eq__()</code></strong>方法，并且定义了<strong><code>__lt__()</code></strong>、<strong><code>__le__()</code></strong>、<strong><code>__gt__()</code></strong>或<strong><code>__ge__()</code></strong>方法中的<strong>其中一个</strong>，若使用<strong><code>@total_ordering()</code></strong>装饰器，则该类会自动生成其他的比较方法。<br>  官方例子：</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> total_ordering</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="decorator">@total_ordering</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span>:</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__eq__</span><span class="params">(self, other)</span>:</span></span><br><span class="line">		<span class="keyword">return</span> ((self.lastname.lower(), self.firstname.lower()) ==</span><br><span class="line">				(other.lastname.lower(), other.firstname.lower()))</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">__lt__</span><span class="params">(self, other)</span>:</span></span><br><span class="line">		<span class="keyword">return</span> ((self.lastname.lower(), self.firstname.lower()) &lt;</span><br><span class="line">				(other.lastname.lower(), other.firstname.lower()))</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> dir(Student)</span><br><span class="line"><span class="comment">#=&gt;['__doc__', '__eq__', '__ge__', '__gt__', '__le__', '__lt__', '__module__']</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>functools.reduce(function, iterable)</strong><br>  <code>functools.reduce()</code>和内置的<code>reduce()</code>功能一样，使用<code>functools.reduce()</code>也是为了兼容Python3。</p>
+</li>
+<li><p><strong>functools.partial(func[,*args][, </strong>keywords])**<br>  <code>functools.partial()</code>简单的说就是实现<a href="https://zh.wikipedia.org/wiki/%E6%9F%AF%E9%87%8C%E5%8C%96" target="_blank" rel="external">柯里化</a>的。</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> partial</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(x, y)</span>:</span></span><br><span class="line">	<span class="keyword">return</span> x + y</span><br><span class="line"></span><br><span class="line">add_y = partial(add, <span class="number">1</span>)</span><br><span class="line"><span class="keyword">print</span> add_y(<span class="number">1</span>)</span><br><span class="line"><span class="comment">#=&gt;2</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>functools.wraps(wrapped[, assigned][, updated])</strong><br>  <code>functools.wraps()</code>主要的作用是消除Python中装饰器带来的一些副作用。Python中使用装饰器，被装饰函数的<code>__name__</code>属性会被改变，需要用<code>functools.wraps()</code>进行修正。</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decorator</span><span class="params">(func)</span>:</span></span><br><span class="line">	<span class="comment">#@wraps(func)</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></span><br><span class="line">		<span class="keyword">print</span> <span class="string">"In decorator wrapper func."</span></span><br><span class="line">		<span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">	<span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"><span class="decorator">@decorator</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">print</span> <span class="string">"In test func."</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> test.__name__</span><br><span class="line"><span class="comment">#=&gt;wrapper</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>functools.update_wrapper(wrapper, wrapped[, assigned][, updated])</strong><br>  <code>functools.wraps()</code>是<code>functools.update_wrapper()</code>的简化版本，<code>functools.update_wrapper()</code>功能更强大，默认会将被装饰函数的<code>functools.WRAPPER_ASSIGNMENTS</code>(<code>__module__</code>、<code>__name__</code>、<code>__doc__</code>)和<code>functools.WRAPPER_UPDATES</code>(<code>__dict__</code>)都复制给装饰函数。<br>  实际上面的装饰器代码可用<code>update_wrapper()</code>写：</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> update_wrapper</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">decorator</span><span class="params">(func)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></span><br><span class="line">       <span class="keyword">print</span> <span class="string">"In decorator wrapper func."</span></span><br><span class="line">       <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">    <span class="keyword">return</span> update_wrapper(wrapper, func)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><span id="smtplib"></span></p>
+<h3 id="smtplib"><strong>smtplib</strong></h3><p>&emsp;<a href="http://python.usyiyi.cn/python_278/library/smtplib.html" target="_blank" rel="external">smtplib</a>模块用于发送邮件。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> smtplib</span><br><span class="line"><span class="keyword">from</span> email.mime.text <span class="keyword">import</span> MIMEText</span><br><span class="line"><span class="keyword">from</span> email.mime.multipart <span class="keyword">import</span> MIMEMultipart</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">send_mail</span><span class="params">(send_list, subject, content)</span>:</span></span><br><span class="line">	<span class="string">"""html/text邮件"""</span></span><br><span class="line">	mail_host = <span class="string">"your_smtp_server_address"</span></span><br><span class="line">	mail_user = <span class="string">'your_email_user(xxx@gmail.com)'</span></span><br><span class="line">	mail_passwd = <span class="string">'your_email_password'</span></span><br><span class="line">	mail_port = <span class="number">25</span></span><br><span class="line">	send_from = <span class="string">"your_send_from"</span> + <span class="string">"&lt;"</span> + mail_user + <span class="string">"&gt;"</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">##TEXT邮件</span></span><br><span class="line">	<span class="comment">#msg = MIMEText(content, _subtype='plain', _charset='utf-8')</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">##HTML邮件</span></span><br><span class="line">	<span class="comment">#msg = MIMEText(content, _subtype='html', _charset='utf-8')</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">##带附件邮件</span></span><br><span class="line">    msg = MIMEMultipart()</span><br><span class="line">    <span class="comment">#邮件正文</span></span><br><span class="line">    msg.attach(MIMEText(content, _charset=<span class="string">'utf-8'</span>))</span><br><span class="line">    <span class="comment">#附件一</span></span><br><span class="line">    att_1 = MIMEText(open(<span class="string">'/tmp/attachment1.txt'</span>, <span class="string">'rb'</span>).read(), <span class="string">'base64'</span>, <span class="string">'utf-8'</span>)</span><br><span class="line">    att_1[<span class="string">'Content-Type'</span>] = <span class="string">'application/octet-stream'</span></span><br><span class="line">    <span class="comment">#邮件中附件显示的文件名字</span></span><br><span class="line">    att_1[<span class="string">'Content-Disposition'</span>] = <span class="string">'attachment; filename=%s'</span> % <span class="string">"附件1"</span></span><br><span class="line">    msg.attach(att_1)</span><br><span class="line"></span><br><span class="line">	msg[<span class="string">'From'</span>] = send_from</span><br><span class="line">	msg[<span class="string">'Subject'</span>] = subject</span><br><span class="line"></span><br><span class="line">	<span class="keyword">try</span>:</span><br><span class="line">		mail_server = smtplib.SMTP()</span><br><span class="line">		mail_server.connect(mail_host, mail_port)</span><br><span class="line">		mail_server.login(mail_user, mail_passwd)</span><br><span class="line">		mail_server.sendmail(msg[<span class="string">'From'</span>], send_list, msg.as_string())</span><br><span class="line">		mail_server.close()</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line">	<span class="keyword">except</span> Exception, e:</span><br><span class="line">		<span class="keyword">print</span> str(e)</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">False</span></span><br></pre></td></tr></table></figure></p>
+<p><span id="requests"></span></p>
+<h3 id="requests"><strong>requests</strong></h3><p>&emsp;<a href="http://docs.python-requests.org/zh_CN/latest/user/quickstart.html" target="_blank" rel="external">requests</a>是第三方模块，相比Python内置的<code>urlib2</code>更人性化。<br>&emsp;由于<a href="http://docs.python-requests.org/zh_CN/latest/user/quickstart.html" target="_blank" rel="external">requests</a>是第三方模块，需要使用<code>pip</code>进行安装，在一些版本中可能会在使用中出现<code>SNIMissingWarning</code>和<code>InsecurePlatformWarning</code>警告，可按以下方法安装。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#安装</span></span><br><span class="line">yum install -y openssl-devel python-devel libffi-devel</span><br><span class="line">pip install <span class="string">'requests[security]'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#若在使用中出现SNIMissingWarning和InsecurePlatformWarning警告可</span></span><br><span class="line">pip install pyopenssl ndg-httpsclient pyasn1</span><br><span class="line"></span><br><span class="line"><span class="comment">#若不想额外安装包可手动忽略警告</span></span><br><span class="line"><span class="comment">#关闭requests的https警告</span></span><br><span class="line">try:</span><br><span class="line">    from requests.packages.urllib3.exceptions import (</span><br><span class="line">        SNIMissingWarning,</span><br><span class="line">        InsecureRequestWarning,</span><br><span class="line">        InsecurePlatformWarning</span><br><span class="line">    )</span><br><span class="line">    requests.packages.urllib3.disable_warnings(SNIMissingWarning)</span><br><span class="line">    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)</span><br><span class="line">    requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)</span><br><span class="line">except ImportError:</span><br><span class="line">    pass</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;<a href="http://docs.python-requests.org/zh_CN/latest/user/quickstart.html" target="_blank" rel="external">requests</a>常用方法。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line">url = <span class="string">'https://github.com/timeline.json'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#GET请求(10s超时)</span></span><br><span class="line">r = requests.get(url, timeout=<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#文本方式显示</span></span><br><span class="line"><span class="keyword">print</span> r.text</span><br><span class="line"><span class="comment">#字节方式显示，中文显示为字符</span></span><br><span class="line"><span class="keyword">print</span> r.content</span><br><span class="line"><span class="comment">#显示编码 &amp; 设置编码</span></span><br><span class="line"><span class="keyword">print</span> r.encoding</span><br><span class="line">r.encoding = <span class="string">'utf-8'</span></span><br><span class="line"><span class="comment">#响应状态码</span></span><br><span class="line">r.status_code</span><br><span class="line"><span class="comment">#HTTP header</span></span><br><span class="line">r.headers</span><br><span class="line">r.headers[<span class="string">'Content-Type'</span>]</span><br><span class="line"><span class="comment">#JSON化，失败会抛出异常</span></span><br><span class="line">r.json()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#POST请求</span></span><br><span class="line">headers = &#123;</span><br><span class="line">	<span class="string">'content-type'</span>: <span class="string">'application/json'</span>,</span><br><span class="line">	<span class="string">'User-Agent'</span>: <span class="string">'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'</span></span><br><span class="line">&#125;</span><br><span class="line">data = &#123;</span><br><span class="line">	<span class="string">"mobile"</span>: mobile,</span><br><span class="line">	<span class="string">"templateId"</span>: template_id,</span><br><span class="line">	<span class="string">"templateVariable"</span>: &#123;</span><br><span class="line">		self.mobile: &#123;</span><br><span class="line">			<span class="string">"secode"</span>: vcode</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="string">"userName"</span>: user_name,</span><br><span class="line">	<span class="string">"randomKey"</span>: random_key,</span><br><span class="line">	<span class="string">"fingerprint"</span>: fingerprint</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">	r = requests.post(url, data=json.dumps(data), headers=headers)</span><br><span class="line">	result = r.json()</span><br><span class="line">	<span class="comment">#result = json.loads(r.content)</span></span><br><span class="line"><span class="keyword">except</span> Exception, err:</span><br><span class="line">	<span class="keyword">raise</span> err</span><br></pre></td></tr></table></figure></p>
+<p><span id="hashlib"></span></p>
+<h3 id="hashlib"><strong>hashlib</strong></h3><p>&emsp;<a href="http://python.usyiyi.cn/python_278/library/hashlib.html" target="_blank" rel="external">hashlib</a>模块实现各种hash算法。<a href="http://python.usyiyi.cn/python_278/library/hashlib.html" target="_blank" rel="external">hashlib</a>基于OpenSSL，支持<code>md5</code>、<code>sha1</code>、<code>sha224</code>、<code>sha256</code>、<code>sha384</code>和<code>sha512</code>等算法。<br>&emsp;基本用法。<code>update()</code>可多次调用，每次都会根据新增文本更新结果。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"></span><br><span class="line">mystr = <span class="string">'mogl'</span></span><br><span class="line"></span><br><span class="line">mymd5 = hashlib.md5()</span><br><span class="line">mymd5.update(mystr)</span><br><span class="line"><span class="keyword">print</span> mymd5.hexdigest()</span><br><span class="line"><span class="comment">#=&gt;d2624edb33f3be2c461b1e95740b6b5c</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;用<code>new()</code>方法通过字符串形式指定算法<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">hash_name = sys.argv[<span class="number">1</span>]</span><br><span class="line">myhash = hashlib.new(hash_name)</span><br><span class="line">myhash.update(mystr)</span><br><span class="line"><span class="keyword">print</span> myhash.hexdigest()</span><br></pre></td></tr></table></figure></p>
+<p><span id="multiprocessing"></span></p>
+<h3 id="multiprocessing"><strong>multiprocessing</strong></h3><p>&emsp;<a href="http://python.usyiyi.cn/python_278/library/multiprocessing.html" target="_blank" rel="external">multiprocessing</a>模块提供多进程编程。</p>
+<ul>
+<li><p><strong>multiprocessing.Process</strong><br>  &emsp;<code>Process</code>类的原型<code>multiprocessing.Process(group=None, target=None, name=None, args=(), kwargs={})</code>。每个<code>Process</code>类会生成一个<code>process</code>对象并在新的进程中运行。<br>  &emsp;每个<code>process</code>对象<strong>最多只能调用一次<code>start()</code>方法</strong>，<code>join([timeout])</code>方法会阻塞调用<code>process</code>对象的进程等待子进程执行完毕。</p>
+<ul>
+<li><code>group</code>：仅为兼容<code>threading.Thread</code>，通常为<code>None</code></li>
+<li><code>target</code>：子进程要执行的函数</li>
+<li><code>name</code>：进程名，默认为<code>Process-1</code>、<code>Process-2...</code></li>
+<li><code>args</code>：<code>target</code>函数调用的参数</li>
+<li><p><code>kwargs</code>：<code>target</code>函数调用的字典参数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Process</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">child_run</span><span class="params">(name)</span>:</span></span><br><span class="line">       <span class="keyword">print</span> <span class="string">"Run in child process name: %s, pid: %s"</span> % (name, os.getpid())</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">       <span class="keyword">print</span> <span class="string">"Parent process pid: %s"</span> % os.getpid()</span><br><span class="line">       <span class="keyword">print</span> <span class="string">"Creating child process..."</span></span><br><span class="line">       <span class="comment">#注意args参数中必须有,</span></span><br><span class="line">       multi_proc = Process(target=child_run, args=(<span class="string">'child_test'</span>,))</span><br><span class="line">	<span class="comment">#设置daemon属性</span></span><br><span class="line">	<span class="comment">#multi_proc.daemon = True</span></span><br><span class="line">       <span class="keyword">print</span> <span class="string">"Starting child process..."</span></span><br><span class="line">       multi_proc.start()</span><br><span class="line">       multi_proc.join()</span><br><span class="line">       <span class="keyword">print</span> <span class="string">"Process end."</span></span><br><span class="line"><span class="comment">#Parent process pid: 12198</span></span><br><span class="line"><span class="comment">#Creating child process...</span></span><br><span class="line"><span class="comment">#Starting child process...</span></span><br><span class="line"><span class="comment">#Run in child process name: child_test, pid: 12199</span></span><br><span class="line"><span class="comment">#Process end.</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;多进程并行运行。每个子进程都是先<code>start()</code>，最后在一起<code>join()</code>。若对每个<code>process</code>对象都一起执行<code>start()</code>和<code>join()</code>则变成顺序执行而非并发执行。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">   <span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Process</span><br><span class="line">   <span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">def</span> <span class="title">child_run</span><span class="params">(name)</span>:</span></span><br><span class="line">       <span class="keyword">print</span> <span class="string">"Run in child process name: %s, pid: %s"</span> % (name, os.getpid())</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">       names = [<span class="string">'mo'</span>, <span class="string">'guo'</span>, <span class="string">'liang'</span>, <span class="string">'mogl'</span>]</span><br><span class="line">       proc_list = []</span><br><span class="line">       <span class="keyword">print</span> <span class="string">"Parent process pid: %s"</span> % os.getpid()</span><br><span class="line">       <span class="keyword">for</span> name <span class="keyword">in</span> names:</span><br><span class="line">           multi_proc = Process(target=child_run, args=(name,))</span><br><span class="line">           proc_list.append(multi_proc)</span><br><span class="line">           multi_proc.start()</span><br><span class="line">       <span class="keyword">for</span> each_child_proc <span class="keyword">in</span> proc_list:</span><br><span class="line">           each_child_proc.join()</span><br><span class="line"></span><br><span class="line"><span class="comment">#Parent process pid: 14516</span></span><br><span class="line"><span class="comment">#Run in child process name: mo, pid: 14517</span></span><br><span class="line"><span class="comment">#Run in child process name: guo, pid: 14518</span></span><br><span class="line"><span class="comment">#Run in child process name: liang, pid: 14519</span></span><br><span class="line"><span class="comment">#Run in child process name: mogl, pid: 14520</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p><strong>multiprocessing.Lock</strong><br>  &emsp;<code>multiprocessing.Lock</code>提供锁功能，当多进程需要访问共享资源时，可用锁来避免冲突。使用锁的话多进程并行则会受到锁的限制。</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">   <span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Process, Lock</span><br><span class="line">   <span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">def</span> <span class="title">printer</span><span class="params">(string)</span>:</span></span><br><span class="line">       <span class="keyword">print</span> <span class="string">"In printer, string: %s, pid: %s"</span> % (string, os.getpid())</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">def</span> <span class="title">printer_lock</span><span class="params">(string, lock)</span>:</span></span><br><span class="line">       lock.acquire()</span><br><span class="line">       <span class="keyword">print</span> <span class="string">"In printer, string: %s, pid: %s"</span> % (string, os.getpid())</span><br><span class="line">       lock.release()</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">       proc_list = []</span><br><span class="line">       names = [<span class="string">'mo'</span>, <span class="string">'guo'</span>, <span class="string">'liang'</span>, <span class="string">'mogl'</span>]</span><br><span class="line">       <span class="keyword">print</span> <span class="string">"Parent pid: %s"</span> % os.getpid()</span><br><span class="line"></span><br><span class="line">       <span class="keyword">for</span> each_name <span class="keyword">in</span> names:</span><br><span class="line">           multi_proc = Process(target=printer, args=(each_name,))</span><br><span class="line">           proc_list.append(multi_proc)</span><br><span class="line">           multi_proc.start()</span><br><span class="line"></span><br><span class="line">       lock = Lock()</span><br><span class="line">       <span class="keyword">for</span> each_name <span class="keyword">in</span> names:</span><br><span class="line">           multi_proc_lock = Process(target=printer_lock, args=(each_name, lock))</span><br><span class="line">           proc_list.append(multi_proc_lock)</span><br><span class="line">           multi_proc_lock.start()</span><br><span class="line">   </span><br><span class="line">       <span class="keyword">for</span> each_proc <span class="keyword">in</span> proc_list:</span><br><span class="line">           each_proc.join()</span><br><span class="line"></span><br><span class="line"><span class="comment">#Parent pid: 9313</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#In printer, string: mo, pid: 9314</span></span><br><span class="line"><span class="comment">#In printer, string: liang, pid: 9316</span></span><br><span class="line"><span class="comment">#In printer, string: guo, pid: 9315</span></span><br><span class="line"><span class="comment">#In printer, string: mogl, pid: 9317</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#In printer, string: mo, pid: 9318</span></span><br><span class="line"><span class="comment">#In printer, string: guo, pid: 9319</span></span><br><span class="line"><span class="comment">#In printer, string: liang, pid: 9320</span></span><br><span class="line"><span class="comment">#In printer, string: mogl, pid: 9321</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>multiprocessing.Queue &amp; multiprocessing.Pipe</strong><br>  &emsp;<code>multiprocessing</code>支持两种进程间通信方式：<strong><code>Queue</code></strong>、<strong><code>PIPE</code></strong>，<code>Queue</code>是进程安全的。</p>
+<ul>
+<li><p><strong>multiprocessing.Queue</strong><br>  &emsp;使用<code>Queue</code>实现进程间通信，进程A使用<code>put()</code>方法将数据存入<code>Queue</code>，进程B使用<code>get()</code>方法从<code>Queue</code>中读取数据。<br>  &emsp;<code>put()</code>、<code>get()</code>方法都有两个参数：<strong><code>block</code></strong>、<strong><code>timeout</code></strong>，若<code>block=False</code>，Queue为<code>full</code>/<code>empty</code>则抛出异常，若设置了<code>timeout</code>则阻塞等待再一次<code>put</code>/<code>get</code>。</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">      <span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Process, Queue</span><br><span class="line">      <span class="keyword">import</span> os</span><br><span class="line">      </span><br><span class="line">      <span class="function"><span class="keyword">def</span> <span class="title">write_queue</span><span class="params">(queue)</span>:</span></span><br><span class="line">          <span class="keyword">print</span> <span class="string">"In write_queue pid: %s"</span> % os.getpid()</span><br><span class="line">          queue.put([<span class="string">'mogl'</span>], block=<span class="keyword">False</span>)</span><br><span class="line">      </span><br><span class="line">      <span class="function"><span class="keyword">def</span> <span class="title">read_queue</span><span class="params">(queue)</span>:</span></span><br><span class="line">          <span class="keyword">print</span> <span class="string">"In read_queue pid: %s"</span> % os.getpid()</span><br><span class="line">          <span class="keyword">print</span> queue.get(block=<span class="keyword">False</span>)</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">          <span class="keyword">print</span> <span class="string">"Parent pid: %s"</span> % os.getpid()</span><br><span class="line">          queue = Queue()</span><br><span class="line"></span><br><span class="line">          write_proc = Process(target=write_queue, args=(queue,))</span><br><span class="line">          write_proc.start()</span><br><span class="line"></span><br><span class="line">          read_proc = Process(target=read_queue, args=(queue,))</span><br><span class="line">          read_proc.start()</span><br><span class="line">      </span><br><span class="line">          write_proc.join()</span><br><span class="line">          read_proc.join()</span><br><span class="line"></span><br><span class="line"><span class="comment">#Parent pid: 18383</span></span><br><span class="line"><span class="comment">#In write_queue pid: 18384</span></span><br><span class="line"><span class="comment">#In read_queue pid: 18385</span></span><br><span class="line"><span class="comment">#['mogl']</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>multiprocessing.Pipe</strong><br>  &emsp;<code>Pipe()</code>方法会返回<code>(c1, c2)</code>代表一个管道的两端，默认<code>Pipe()</code>的<code>duplex=True</code>表示全双工管道，即管道的任意一端都可发送和接收信息。若<code>duplex=False</code>则<code>c1</code>只负责接收，<code>c2</code>只负责发送。当调用<code>recv()</code>方法从管道读取消息时候，若管道一端无消息，<code>recv()</code>则会<strong>一直阻塞</strong>。</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">      <span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Process, Pipe</span><br><span class="line">      <span class="keyword">import</span> os</span><br><span class="line">      </span><br><span class="line">      <span class="function"><span class="keyword">def</span> <span class="title">process_one</span><span class="params">(pipe)</span>:</span></span><br><span class="line">          pipe.send(<span class="string">'hello, process_one send message.'</span>)</span><br><span class="line">          <span class="keyword">print</span> <span class="string">'process_one receive message:'</span>, pipe.recv()</span><br><span class="line">          <span class="keyword">print</span> <span class="string">"process_one pid:"</span>, os.getpid()</span><br><span class="line">      </span><br><span class="line">      <span class="function"><span class="keyword">def</span> <span class="title">process_two</span><span class="params">(pipe)</span>:</span></span><br><span class="line">          <span class="keyword">print</span> <span class="string">'process_two receive message:'</span>, pipe.recv()</span><br><span class="line">          pipe.send(<span class="string">'hello, process_two send message.'</span>)</span><br><span class="line">          <span class="keyword">print</span> <span class="string">"process_two pid:"</span>, os.getpid()</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">          pipe = Pipe()</span><br><span class="line">          </span><br><span class="line">          <span class="keyword">print</span> <span class="string">"main pid:"</span>, os.getpid()</span><br><span class="line">          pro1 = Process(target=process_one, args=(pipe[<span class="number">0</span>],))</span><br><span class="line">          pro2 = Process(target=process_two, args=(pipe[<span class="number">1</span>],))</span><br><span class="line">          </span><br><span class="line">          pro1.start()</span><br><span class="line">          pro2.start()</span><br><span class="line">          pro1.join()</span><br><span class="line">          pro2.join()</span><br><span class="line"></span><br><span class="line"><span class="comment">#process_one发送消息后recv，由于管道一端无消息而阻塞，故先打印process_two的内容</span></span><br><span class="line"><span class="comment">#main pid: 14215</span></span><br><span class="line"><span class="comment">#process_two receive message: hello, process_one send message.</span></span><br><span class="line"><span class="comment">#process_two pid: 14217</span></span><br><span class="line"><span class="comment">#process_one receive message: hello, process_two send message.</span></span><br><span class="line"><span class="comment">#process_one pid: 14216</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p><strong>multiprocessing.Pool</strong><br>  &emsp;Python多进程支持进程池，使用<code>multiprocessing.Pool</code>能创建一个进程池可指定进程数量，当请求提交给pool后，若pool没满则可创建新进程处理该请求，若已满则等待空闲后再处理。<br>  &emsp;进程池中进程的创建可通过<code>apply_async(func[, args[, kwds[, callback]]])</code>或<code>apply(func[, args[, kwds]])</code>方法。<code>apply_async()</code>是<strong>非阻塞</strong>，<code>apply()</code>是<strong>阻塞</strong>(进程池中一个进程执行完才会执行下一个)。</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Pool</span><br><span class="line">  <span class="keyword">import</span> os</span><br><span class="line">  <span class="keyword">import</span> time</span><br><span class="line">  <span class="keyword">import</span> random</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">child_process_task</span><span class="params">(name)</span>:</span></span><br><span class="line">      <span class="keyword">print</span> <span class="string">"Running task %s, pid %s"</span> % (name, os.getpid())</span><br><span class="line">      start_time = time.time()</span><br><span class="line">      time.sleep(random.random() * <span class="number">3</span>)</span><br><span class="line">      end_time = time.time()</span><br><span class="line">      <span class="keyword">print</span> <span class="string">"Task %s is over and runs %0.2f seconds."</span> % (name, (end_time - start_time))</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">      <span class="keyword">print</span> <span class="string">"Parrent process pid %s"</span> % os.getpid()</span><br><span class="line">      <span class="comment">#创建进场池。限制并发数量：child_pool = Pool(processes=4)</span></span><br><span class="line">      child_pool = Pool()</span><br><span class="line">      <span class="keyword">for</span> eachpid <span class="keyword">in</span> range(<span class="number">5</span>):</span><br><span class="line">          <span class="comment">#批量创建子进场(指定执行函数及其参数)</span></span><br><span class="line">          child_pool.apply_async(child_process_task, args=(eachpid,))</span><br><span class="line">      <span class="keyword">print</span> <span class="string">"Waitting for all child process done..."</span></span><br><span class="line"><span class="comment">#调用join()前必须先调用close()。close()关闭pool不在接受新请求。join()等待所有子进程结束</span></span><br><span class="line">      child_pool.close()</span><br><span class="line">      child_pool.join()</span><br><span class="line">      <span class="keyword">print</span> <span class="string">"All process is done."</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><span id="MySQLdb"></span></p>
+<h3 id="MySQLdb"><strong>MySQLdb</strong></h3><p>&emsp;<a href="http://mysql-python.sourceforge.net/MySQLdb.html" target="_blank" rel="external">MySQLdb</a>是第三方模块，用于连接及操作MySQL。<br>&emsp;一般先使用<code>MySQLdb.connect()</code>方法创建连接对象，该连接对象支持事务操作，即允许<code>commit()</code>和<code>rollback()</code>。然后使用<code>cursor()</code>方法获取游标对象，该对象做两类操作——<strong>执行sql</strong>和<strong>获取查询结果</strong>。最后操作完数据库后需要调用<code>close()</code>方法关闭相关对象。</p>
+<h4 id="执行sql"><strong>执行sql</strong></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> MySQLdb</span><br><span class="line"></span><br><span class="line">create_sql = <span class="string">"""CREATE TABLE STUDENT (</span><br><span class="line">        NAME  CHAR(20) NOT NULL,</span><br><span class="line">        AGE INT,</span><br><span class="line">        GENDER CHAR(10))"""</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    db_conn = MySQLdb.connect(host=<span class="string">'localhost'</span>, user=<span class="string">'root'</span>, passwd=<span class="string">'fate'</span>, db=<span class="string">'test'</span>, port=<span class="number">3306</span>)</span><br><span class="line">    db_cur = db_conn.cursor()</span><br><span class="line">    db_cur.execute(create_sql)</span><br><span class="line"><span class="keyword">except</span> Exception, e:</span><br><span class="line">    <span class="keyword">raise</span> e</span><br><span class="line"><span class="keyword">finally</span>:</span><br><span class="line">    db_cur.close()</span><br><span class="line">    db_conn.close()</span><br></pre></td></tr></table></figure>
+<p>&emsp;更新(update)、删除(delete)和插入(insert)等支持事务操作。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">insert_sql = <span class="string">'INSERT INTO STUDENT(NAME, AGE, GENDER)\</span><br><span class="line">    VALUES ("%s", "%s", "%s")'</span> % (<span class="string">'mogl'</span>, <span class="number">10</span>, <span class="string">'male'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    db_conn = MySQLdb.connect(host=<span class="string">'localhost'</span>, user=<span class="string">'root'</span>, passwd=<span class="string">'fate'</span>, db=<span class="string">'test'</span>, port=<span class="number">3306</span>)</span><br><span class="line">    db_cur = db_conn.cursor()</span><br><span class="line">    db_cur.execute(insert_sql)</span><br><span class="line">    db_conn.commit()</span><br><span class="line"><span class="keyword">except</span> Exception, e:</span><br><span class="line">    db_conn.rollback()</span><br><span class="line">    <span class="keyword">raise</span> e</span><br><span class="line"><span class="keyword">finally</span>:</span><br><span class="line">    db_cur.close()</span><br><span class="line">    db_conn.close()</span><br></pre></td></tr></table></figure></p>
+<h4 id="获取查询结果"><strong>获取查询结果</strong></h4><p>&emsp;使用<code>fetchall()</code>返回<code>select</code>查询的所有结果，默认每行结果以<strong>元组</strong>形式返回，可使用<strong><code>cursorclass=MySQLdb.cursors.DictCursor</code></strong>返回<strong>字典</strong>形式。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">select_sql = <span class="string">"select * from STUDENT"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    db_conn = MySQLdb.connect(host=<span class="string">'localhost'</span>, user=<span class="string">'root'</span>, passwd=<span class="string">'fate'</span>, db=<span class="string">'test'</span>, port=<span class="number">3306</span>)</span><br><span class="line">    db_cur = db_conn.cursor(cursorclass=MySQLdb.cursors.DictCursor)</span><br><span class="line">    db_cur.execute(select_sql)</span><br><span class="line">    select_result = db_cur.fetchall()</span><br><span class="line"><span class="keyword">except</span> Exception, e:</span><br><span class="line">    <span class="keyword">raise</span> e</span><br><span class="line"><span class="keyword">finally</span>:</span><br><span class="line">    db_cur.close()</span><br><span class="line">    db_conn.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> row <span class="keyword">in</span> select_result:</span><br><span class="line">    <span class="keyword">print</span> row[<span class="string">'NAME'</span>], row[<span class="string">'AGE'</span>], row[<span class="string">'GENDER'</span>]</span><br></pre></td></tr></table></figure></p>
+<p><span id="ConfigParser"></span></p>
+<h3 id="ConfigParser"><strong>ConfigParser</strong></h3><p>&emsp;<a href="http://python.usyiyi.cn/python_278/library/configparser.html" target="_blank" rel="external">ConfigParser</a>模块用来解析类似ini格式的配置文件。<br>&emsp;ini格式配置文件大致如下：</p>
+<ul>
+<li><code>section</code>：<code>[test1]</code>、<code>[test2]</code></li>
+<li><code>option</code>：<code>section</code>下所有的键</li>
+<li><code>items</code>：<code>section</code>下所有的键值对<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#test.cfg</span></span><br><span class="line"></span><br><span class="line">[test1]</span><br><span class="line">name = mogl</span><br><span class="line">passwd = <span class="number">1234</span></span><br><span class="line"></span><br><span class="line">[test2]</span><br><span class="line">name = moguoliang</span><br><span class="line">passwd = <span class="number">4321</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> ConfigParser</span><br><span class="line"></span><br><span class="line">config_file = <span class="string">'test.cfg'</span></span><br><span class="line">parser = ConfigParser.SafeConfigParser()</span><br><span class="line"><span class="comment">#parser.read(config_file)</span></span><br><span class="line"><span class="keyword">with</span> open(config_file, <span class="string">'r'</span>) <span class="keyword">as</span> cfg:</span><br><span class="line">    parser.readfp(cfg)</span><br><span class="line"></span><br><span class="line"><span class="comment">#读操作</span></span><br><span class="line"><span class="keyword">print</span> parser.sections()</span><br><span class="line"><span class="comment">#['test1', 'test2', 'test3']</span></span><br><span class="line"><span class="keyword">print</span> parser.options(<span class="string">'test1'</span>)</span><br><span class="line"><span class="comment">#['name', 'passwd']</span></span><br><span class="line"><span class="keyword">print</span> parser.items(<span class="string">'test1'</span>)</span><br><span class="line"><span class="comment">#[('name', 'mogl'), ('passwd', '1234')]</span></span><br><span class="line"><span class="keyword">for</span> key, value <span class="keyword">in</span> parser.items(<span class="string">'test1'</span>):</span><br><span class="line">    <span class="keyword">print</span> key, value</span><br><span class="line"><span class="keyword">print</span> parser.get(<span class="string">'test1'</span>, <span class="string">'name'</span>)</span><br><span class="line"><span class="comment">#mogl</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#写操作</span></span><br><span class="line">parser.set(<span class="string">'test2'</span>, <span class="string">'passwd'</span>, <span class="string">'1234'</span>)</span><br><span class="line"><span class="keyword">if</span> <span class="string">'test3'</span> <span class="keyword">not</span> <span class="keyword">in</span> parser.sections():</span><br><span class="line">    parser.add_section(<span class="string">'test3'</span>)</span><br><span class="line">    parser.set(<span class="string">'test3'</span>, <span class="string">'name'</span>, <span class="string">'mogltest'</span>)</span><br><span class="line"><span class="keyword">with</span> open(config_file, <span class="string">'w'</span>) <span class="keyword">as</span> cfg:</span><br><span class="line">    parser.write(cfg)</span><br></pre></td></tr></table></figure>
+<p><span id="lxml"></span></p>
+<h3 id="lxml"><strong>lxml</strong></h3><p>&emsp;<a href="">lxml</a>用于解析xml或html，用法比较复杂，这里只记录自己用到的简单功能。</p>
+<ul>
+<li><p><strong>cssselect()</strong></p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> html</span><br><span class="line"></span><br><span class="line"><span class="comment">#实例一</span></span><br><span class="line">page = <span class="string">'&lt;img class="BDE_Image" src="http://test.com/test.jpg" width="560" height="323"&gt;'</span></span><br><span class="line">doc = html.fromstring(page)</span><br><span class="line"><span class="keyword">for</span> index, content <span class="keyword">in</span> enumerate(doc.cssselect(<span class="string">'img.BDE_Image'</span>)):</span><br><span class="line">	img_src = content.attrib[<span class="string">'src'</span>]</span><br><span class="line">	<span class="keyword">print</span> index, img_src</span><br><span class="line"><span class="comment">#0 http://test.com/test.jpg</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#实例二</span></span><br><span class="line"></span><br><span class="line">page = <span class="string">"""</span><br><span class="line">	&lt;div class="buyer-name"&gt;mogl&lt;/div&gt;</span><br><span class="line">	&lt;span class="item-price" src='http://test.com/test.html'&gt;$2.9&lt;/span&gt;</span><br><span class="line">	&lt;span class="item-price" src='http://test.com/test2.html'&gt;$3.0&lt;/span&gt;</span><br><span class="line">"""</span></span><br><span class="line"></span><br><span class="line">htmlDoc = html.fromstring(page)</span><br><span class="line"></span><br><span class="line">buyers = htmlDoc.cssselect(<span class="string">'div.buyer-name'</span>)</span><br><span class="line">prices = htmlDoc.cssselect(<span class="string">'span.item-price'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> eachBuyer <span class="keyword">in</span> htmlDoc.cssselect(<span class="string">'div.buyer-name'</span>):</span><br><span class="line">	<span class="keyword">print</span> <span class="string">"buyer:"</span>, eachBuyer.text_content()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> eachPrice <span class="keyword">in</span> htmlDoc.cssselect(<span class="string">'span.item-price'</span>):</span><br><span class="line">	<span class="keyword">print</span> eachPrice.text_content()</span><br><span class="line">	<span class="keyword">print</span> eachPrice.attrib[<span class="string">'src'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">#buyer: mogl</span></span><br><span class="line"><span class="comment">#$2.9</span></span><br><span class="line"><span class="comment">#http://test.com/test.html</span></span><br><span class="line"><span class="comment">#$3.0</span></span><br><span class="line"><span class="comment">#http://test.com/test2.html</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>xpath</strong><br>  &emsp;先简单记录<code>xpath</code>的路径表达式：</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">表达式</th>
+<th></th>
+<th></th>
+<th style="text-align:center">实例</th>
+<th style="text-align:left">意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">/</td>
+<td></td>
+<td></td>
+<td style="text-align:center">xpath(‘/div’)</td>
+<td style="text-align:left">从根节点选取<code>div</code>节点</td>
+</tr>
+<tr>
+<td style="text-align:center">//</td>
+<td></td>
+<td></td>
+<td style="text-align:center">xpath(‘//div’)</td>
+<td style="text-align:left">选取所有<code>div</code>节点</td>
+</tr>
+<tr>
+<td style="text-align:center">.</td>
+<td></td>
+<td></td>
+<td style="text-align:center">xpath(‘./div’)</td>
+<td style="text-align:left">选取当前节点下的<code>div</code>节点</td>
+</tr>
+<tr>
+<td style="text-align:center">..</td>
+<td></td>
+<td></td>
+<td style="text-align:center">xpath(‘..’)</td>
+<td style="text-align:left">选取父节点</td>
+</tr>
+<tr>
+<td style="text-align:center">@</td>
+<td></td>
+<td></td>
+<td style="text-align:center">xpath(‘//@class’)</td>
+<td style="text-align:left">选取属性</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> lxml <span class="keyword">import</span> html</span><br><span class="line"></span><br><span class="line">page = <span class="string">"""</span><br><span class="line">    &lt;div title="buyer-name"&gt;mogl&lt;/div&gt;</span><br><span class="line">    &lt;span class="item-price" src='http://test.com/test.html'&gt;$2.9&lt;/span&gt;</span><br><span class="line">    &lt;span class="item-price" src='http://test2.com/test2.html'&gt;$2.7&lt;/span&gt;</span><br><span class="line">    """</span></span><br><span class="line">htmlDoc = html.fromstring(page)</span><br><span class="line"></span><br><span class="line">buyers = htmlDoc.xpath(<span class="string">'//div[@title="buyer-name"]/text()'</span>)</span><br><span class="line">prices = htmlDoc.xpath(<span class="string">'//span[@class="item-price"]/text()'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"buyers:"</span>, buyers</span><br><span class="line"><span class="keyword">print</span> <span class="string">"prices:"</span>, prices</span><br><span class="line"><span class="comment">#buyers: ['mogl']</span></span><br><span class="line"><span class="comment">#prices: ['$2.9', '$2.7']</span></span><br><span class="line"></span><br><span class="line">prices2 = htmlDoc.xpath(<span class="string">'//span[@class="item-price"]/@src'</span>)</span><br><span class="line"><span class="keyword">print</span> prices2</span><br><span class="line"><span class="comment">#['http://test.com/test.html', 'http://test2.com/test2.html']</span></span><br></pre></td></tr></table></figure>
+<p><span id="BeautifulSoup"></span></p>
+<h3 id="BeautifulSoup"><strong>BeautifulSoup</strong></h3><p>&emsp;<a href="https://www.crummy.com/software/BeautifulSoup/bs3/documentation.zh.html" target="_blank" rel="external">BeautifulSoup</a>模块和<code>lxml</code>类似都是用来解析HTML/XML的。该模块是是第三方模块需要安装。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; pip install beautifulsoup4</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;为了方便记录，就以以下的HTML代码为解析例子<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">html = <span class="string">"""</span><br><span class="line">&lt;html&gt;&lt;head&gt;&lt;title&gt;The BeautifulSoup test&lt;/title&gt;&lt;/head&gt;</span><br><span class="line">&lt;a class="mnav" href="http://news.mogl.com" name="news"&gt;新闻&lt;/a&gt;</span><br><span class="line">&lt;img src=http://www.mogl.com/img/test.png width=270 height=129&gt;</span><br><span class="line">"""</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;默认Python会使用内置的解析器进行解析，但速度较慢，这里使用<code>lxml</code>来进行解析(需要先装<code>lxml</code>)。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="comment">#创建BeautifulSoup对象</span></span><br><span class="line">soup = BeautifulSoup(html, <span class="string">'lxml'</span>)</span><br><span class="line"><span class="comment">#格式化输出</span></span><br><span class="line"><span class="keyword">print</span> soup.prettify(<span class="string">'utf-8'</span>)</span><br></pre></td></tr></table></figure></p>
+<h4 id="Tag——标签"><strong>Tag——标签</strong></h4><p>&emsp;<strong><code>Tag</code></strong>是HTML中的标签，诸如<code>title</code>和<code>a</code>等。BeautifulSoup对<code>Tag</code>的处理主要包含三种：</p>
+<ul>
+<li><strong>name</strong></li>
+<li><strong>string</strong></li>
+<li><strong>attrs</strong></li>
+</ul>
+<p>&emsp;获取整个<code>Tag</code><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> soup.title</span><br><span class="line"><span class="keyword">print</span> soup.head</span><br><span class="line"><span class="keyword">print</span> soup.a</span><br><span class="line"><span class="keyword">print</span> soup.img</span><br><span class="line"><span class="comment">#&lt;title&gt;The BeautifulSoup test&lt;/title&gt;</span></span><br><span class="line"><span class="comment">#&lt;head&gt;&lt;title&gt;The BeautifulSoup test&lt;/title&gt;&lt;/head&gt;</span></span><br><span class="line"><span class="comment">#&lt;a class="mnav" href="http://news.mogl.com" name="news"&gt;新闻&lt;/a&gt;</span></span><br><span class="line"><span class="comment">#&lt;img height="129" src="http://www.mogl.com/img/test.png" width="270"/&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;<code>name</code>是获取<code>Tag</code>的类型<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> soup.title.name</span><br><span class="line"><span class="keyword">print</span> soup.a.name</span><br><span class="line"><span class="comment">#title</span></span><br><span class="line"><span class="comment">#a</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;<code>string</code>是获取<code>Tag</code>标签中的文本内容<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> soup.title.string</span><br><span class="line"><span class="keyword">print</span> soup.a.string</span><br><span class="line"><span class="comment">#The BeautifulSoup test</span></span><br><span class="line"><span class="comment">#新闻</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;<code>attrs</code>是获取<code>Tag</code>标签中的属性<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> soup.a.attrs</span><br><span class="line"><span class="comment">#&#123;'href': 'http://news.mogl.com', 'class': ['mnav'], 'name': 'news'&#125;</span></span><br><span class="line"><span class="keyword">print</span> soup.a[<span class="string">'href'</span>]</span><br><span class="line"><span class="comment">#http://www.mogl.com/img/test.png</span></span><br><span class="line"><span class="keyword">print</span> soup.img.get(<span class="string">'src'</span>)</span><br><span class="line"><span class="comment">#http://www.mogl.com/img/test.png</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="find_all——搜索"><strong>find_all——搜索</strong></h4><p>&emsp;<code>find_all()</code>是搜索当前<code>tag</code>的所有节点，返回<strong>符合条件</strong>的<code>tag</code>对象<strong>list</strong>。<br>&emsp;<code>find_all()</code>可对<code>tag.name</code>和<code>tag.attrs</code>进行搜索，还支持对使用<code>re</code>的正则匹配。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> soup.find_all(<span class="string">'a'</span>)</span><br><span class="line"><span class="comment">#[&lt;a class="mnav" href="http://news.mogl.com" name="news"&gt;新闻&lt;/a&gt;]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> soup.find_all([<span class="string">'a'</span>, <span class="string">'img'</span>])</span><br><span class="line"><span class="comment">#[&lt;a class="mnav" href="http://news.mogl.com" name="news"&gt;新闻&lt;/a&gt;, &lt;img height="129" src="http://www.mogl.com/img/test.png" width="270"/&gt;]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> soup.find_all(re.compile(<span class="string">r'^a|^i'</span>))</span><br><span class="line"><span class="comment">#[&lt;a class="mnav" href="http://news.mogl.com" name="news"&gt;新闻&lt;/a&gt;, &lt;img height="129" src="http://www.mogl.com/img/test.png" width="270"/&gt;]</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;对<code>tag.attrs</code>进行搜索。当对HTML的<code>class</code>属性搜索时，为避免与Python内置的<code>class</code>关键字冲突，使用<strong><code>class_</code></strong>。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> soup.find_all(<span class="string">'a'</span>, class_=<span class="string">"mnav"</span>)</span><br><span class="line"><span class="comment">#[&lt;a class="mnav" href="http://news.mogl.com" name="news"&gt;新闻&lt;/a&gt;]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> soup.find_all(href=re.compile(<span class="string">'mogl.com'</span>), class_=<span class="string">"mnav"</span>)</span><br><span class="line"><span class="comment">#[&lt;a class="mnav" href="http://news.mogl.com" name="news"&gt;新闻&lt;/a&gt;]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> num, each_tag <span class="keyword">in</span> enumerate(soup.find_all(<span class="string">'img'</span>)):</span><br><span class="line">    <span class="keyword">print</span> num, each_tag[<span class="string">'width'</span>]</span><br><span class="line"><span class="comment">#0 270</span></span><br></pre></td></tr></table></figure></p>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/python/">python</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+
+				
+					<a href="/2016/08/15/celery/" title="Celery浅记">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
