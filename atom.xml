@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-11-02T13:58:20.000Z</updated>
+  <updated>2016-11-02T13:59:45.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://yoursite.com/2016/09/11/python-library-module/"/>
     <id>http://yoursite.com/2016/09/11/python-library-module/</id>
     <published>2016-09-11T10:28:14.000Z</published>
-    <updated>2016-11-02T13:58:20.000Z</updated>
+    <updated>2016-11-02T13:59:45.000Z</updated>
     <content type="html"><![CDATA[<p>&emsp;Python库非常多，为方便快速查询，将自己之前用到的库做个简单汇总记录，不定期持续更新。</p>
 <h3 id="目录"><strong>目录</strong></h3><ul>
 <li><a href="#shutil">shutil</a></li>
