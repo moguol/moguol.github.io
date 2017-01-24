@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" Linux 内存小记 | Hexo " />
+	<meta name="twitter:title" content=" Linux 内存小记 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" Linux 内存小记 | Hexo ">
+	<meta property="og:description" content=" Linux 内存小记 | Hexo " />
+	<meta name="twitter:description" content=" Linux 内存小记 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2016/11/11/linux-memory/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2016-11-11">2016-11-11</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/Linux/">Linux</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2016/11/11/linux-memory/" itemprop="url"><span itemprop="name">Linux 内存小记</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<p>&emsp;最近遇到几个有关Linux内存的问题，于是稍微整理了一下有关Linux内存方面的内容稍作记录。</p>
+<h3 id="free_-m"><strong>free -m</strong></h3><p>&emsp;一般看内存最直接就是输入<code>free -m</code>命令查看，显示的结果恐怕也是问得最多的(<code>free</code>命令实际是通过<strong><code>/proc/meminfo</code></strong>获得内存数值的)。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$&gt; free -m</span><br><span class="line">                   total       used       free     shared    buffers     cached</span><br><span class="line">Mem:          <span class="number">3922</span>      <span class="number">2731</span>      <span class="number">1190</span>        <span class="number">341</span>        <span class="number">166</span>        <span class="number">963</span></span><br><span class="line">-/+ buffers/cache:    <span class="number">1601</span>      <span class="number">2320</span></span><br><span class="line">Swap:         <span class="number">1952</span>          <span class="number">0</span>       <span class="number">1952</span></span><br></pre></td></tr></table></figure></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th style="text-align:left">total</th>
+<th style="text-align:left">used</th>
+<th style="text-align:left">free</th>
+<th style="text-align:left">shared</th>
+<th style="text-align:left">buffers</th>
+<th style="text-align:left">cached</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Mem:</td>
+<td style="text-align:left">总内存</td>
+<td style="text-align:left">已使用内存<code>use+slab+buffers+cached</code></td>
+<td style="text-align:left">完全空闲内存</td>
+<td style="text-align:left">进程间共享内存</td>
+<td style="text-align:left">buffers(详解见下)</td>
+<td style="text-align:left">cached(详解见下)</td>
+</tr>
+<tr>
+<td style="text-align:left">-/+ buffers/cache:</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">实际使用内存<code>use+slab</code></td>
+<td style="text-align:left">空闲内存<code>free+buffers+cached</code></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">Swap:</td>
+<td style="text-align:left">总swap</td>
+<td style="text-align:left">已使用swap</td>
+<td style="text-align:left">空闲swap</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><strong>Mem:</strong>中的<strong>used</strong>是包括了<code>各进程使用内存+slab+buffers+cached</code>，即<code>2731 = 1601(use+slab) + 166(buffers) + 963(cached)</code> (由于使用<code>-m</code>以兆单位显示，计算时会有一点点出入。)</li>
+<li><strong>Mem:</strong>中的<strong>free</strong>则表示完完全全没有被用于其他用途的内存，换句话说就是”多余”的、”浪费”的内存。</li>
+<li><strong>-/+ buffers/cache</strong>中的<strong>used</strong>是系统实际使用的内存(slab的缓存也是包括在此used中的)，不包括<code>buffers</code>和<code>cached</code>，即<code>1601 = 2731(used) - 166(buffers) - 963(cached)</code>。</li>
+<li><strong>-/+ buffers/cache</strong>中的<strong>free</strong>表示系统空闲内存，指系统<strong>最多</strong>还可用的内存量。此处的空闲内存是包含了<code>buffers</code>和<code>cached</code>的，即<code>2320 = 1190(free)  + 166(buffers) + 963(cached)</code><br>理论上认为<code>buffers</code>和<code>cached</code>是可释放回收的内存，因为内存的读取速度比硬盘快Linux充分利用内存资源以加快读取速度。但需要注意一点<strong>并非所有的<code>buffers</code>和<code>cached</code>都可被释放回收</strong>。</li>
+<li>关于<code>buffers</code>和<code>cached</code>：<ul>
+<li><code>cached</code>：是统计所有文件缓存的page总数，即是VFS的<strong>page cache</strong>总数。</li>
+<li><code>buffers</code>：是统计所有block device(块设备)的bd_inode的address_space的page总数。<a href="https://www.quora.com/Linux-Kernel/What-is-the-major-difference-between-the-buffer-cache-and-the-page-cache/answer/Robert-Love-1" target="_blank" rel="external">网上资料</a>说对元数据(<code>metadata</code>)的操作也会缓存到<code>buffers</code>中，源码中没找到，此部分待验证。</li>
+</ul>
+</li>
+</ol>
+<h3 id="Linux_Cache"><strong>Linux Cache</strong></h3><p>&emsp;为进一步说明<code>cached</code>和<code>buffers</code>，需要先弄清楚Linux的内存Cache机制，为了明白Linux的Cache机制需要去了解源码中有关<strong><code>address_space</code></strong>结构体的具体定义。<br>&emsp;Linux为提高读写数据速度和减少磁盘IO，会最大程度的将用到的数据存储在内存中。Linux内存管理是以页(page)为基本单位，当内核进行读操作时，首先检查数据是否存在于page cache中，存在则直接从内存读取数据，不存在则从磁盘读取并将该数据放入page cache，如果内存足够该数据会在page cache中长时间驻留。当内核进行写操作时，会直接在page cache中进行并将该页(page)标记为<strong>dirty</strong>，内核会周期性将dirty page写回到磁盘并取消ditry标记。<br>&emsp;大部分的file IO都会使用到page cache。但也可以指定不使用page cache，当进程打开文件时使用<strong><code>O_DIRECT</code></strong>标志，不使用page cache而是使用进程用户态地址空间的缓冲区。</p>
+<h4 id="page数据产生方式"><strong>page数据产生方式</strong></h4><p>&emsp;内存中的page数据大致有两种产生方式：</p>
+<ul>
+<li><strong>读取文件(file IO)</strong>：这些page中的数据是通过读取文件产生的，这些page的拥有者是该文件的inode。这种方式是最为常用。</li>
+<li><strong>直接读取块设备(block IO)</strong>：这些page中的数据是通过直接操作块设备(<code>如:/dev/sda1</code>)产生的，这些page的拥有者是块设备的主inode(块设备在bdev文件系统中的inode称主inode，在宿主文件系统[如ext4]中的inode称次inode)</li>
+</ul>
+<h4 id="页面描述符"><strong>页面描述符</strong></h4><p>&emsp;每个page有一个<strong>页面描述符(struct page)</strong>，页面描述符结构中含有<strong><code>mapping</code></strong>和<strong><code>index</code></strong>变量，用于连接page和page cache。</p>
+<ul>
+<li><strong><code>mapping</code></strong>：指向该page的inode的<strong>address_space</strong>对象。</li>
+<li><strong><code>index</code></strong>：该page所有者地址空间中以页(page)为单位的偏移量。</li>
+</ul>
+<h4 id="address_space结构体"><strong>address_space结构体</strong></h4><p>&emsp;<strong><code>address_space</code></strong>是内存Cache中核心的数据结构，在<a href="https://github.com/torvalds/linux/blob/master/include/linux/fs.h#L431" target="_blank" rel="external">include/linux/fs.h</a>中定义。<br>&emsp;本次主要留意的是<strong><code>host</code></strong>和<strong><code>nrpages</code></strong>字段，<strong><code>host</code></strong>指向拥有该<code>address_space</code>对象的<code>inode</code>/<code>block_device</code>、<strong><code>nrpages</code></strong>表示该<code>inode</code>/<code>block_device</code>的页总数(解释<code>buffers</code>时会用到此字段，详见下)。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> address_space &#123;</span><br><span class="line">    <span class="keyword">struct</span> inode		*host;		<span class="comment">/* owner: inode, block_device */</span></span><br><span class="line">    <span class="keyword">struct</span> radix_tree_root	page_tree;	<span class="comment">/* radix tree of all pages */</span></span><br><span class="line">    spinlock_t		tree_lock;	<span class="comment">/* and lock protecting it */</span></span><br><span class="line">    atomic_t		i_mmap_writable;<span class="comment">/* count VM_SHARED mappings */</span></span><br><span class="line">    <span class="keyword">struct</span> rb_root		i_mmap;		<span class="comment">/* tree of private and shared mappings */</span></span><br><span class="line">    <span class="keyword">struct</span> rw_semaphore	i_mmap_rwsem;	<span class="comment">/* protect tree, count, list */</span></span><br><span class="line">    <span class="comment">/* Protected by tree_lock together with the radix tree */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>		nrpages;	<span class="comment">/* number of total pages */</span></span><br><span class="line">    <span class="comment">/* number of shadow or DAX exceptional entries */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>		nrexceptional;</span><br><span class="line">    pgoff_t			writeback_index;<span class="comment">/* writeback starts here */</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">struct</span> address_space_operations *a_ops;	<span class="comment">/* methods */</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span>		flags;		<span class="comment">/* error bits */</span></span><br><span class="line">    spinlock_t		private_lock;	<span class="comment">/* for use by the address_space */</span></span><br><span class="line">    gfp_t			gfp_mask;	<span class="comment">/* implicit gfp mask for allocations */</span></span><br><span class="line">    <span class="keyword">struct</span> list_head	private_list;	<span class="comment">/* ditto */</span></span><br><span class="line">    <span class="keyword">void</span>			*private_data;	<span class="comment">/* ditto */</span></span><br><span class="line">&#125; __attribute__((aligned(<span class="keyword">sizeof</span>(<span class="keyword">long</span>))));</span><br></pre></td></tr></table></figure></p>
+<h4 id="映射关系"><strong>映射关系</strong></h4><p>&emsp;根据page中数据的产生方式不同所映射的关系也有些许差别：</p>
+<ol>
+<li>若page cache中page的数据来自文件(file IO)，那么该page中数据的拥有者为该文件的inode。VFS的<a href="https://github.com/torvalds/linux/blob/master/include/linux/fs.h#L604" target="_blank" rel="external"><code>inode</code>结构体</a>中有<code>i_data</code>字段而<strong><code>address_space</code></strong>则在该<code>i_data</code>字段中。<code>inode</code>结构体中除了有<code>i_data</code>外还有<code>i_mapping</code>，<strong><code>i_mapping</code></strong>指向该<code>inode</code>对应的<code>address_space</code>。<code>address_space</code>中的<code>host</code>字段指向所属的<code>inode</code>。大致关系如下图所示，<a href="http://blog.chinaunix.net/uid-28977986-id-3777252.html" target="_blank" rel="external">图片来源</a><br><img src="http://blog.chinaunix.net/attachment/201306/26/28977986_1372230654sA21.jpg" alt="page-address_space-inode关系图"></li>
+<li>若page cache中page的数据来自块设备(block IO)，那么该page中的数据(<code>块设备的原始数据</code>)拥有者为该块设备的主inode。<code>address_space</code>则在<code>bdev</code>文件系统的inode(主inode)中，<code>i_mapping</code>字段指向<code>主inode</code>中的<code>address_space</code>。<code>address_space</code>中的<code>host</code>指向该<code>主inode</code>。</li>
+</ol>
+<h4 id="cached_&amp;_buffers"><strong>cached &amp; buffers</strong></h4><p>&emsp;上面说了这么多终于可以来解释<code>free -m</code>中的<code>cached</code>和<code>buffers</code>。</p>
+<ul>
+<li><strong><code>cached</code></strong>：<code>cached</code>就是进程在读写操作文件(fiel IO)所产生的驻留内存的数据，就是VFS中的<code>page cache</code>。</li>
+<li><p><strong><code>buffers</code></strong>：</p>
+<ol>
+<li>为了更详细的解释<code>buffers</code>，我们直接查看相关源码。<code>free</code>命令是统计<code>/proc/meminfo</code>中的数值，而<code>/proc/meminfo</code>的值是调用<code>sysinfo</code>获得的。</li>
+<li><p>在<a href="https://github.com/torvalds/linux/blob/master/fs/proc/meminfo.c#L47" target="_blank" rel="external">linux/fs/proc/meminfo.c</a>中有结构体<code>sysinfo</code>，而<code>sysinfo</code>结构体<a href="https://github.com/torvalds/linux/blob/master/include/uapi/linux/sysinfo.h#L13" target="_blank" rel="external">linux/include/uapi/linux/sysinfo.h</a>中使用了<code>bufferram</code>，而<code>bufferram</code>正是<code>free</code>命令中<code>buffers</code>的数值来源。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> sysinfo &#123;</span><br><span class="line">       __kernel_long_t uptime;		<span class="comment">/* Seconds since boot */</span></span><br><span class="line">       __kernel_ulong_t loads[<span class="number">3</span>];	<span class="comment">/* 1, 5, and 15 minute load averages */</span></span><br><span class="line">       __kernel_ulong_t totalram;	<span class="comment">/* Total usable main memory size */</span></span><br><span class="line">       __kernel_ulong_t freeram;	<span class="comment">/* Available memory size */</span></span><br><span class="line">       __kernel_ulong_t sharedram;	<span class="comment">/* Amount of shared memory */</span></span><br><span class="line">       __kernel_ulong_t bufferram;	<span class="comment">/* Memory used by buffers */</span></span><br><span class="line">       __kernel_ulong_t totalswap;	<span class="comment">/* Total swap space size */</span></span><br><span class="line">       __kernel_ulong_t freeswap;	<span class="comment">/* swap space still available */</span></span><br><span class="line">       __u16 procs;		   	<span class="comment">/* Number of current processes */</span></span><br><span class="line">       __u16 pad;		   	<span class="comment">/* Explicit padding for m68k */</span></span><br><span class="line">       __kernel_ulong_t totalhigh;	<span class="comment">/* Total high memory size */</span></span><br><span class="line">       __kernel_ulong_t freehigh;	<span class="comment">/* Available high memory size */</span></span><br><span class="line">       __u32 mem_unit;			<span class="comment">/* Memory unit size in bytes */</span></span><br><span class="line">       <span class="keyword">char</span> _f[<span class="number">20</span>-<span class="number">2</span>*<span class="keyword">sizeof</span>(__kernel_ulong_t)-<span class="keyword">sizeof</span>(__u32)];	<span class="comment">/* Padding: libc5 uses this.. */</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在<a href="https://github.com/torvalds/linux/blob/master/mm/page_alloc.c#L4140" target="_blank" rel="external">mm/page_alloc.c</a>中可以看出<code>bufferram</code>的值来至于函数<code>nr_blockdev_pages()</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">si_meminfo</span><span class="params">(<span class="keyword">struct</span> sysinfo *val)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">       val-&gt;totalram = totalram_pages;</span><br><span class="line">       val-&gt;sharedram = global_node_page_state(NR_SHMEM);</span><br><span class="line">       val-&gt;freeram = global_page_state(NR_FREE_PAGES);</span><br><span class="line">       val-&gt;bufferram = nr_blockdev_pages();</span><br><span class="line">       val-&gt;totalhigh = totalhigh_pages;</span><br><span class="line">       val-&gt;freehigh = nr_free_highpages();</span><br><span class="line">       val-&gt;mem_unit = PAGE_SIZE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在<a href="https://github.com/torvalds/linux/blob/master/fs/block_dev.c#L746" target="_blank" rel="external">fs/block_dev.c</a>中函数<code>nr_blockdev_pages()</code>返回<code>ret</code>。<br>&emsp;可以看到<code>ret</code>是将所有块设备(<code>block device</code>)对应的<code>bd_inode</code>中的<code>i_mapping</code>的<code>nrpages</code>累加。<code>i_mapping</code>是指向<code>address_space</code>的，而<code>nrpages</code>在<code>address_space</code>结构体中的定义是所有者的页的总数。换句话说，<code>free</code>中的<code>buffers</code>是统计所有块设备操作(<code>block IO</code>)产生的page总数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">nr_blockdev_pages</span><span class="params">(<span class="keyword">void</span>)</span></span><br><span class="line"></span>&#123;</span><br><span class="line">       <span class="keyword">struct</span> block_device *bdev;</span><br><span class="line">       <span class="keyword">long</span> ret = <span class="number">0</span>;</span><br><span class="line">       spin_lock(&amp;bdev_lock);</span><br><span class="line">       list_for_each_entry(bdev, &amp;all_bdevs, bd_list) &#123;</span><br><span class="line">           ret += bdev-&gt;bd_inode-&gt;i_mapping-&gt;nrpages;</span><br><span class="line">       &#125;</span><br><span class="line">       spin_unlock(&amp;bdev_lock);</span><br><span class="line">       <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>若想增加<code>buffers</code>的值，直接对块设备进行操作产生<code>block IO</code>，由此产生的page就会被缓存在<code>buffers</code>中。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; cat /dev/sda1 &gt; /dev/null</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<h4 id="手动清理缓存"><strong>手动清理缓存</strong></h4><p>&emsp;当缓存占用过多时，可手动对缓存进行清理，主要涉及到<strong><code>/proc/sys/vm/drop_caches</code></strong>值的调整。<br>&emsp;在清理缓存前，最好先同步数据，即将内存中被标记为<code>dirty</code>的数据写入磁盘。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; sync</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;<strong><code>/proc/sys/vm/drop_caches</code></strong>默认值为<code>0</code>(不清除缓存)，可选值有<code>1</code>、<code>2</code>和<code>3</code>，不同值所清理的缓存各有不同。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#清理page cache</span></span><br><span class="line">$&gt; <span class="built_in">echo</span> <span class="number">1</span> &gt; /proc/sys/vm/drop_caches</span><br><span class="line"><span class="comment">#清理dentries和inodes缓存</span></span><br><span class="line">$&gt; <span class="built_in">echo</span> <span class="number">2</span> &gt; /proc/sys/vm/drop_caches</span><br><span class="line"><span class="comment">#1&amp;2，清理page cache、dentries和inodes缓存</span></span><br><span class="line">$&gt; <span class="built_in">echo</span> <span class="number">3</span> &gt; /proc/sys/vm/drop_caches</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;<code>page cache</code>前面讲了很多就不再细说。简单说说<code>dentries</code>和<code>inodes</code>。<code>dentry</code>和<code>inode</code>在VFS(Virtual file system)中是比较重要的。</p>
+<ul>
+<li><strong>inode</strong>：<code>inode</code>是文件对象的元数据，<code>inode</code>包含如下信息(<code>inode</code><strong>不包含</strong>数据和文件名)：<ul>
+<li>数据块位置信息</li>
+<li>权限<code>rwx</code></li>
+<li>属组<code>group id</code></li>
+<li>拥有者<code>user id</code></li>
+<li>文件字节数<code>size</code></li>
+<li>时间戳<code>ctime  mtime atime</code></li>
+<li>链接数</li>
+</ul>
+</li>
+<li><strong>dentry</strong>：<code>dentry</code>即目录项，<code>dentry</code>主要作用是<strong>连接文件名和其<code>inode</code></strong>，由于<code>inode</code>中并没有包含文件名及路径信息，因此需要利用<code>dentry</code>构建并维护文件系统的目录树，每个文件的<code>dentry</code>链接到父目录的<code>dentry</code>从而形成了文件系统的结构树。<code>dentry</code>是一个纯粹的<strong>内存结构</strong>，由文件系统在提供文件访问的过程中在<strong>内存中</strong>直接创建。<code>dentry</code>结构体在源码中定义<a href="https://github.com/torvalds/linux/blob/master/include/linux/dcache.h#L83" target="_blank" rel="external">include/linux/dcache.h</a>。 <code>dentry</code>中包含文件名<code>d_name</code>、inode号<code>d_inode</code>、指向父目录的指针<code>d_parent</code>等等信息。<br>&emsp;当需要读取文件<code>/home/mogl/test.txt</code>时，总是从<code>/</code>目录开始查找，每个文件对象对应唯一一个<code>inode</code>，<code>/</code>的<code>inode number == 0</code>。读取<code>/</code>过程中在内存中创建<code>/</code>的<code>dentry</code>并将其缓存(有了缓存访问文件系统时便会非常快捷)。在Linux中目录也是文件，目录文件内容包括<code>目录下的文件名</code>和<code>inode number</code>，根据这些内容找到下级文件和其<code>inode</code></li>
+</ul>
+<h4 id="调整内核缓存倾向"><strong>调整内核缓存倾向</strong></h4><p>&emsp;可通过调整<strong><code>/proc/sys/vm/vfs_cache_pressure</code></strong>的值来调整内核清理<code>inode</code>和<code>dentry</code>缓存的倾向。<br>&emsp;<code>/proc/sys/vm/vfs_cache_pressure</code>默认值为<code>100</code>，内核根据<code>page cache</code>和<code>swap cache</code>将<code>inode</code>和<code>dentry</code>缓存保持一个合理的比例。</p>
+<ul>
+<li>降低<code>vfs_cache_pressure</code>(<code>vfs_cache_pressure &lt; 100</code>)会导致内核倾向于<strong>保留</strong>dentry和inode缓存。</li>
+<li>增加<code>vfs_cache_pressure</code>(<code>vfs_cache_pressure &gt; 100</code>)，则会导致内核倾向于<strong>清除缓存重新加载</strong>dentries和inodes。</li>
+</ul>
+<h3 id="/proc/meminfo"><strong>/proc/meminfo</strong></h3><p>&emsp;<strong><code>/proc/meminfo</code></strong>是查看内存使用情况最主要的接口，很多命令诸如<code>free</code>、<code>vmstat</code>等都从这里获取数值的。<code>/proc/meminfo</code>信息很多，看懂其中的信息能让我们对系统内存的使用情况有更清晰的了解。先来看看<code>/proc/meminfo</code>的内容，然后逐个分析说明。<code>/proc/meminfo</code>的内容是通过<a href="https://github.com/torvalds/linux/blob/master/fs/proc/meminfo.c#L45" target="_blank" rel="external">fs/proc/meminfo.c 的 meminfo_proc_show()</a>函数获取的。<br>&emsp;参考文章<a href="https://access.redhat.com/solutions/406773" target="_blank" rel="external">RedHat Knowledgebase</a>、<a href="http://linuxperf.com/?p=142" target="_blank" rel="external">/proc/meminfo之迷</a><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">MemTotal:        <span class="number">4016668</span> kB</span><br><span class="line">MemFree:         <span class="number">1294904</span> kB</span><br><span class="line">Buffers:           <span class="number">86000</span> kB</span><br><span class="line">Cached:           <span class="number">985016</span> kB</span><br><span class="line">SwapCached:       <span class="number">121488</span> kB</span><br><span class="line">Active:          <span class="number">1580604</span> kB</span><br><span class="line">Inactive:         <span class="number">969872</span> kB</span><br><span class="line">Active(anon):    <span class="number">1234064</span> kB</span><br><span class="line">Inactive(anon):   <span class="number">657144</span> kB</span><br><span class="line">Active(file):     <span class="number">346540</span> kB</span><br><span class="line">Inactive(file):   <span class="number">312728</span> kB</span><br><span class="line">Unevictable:         <span class="number">116</span> kB</span><br><span class="line">Mlocked:             <span class="number">116</span> kB</span><br><span class="line">HighTotal:       <span class="number">3166364</span> kB</span><br><span class="line">HighFree:        <span class="number">1010456</span> kB</span><br><span class="line">LowTotal:         <span class="number">850304</span> kB</span><br><span class="line">LowFree:          <span class="number">284448</span> kB</span><br><span class="line">SwapTotal:       <span class="number">1999868</span> kB</span><br><span class="line">SwapFree:        <span class="number">1745832</span> kB</span><br><span class="line">Dirty:                <span class="number">80</span> kB</span><br><span class="line">Writeback:             <span class="number">0</span> kB</span><br><span class="line">AnonPages:       <span class="number">1392656</span> kB</span><br><span class="line">Mapped:           <span class="number">274004</span> kB</span><br><span class="line">Shmem:            <span class="number">411748</span> kB</span><br><span class="line">Slab:             <span class="number">100572</span> kB</span><br><span class="line">SReclaimable:      <span class="number">74076</span> kB</span><br><span class="line">SUnreclaim:        <span class="number">26496</span> kB</span><br><span class="line">KernelStack:        <span class="number">5824</span> kB</span><br><span class="line">PageTables:        <span class="number">25468</span> kB</span><br><span class="line">NFS_Unstable:          <span class="number">0</span> kB</span><br><span class="line">Bounce:                <span class="number">0</span> kB</span><br><span class="line">WritebackTmp:          <span class="number">0</span> kB</span><br><span class="line">CommitLimit:     <span class="number">4008200</span> kB</span><br><span class="line">Committed_AS:   <span class="number">11152492</span> kB</span><br><span class="line">VmallocTotal:     <span class="number">122880</span> kB</span><br><span class="line">VmallocUsed:       <span class="number">70840</span> kB</span><br><span class="line">VmallocChunk:      <span class="number">25384</span> kB</span><br><span class="line">HardwareCorrupted:     <span class="number">0</span> kB</span><br><span class="line">AnonHugePages:    <span class="number">339968</span> kB</span><br><span class="line">HugePages_Total:       <span class="number">0</span></span><br><span class="line">HugePages_Free:        <span class="number">0</span></span><br><span class="line">HugePages_Rsvd:        <span class="number">0</span></span><br><span class="line">HugePages_Surp:        <span class="number">0</span></span><br><span class="line">Hugepagesize:       <span class="number">2048</span> kB</span><br><span class="line">DirectMap4k:       <span class="number">32760</span> kB</span><br><span class="line">DirectMap2M:      <span class="number">878592</span> kB</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><strong>MemTotal</strong><br>  &emsp;系统内存总量。这里的内存总量并非总的物理内存，而是除去硬件和kernel占用后内核能支配的内存。</li>
+<li><strong>MemFree</strong><br>  &emsp;系统完全没有使用的内存。<code>free</code>命令中<code>Mem:</code>行的<code>free</code>(不包含<code>buffers</code>和<code>cached</code>)</li>
+<li><strong>Buffers</strong><br>  &emsp;如前面所说<code>buffers</code>是统计所有block device(块设备)的bd_inode的address_space的page总数。即直接操作块设备的<code>block IO</code>会将缓存放到<code>buffers</code>中。</li>
+<li><strong>Cached</strong><br>  &emsp;如前面所说<code>cached</code>是<code>VFS</code>的<code>page cache</code>，操作文件的<code>file IO</code>缓存会放到<code>cached</code>中。</li>
+<li><strong>SwapCached</strong><br>  &emsp;统计曾经被<code>swap out</code>后现在又被<code>swap in</code>(即同时存在于<code>memory</code>和<code>swapfile</code>中)并且从又被<code>swap in</code>起就一直没有改变(即非<code>dirty</code>)的页(<code>page</code>)。这些页(<code>page</code>)如果需要再次被<code>swap out</code>的话无需进行<code>write</code>操作(回写磁盘)，这样能节省I/O和提升性能。</li>
+<li><strong>Active</strong><br>  &emsp;最近经常被使用的内存页，<code>Active</code>的内存页一般不会被<code>swap out</code>或回收。<br>  &emsp;<strong><code>Active</code> = <code>Active(anon) + Active(file)</code></strong></li>
+<li><strong>Inactive</strong><br>  &emsp;最近不经常被使用的内存页，<code>Inactive</code>的内存页很可能会被<code>swap out</code>或回收。<br>  &emsp;<strong><code>Inactive</code> = <code>Inactive(anon) + Inactive(file)</code></strong></li>
+<li><strong>Active(anon)</strong><br>  &emsp;最近经常被使用的匿名页，<code>Active(anon)</code>的匿名页一般不会被<code>swap out</code>或回收。<br>  &emsp;Linux的内存页大致可分成两种：<ul>
+<li><strong>文件页(file pages)</strong>，<code>page cache</code>等文件缓存对于的内存页</li>
+<li><strong>匿名页(anonymous pages)</strong>，进程用户模式下的堆栈或使用<code>mmap</code>匿名映射的内存区</li>
+</ul>
+</li>
+<li><strong>Inactive(anon)</strong><br>  &emsp;最近不经常被使用的匿名页。</li>
+<li><strong>Active(file)</strong><br>  &emsp;最近经常被使用的文件页。</li>
+<li><strong>Inactive(file)</strong><br>  &emsp;最近不经常被使用的文件页。</li>
+<li><strong>Unevictable</strong><br>  &emsp;内存中不能被移除的内存页。</li>
+<li><strong>Mlocked</strong><br>  &emsp;内存中被<strong><code>mlock()</code></strong>系统调用锁定的内存。<code>Mlocked</code>也是<code>Unevictable</code>的，当<code>Mlocked</code>增加时，<code>Unevictable</code>跟着增加而<code>Active/Inactive</code>则减小。</li>
+<li><strong>HighTotal</strong><br>  &emsp;所有可用的高位内存[<code>ZONE_HIGHMEM(896MB~结束)</code>]。在x86结构中，物理内存分三种区域类型：ZONE_DMA(内存开始的16MB)、ZONE_NORMAL(16MB~896MB)、ZONE_HIGHMEM(896MB~结束)。该区域主要用于用户空间的程序或缓存页，该区域不能直接映射到内核空间。<br>  &emsp;<code>HighTotal</code>、<code>HighFree</code>、<code>LowTotal</code>和<code>LowFree</code>这几个参数在CentOS6已经被除去。</li>
+<li><strong>SwapTotal</strong><br>  &emsp;总swap空间大小。</li>
+<li><strong>SwapFree</strong><br>  &emsp;可用swap空间大小。</li>
+<li><strong>Dirty</strong><br>  &emsp;内存中被标记为<code>dirty</code>的数据，这些数据需要被写回到磁盘中。</li>
+<li><strong>Writeback</strong><br>  &emsp;正准备回写磁盘的内存缓存页。</li>
+<li><strong>AnonPages</strong><br>  &emsp;统计内存中匿名页(anonymous pages)大小。<ul>
+<li>VFS的所有page cache都属于文件页(file pages)，都不是匿名页(anonymous pages)。</li>
+<li>匿名页(anonymous pages)是和用户进程共生的。一旦进程退出，则匿名页(anonymous pages)也随之释放，并不会像文件页(file pages)那样还缓存在内存中。</li>
+</ul>
+</li>
+<li><strong>Mapped</strong><br>  &emsp;统计被mmaped的内存大小。<br>  &emsp;在内存的<code>file pages</code>和<code>anonymous pages</code>中，<code>page cache</code>属于<code>file pages</code>。<code>page cache</code>中的缓存页可能已经不被进程使用，但仍以缓存被保留在内存中。而另一些<code>page cache</code>的缓存页则正在被进程使用，如libraries或mmap的文件等，这些内存文件页称之为<code>mmaped</code>。<br>  &emsp;因为<code>shared memory</code>和<code>tmpfs</code>属于<code>page cache</code>，故<code>mmaped</code>中包含：<code>share memory(attached)</code>和<code>tmpfs(mapped)</code>。结合下面的<strong><code>Shmem</code></strong>一起看。</li>
+<li><strong>Shmem</strong><br>  &emsp;共享内存(<strong><code>shared memory</code></strong>)的内存大小。<code>Shmem</code>统计的是实际分配使用的内存大小，而非申请的内存大小。<br>  &emsp;<code>shared memory</code>的内存页会被统计进<code>Cached(page cache)</code>和<code>Mapped(attached)</code><br>  &emsp;<code>shared memory</code>包括：<ul>
+<li>SysV shared memory(<code>shmget</code>)</li>
+<li>POSIX shared memory(<code>shm_open</code>)</li>
+<li>shared anonymous mmap(<code>mmap</code>)</li>
+</ul>
+</li>
+<li><strong>Slab</strong> 、<strong>SReclaimable</strong> 、<strong>SUnreclaim</strong><br>  &emsp;<strong><code>Slab</code></strong> == <strong><code>SReclaimable</code></strong>a + <strong><code>SUnreclaim</code></strong><br>  &emsp;<strong><code>SReclaimable</code></strong>为在内存有压力时可回收的部分，<strong><code>SUnreclaim</code></strong>为在即使在内存有压力时都不可回收的部分。<br>  &emsp;<strong><code>Slab</code></strong>是统计内核数据结构缓存大小(<code>dentry</code>&amp;<code>inode</code>)，这个和上面说的<code>/proc/sys/vm/vfs_cache_pressure</code>和<code>/proc/sys/vm/drop_caches</code>相关内容联系起来。<br>  &emsp;若想查看slab缓存更详细内容，可使用<strong><code>slabtop</code></strong>命令。</li>
+<li><strong>KernelStack</strong><br>  &emsp;KernelStack(内核栈)是进程进入内核态(syscall/trap/exception)后使用的，其与用户栈是分开的，用户态时是无法使用内核栈的。<br>  &emsp;KernelStack(内核栈)的大小是固定的，从<code>2.6.32</code>版本后默认是<strong><code>16K</code></strong>，此前一般为<code>4K</code>或<code>8K</code>。<br>  &emsp;KernelStack(内核栈)是常驻内存且不可被回收的。</li>
+<li><strong>PageTables</strong><br>  &emsp;<code>page table</code>用于将内存的虚拟地址映射成物理地址，<code>PageTables</code>统计<code>page table</code>所占内存的大小。<br>  &emsp;内存地址分配越多<code>page table</code>也会随之增大；若多个进程都命中(<code>attached</code>)相同的共享内存段，<code>PageTables</code>的值会变得比较大。</li>
+<li><strong>NFS_Unstable</strong><br>  &emsp;<strong><code>NFS_Unstable</code></strong>统计已发给NFS Server但尚未写入磁盘的缓存页的大小。</li>
+<li><strong>Bounce</strong><br>  &emsp;<strong><code>Bounce</code></strong>是统计用于块设备<code>bounce buffers</code>的内存大小。<br>  &emsp;某些设备只能访问低端内存，当I/O请求需要访问高端内存时，为了解决不能访问高端内存的问题，内核会在低端内存中分配一个临时buffer用于将高端内存的数据拷贝到此buffer区域中，此成为<code>bounce buffers</code>。</li>
+<li><strong>WritebackTmp</strong><br>  &emsp;统计被<strong>FUSE</strong>用作临时回写缓存(<code>temporary writeback buffers</code>)的内存大小。</li>
+<li><strong>CommitLimit</strong>、<strong>Committed_AS</strong><ul>
+<li><strong>overcommit机制</strong><br>  &emsp;要弄清楚<code>CommitLimit</code>和<code>Committed_AS</code>，需要先解释一下Linux的<strong>overcommit</strong>机制——Linux允许进程申请超过当前实际可用大小的内存空间。但允许申请并不代表就实际分配如此大小的内存给进程，Linux是在进程使用内存时才实际将内存分配给进程。<code>commit</code>对应进程申请内存。对于<code>overcommit</code>在<code>2.6</code>内核版本后的Linux系统可用通过修改<strong><code>/proc/sys/vm/overcommit_memory</code></strong>来调整内存overcommit的行为，<code>/proc/sys/vm/overcommit_memory</code>允许使用<code>0</code>、<code>1</code>和<code>2</code>三个值。<ul>
+<li><code>0</code>：<strong>Heuristic overcommit handling</strong>，默认值。允许overcommit，但内存会根据算法预测申请内存的行为是否合理，拒绝掉不合理的overcommit申请。</li>
+<li><code>1</code>：<strong>Always overcommit</strong>，允许overcommit，只要进程申请内存就通过申请。</li>
+<li><code>2</code>：<strong> Don’t overcommit</strong>，禁止overcommit。</li>
+</ul>
+</li>
+<li><strong>OOM killer机制</strong><br>  &emsp;为了防止内存的overcommit机制导致内存不足，Linux设计了<strong>OOM killer</strong>机制。当Linux系统发现内存不足时，会比较所有进程的<strong><code>oom_score</code></strong><code>(/proc/&lt;pid&gt;/oom_score)</code>，通过杀死<code>oom_score</code>数值大的进程来释放内存。若要手动调整某个进程的<code>oom_score</code>，则需要通过修改<strong><code>oom_score_adj</code></strong>来实现(<code>echo -20 &gt; /proc/&lt;pid&gt;/oom_score_ad</code>)。</li>
+<li><strong>CommitLimit</strong><br>  &emsp;<strong><code>CommitLimit</code></strong>是内存overcommit的判断值，申请的内存总大小超过<code>CommitLimit</code>的值即为overcommit。<br>  &emsp;<strong><code>CommitLimit</code></strong>是通过计算得到的，计算公式——<strong><code>CommitLimit = RAM * (overcommit_ratio/100) + swap</code></strong>。<code>overcommit_ratio</code>默认值为<code>50</code>，表示物理内存大小的50%，可通过<code>/proc/sys/vm/overcommit_ratio</code>调整。<br>  &emsp;若使用了<strong>huge pages</strong>(见下一个参数)则需要减去huage pages的大小，即计算公式——<strong><code>CommitLimit = (RAM - huge_pages) * (overcommit/100) + swap</code></strong></li>
+<li><strong>Committed_AS</strong><br>  &emsp;表示所有进程已申请的内存总数。若<code>Committed_AS</code>超过<code>CommitLimit</code>则表示overcommit。</li>
+</ul>
+</li>
+<li><strong>VmallocTotal</strong><br>  &emsp;<code>vmalloc</code>是以字节为单位分配虚拟地址连续的内存块。<br>  &emsp;<code>VmallocTotal</code>是表示可以<code>vmalloc</code>的内存大小。</li>
+<li><strong>VmallocUsed</strong><br>  &emsp;已被使用的<code>vmalloc</code>虚拟内存大小。</li>
+<li><strong>VmallocChunk</strong><br>  &emsp;统计可用的连续虚拟内存大小。</li>
+<li><strong>HardwareCorrupted</strong><br>  &emsp;统计物理故障内存大小。当系统检测到内存的物理页面故障时，会将故障的内存页删除并统计到<code>HardwareCorrupted</code>。</li>
+<li><strong>AnonHugePages</strong><br>  &emsp;<strong>AnonHugePages</strong>统计的是<strong>THP(Transparent HugePages)透明大页</strong>，<strong>THP(Transparent HugePages)</strong>和接下来的<strong>HugePages</strong>不太一样，先看看<strong>THP(Transparent HugePages)</strong>。<br>  &emsp;<strong>THP(Transparent HugePages)</strong>是使管理HugePage变得自动化而创造的。系统中存在着<strong><code>khugepaged</code></strong>进程，此进程会一直扫描所有进程使用的内存并视情况将<code>4k page</code>变成<code>huge page</code>。<br>  &emsp;<strong>THP(Transparent HugePages)</strong>是在系统运行时<strong>动态</strong>分配内存的，而<strong>HugePage</strong>是在系统启动时<strong>预先</strong>固定分配并在系统运行时不在改变。<br>  &emsp;使用<strong>THP(Transparent HugePages)</strong>可能会到来一些问题，有时候会需要将其关闭(默认开启)，关闭<strong>THP(Transparent HugePages)</strong>：<ul>
+<li><code>echo never &gt; /sys/kernel/mm/redhat_transparent_hugepage/enabled</code></li>
+<li><code>echo never &gt; /sys/kernel/mm/redhat_transparent_hugepage/defrag</code></li>
+</ul>
+</li>
+<li><strong>HugePages_Total</strong>、<strong>HugePages_Free</strong>、<strong>HugePages_Rsvd</strong>、<strong>HugePages_Surp</strong>、<strong>Hugepagesize</strong><br>  &emsp;<strong>HugePage</strong>称之为大页。Linux内存的标准页大小(page size)为<strong><code>4K</code></strong>而<strong>HugePage</strong>常见大小(page size)为<strong><code>2M</code></strong>。<br>  &emsp;解释<strong>HugePage</strong>前，需要先了解<strong>TLB(Translation Lookaside Buffer)</strong>。Linux系统中进程使用内存地址为<strong>虚拟地址(Virtual Address)</strong>，但数据是要通过内存的<strong>物理地址(Physical Address)</strong>才能访问的。于是这就涉及到<strong>虚拟地址(Virtual Address)</strong>转<strong>物理地址(Physical Address)</strong>，而<strong>page table</strong>是专门用于虚拟地址转物理地址的(使用HugePage可减小<code>PageTables</code>大小)。对于使用大量内存的进程来说，查找<strong>page table</strong>太慢，于是设置了<strong>TLB(Translation Lookaside Buffer)</strong>，用于缓存内存地址映射关系以加快映射。增大<code>page size</code>，使得相同大小的TLB(Translation Lookaside Buffer)能覆盖到更多的内存，从而提高TLB(Translation Lookaside Buffer)的命中率，从而提高内存地址转换的速度，这是<strong>HugePage</strong>的一个主要作用。<br>  &emsp;正如上面所说<strong>HugePage</strong>是在系统启动时就预先固定分配好的，并且<strong>HugePage</strong>会常驻内存中。也就是说如果<code>4G</code>大小的内存的系统设置了<code>1G</code>大小的<strong>HugePage</strong>，那么在系统启动后，系统的可用内存则只有<code>3G</code>。系统启动后可以通过调整<strong><code>/proc/sys/vm/nr_hugepages</code></strong>参数值来调整<strong>HugePage</strong>的大小。<ul>
+<li><strong>HugePages_Total</strong>：分配给<strong>huge page</strong>的内存页面数目，<strong><code>HugePageSize = HugePages_Total * Hugepagesize</code></strong></li>
+<li><strong>HugePages_Free</strong>：系统中从未被使用的<strong>huge page</strong>内存页面数目。</li>
+<li><strong>HugePages_Rsvd</strong>：系统中被分配但仍未被使用的<strong>huge page</strong>内存页面数目。这里需要注意<strong>HugePages_Free</strong>和<strong>HugePages_Rsvd</strong>，当进程申请HugePage时，会预订一块大页内存，此时<strong>HugePages_Rsvd</strong>会增加但<strong>HugePages_Free</strong>不会减少。只有当进行写入数据到预订的大页内存时，<strong>HugePages_Free</strong>才会减少，而此时<strong>HugePages_Rsvd</strong>也会减少。</li>
+<li><strong>HugePages_Surp</strong>：超过系统设定的常驻HugePages内存页数目的内存页面数目。</li>
+<li><strong>Hugepagesize</strong>：单个huge page的内存页面大小，通常为<code>2048Kb</code></li>
+</ul>
+</li>
+<li><strong>DirectMap4k</strong>、<strong>DirectMap2M</strong><br>  &emsp;<strong>DirectMap4k</strong>表示TLB(Translation Lookaside Buffer)映射为<code>4K</code>的内存数目，<strong>DirectMap2M</strong>表示TLB(Translation Lookaside Buffer)映射为<code>2M</code>的内存数目。</li>
+</ul>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/linux/">linux</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+
+				
+					<a href="/2016/09/11/python-library-module/" title="Python库札记">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
