@@ -143,7 +143,7 @@
 <li><p>关闭分片自动分配机制</p>
  <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl -XPUT 'http:<span class="comment">//localhost:9200/_cluster/settings' -d '&#123;</span></span><br><span class="line">	<span class="string">"transient"</span> : &#123;</span><br><span class="line">		<span class="string">"cluster.routing.allocation.enable"</span> : <span class="string">"none"</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;'</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>集群逐个节点进行操作：停止Elasticsearch、修改配置/升级Elasticsearch、启动Elasticsearch </p>
+<li><p>集群逐个节点进行操作：停止Elasticsearch、修改配置/升级Elasticsearch、启动Elasticsearch</p>
 </li>
 <li>待所有节点都配置完启动成功后，切记要重新开启分片自动分配机制 <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">curl -XPUT 'http:<span class="comment">//localhost:9200/_cluster/settings' -d '&#123;</span></span><br><span class="line">	<span class="string">"transient"</span> : &#123;</span><br><span class="line">		<span class="string">"cluster.routing.allocation.enable"</span> : <span class="string">"all"</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;'</span><br></pre></td></tr></table></figure>
 </li>
@@ -196,6 +196,28 @@
 </li>
 </ul>
 <p>&emsp;关闭前缀为<code>test1-</code>的所有索引<br>&emsp;关闭前缀为<code>test2_</code>且旧于<code>30</code>天的索引</p>
+<h2 id="Elasticdump"><strong>Elasticdump</strong></h2><p>&emsp;Elasticdump用来对Elasticsearch中的数据进行迁移备份等操作。</p>
+<ul>
+<li><p><strong>安装NodeJS</strong><br>  &emsp;Elasticdump是用NodeJS写的，所以依赖NodeJS环境，需要安装NodeJS。</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl --silent --location https://rpm.nodesource.com/setup_4.x | bash -</span><br><span class="line">yum install -y gcc-c++ make nodejs</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> NODE_PATH=/usr/lib/node_modules</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>安装Elasticdump</strong></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install elasticdump@<span class="number">2.1</span>.<span class="number">0</span> -g</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>使用</strong></p>
+<ul>
+<li><p>备份<br>  &emsp;备份成文件并压缩</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">elasticdump --input=http://localhost:<span class="number">9200</span>/ --output=$ | gzip &gt; /data/elasticsearch_json.gz</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>导出数据<br>  &emsp;Elasticsearch导出需要分成<code>mapping</code>和<code>data</code>两部分。</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">elasticdump --input=http://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">9200</span>/.kibana --output=/kibana_mapping.json --type=mapping</span><br><span class="line">elasticdump --input=http://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">9200</span>/.kibana --output=/kibana_data.json --type=data</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>导入数据</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">elasticdump --input=kibana_mapping.json --output=http://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">9200</span>/.kibana --type=mapping</span><br><span class="line">elasticdump --input=kibana_data.json --output=http://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">9200</span>/.kibana --type=data</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
 
 				</div>
 
