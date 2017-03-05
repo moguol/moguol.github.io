@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" 《深入理解Linux内核》读书笔记 | Hexo " />
+	<meta name="twitter:title" content=" 《深入理解Linux内核》读书笔记 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" 《深入理解Linux内核》读书笔记 | Hexo ">
+	<meta property="og:description" content=" 《深入理解Linux内核》读书笔记 | Hexo " />
+	<meta name="twitter:description" content=" 《深入理解Linux内核》读书笔记 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2017/02/02/linux-kernel-note/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/linux/">linux</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2017-02-02">2017-02-02</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/Linux/">Linux</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2017/02/02/linux-kernel-note/" itemprop="url"><span itemprop="name">《深入理解Linux内核》读书笔记</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<h2 id="目录"><strong>目录</strong></h2><ul>
+<li><a href="#introduction">绪论</a></li>
+<li><a href="#memory_addressing">内存寻址</a></li>
+<li><a href="#memory_management">内存管理</a></li>
+</ul>
+<p><span id="introduction"></span></p>
+<h2 id="绪论"><strong>绪论</strong></h2><h3 id="Unix文件系统概述"><strong>Unix文件系统概述</strong></h3><h4 id="文件"><strong>文件</strong></h4><p>&emsp;&emsp;Unix文件是以字节序列组成的信息载体，文件被组织在一个<strong>树结构</strong>的命名空间中。除叶节点外，树的所有节点表示目录名。<strong>目录节点包含其下的文件及目录的所有信息。</strong><br>&emsp;&emsp;Unix的进程都有一个当前目录，当前目录属于进程<strong>执行上下文(execution context)</strong>，标识进程所在的当前目录。进程使用<strong>路径名(pathname)</strong>标识某个特定文件，路径名由斜杠及一系列指向文件的目录名交替组成。若路径名的第一个字符为’/‘，则此路径为<strong>绝对路径</strong>；若第一项为目录名或文件名，则此路径为<strong>相对路径</strong>，<strong><code>.</code></strong>标识当前目录、<strong><code>..</code></strong>标识父目录。</p>
+<h4 id="软链接_&amp;_硬链接"><strong>软链接 &amp; 硬链接</strong></h4><p>&emsp;&emsp;使用<strong><code>ln</code></strong>命令为由路径<code>P1</code>标识的文件创建一个名为<code>P2</code>的硬链接<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; ln P1 P2</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;&emsp;硬链接有2个限制：</p>
+<ol>
+<li>不能为目录创建硬链接</li>
+<li>只能在同一文件系统中创建硬链接</li>
+</ol>
+<p>&emsp;&emsp;软链接又可称之为符号链接。路径名可指向位于任意文件系统的任意文件或目录，甚至<strong>可指向一个不存在的文件</strong>(硬链接只能对已存在的文件进行创建)。同样使用<strong><code>ln</code></strong>命令创建软链接<br>&emsp;&emsp;创建一个名为<code>P2</code>的软链接并指向路径名<code>P1</code>，任何对<code>P2</code>的操作都会自动转换到<code>P1</code><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; ln <span class="operator">-s</span> P1 P2</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;&emsp;硬链接是有着与原文件<strong>相同inode号</strong>仅文件名不同的文件，而软链接是拥有属于自己的inode号的，软链接的数据块内容存放着指向原文件的路径。</p>
+<h4 id="文件类型"><strong>文件类型</strong></h4><p>&emsp;&emsp;Unix文件类型包括如下：</p>
+<ul>
+<li>普通文件</li>
+<li>目录</li>
+<li>软链接(符号链接)</li>
+<li>块设备文件</li>
+<li>字符设备文件</li>
+<li>管道、命名管道</li>
+<li>套接字(socket)</li>
+</ul>
+<h4 id="文件描述符(fd)_&amp;_索引节点(inode)"><strong>文件描述符(fd) &amp; 索引节点(inode)</strong></h4><p>&emsp;&emsp;除设备文件和特殊文件系统文件外，Unix文件都由字符序列组成。Unix对文件的内容和描述文件的信息加以区分，文件内容不包含控制信息(文件长度、文件结束符等)。<br>&emsp;&emsp;文件系统处理文件所需的控制信息都包含在<strong>索引节点</strong>(<strong>inode</strong>)中。每个文件都有自己的索引节点，文件系统用索引节点标识文件。<br>&emsp;&emsp;索引节点(inode)包含如下属性：</p>
+<ul>
+<li>文件类型</li>
+<li>与文件相关的硬链接个数</li>
+<li>以字节为单位的文件长度</li>
+<li>设备标识符</li>
+<li>文件系统中标识文件的索引节点号</li>
+<li>文件拥有者ID</li>
+<li>文件的组ID</li>
+<li>时间戳(改变时间、最后访问时间、最后修改时间)</li>
+<li>访问权限及文件模式</li>
+</ul>
+<h4 id="访问权限"><strong>访问权限</strong></h4><p>&emsp;&emsp;文件的潜在用户分三类：</p>
+<ul>
+<li>文件拥有者(<strong><code>u</code></strong>ser)</li>
+<li>同组用户，不包括拥有者(<strong><code>g</code></strong>roup)</li>
+<li>所有剩下的用户(<strong><code>o</code></strong>ther)</li>
+</ul>
+<p>&emsp;&emsp;访问权限有三种：读、写和可执行。因此文件访问权限的组合有九种不同的二进制标记。除此之外，还有三种附加标记——<strong><code>suid</code></strong>、<strong><code>sgid</code></strong>和<strong><code>sticky</code></strong>用于定义文件模式。</p>
+<ul>
+<li><code>suid</code>：进程执行文件时保持文件拥有者的UID。</li>
+<li><code>sgid</code>：进程执行文件时保持用户组的GID。</li>
+<li><code>sticky</code>：向内核发出请求，当程序结束后依然将其保存在内存中(此标志已过时)。</li>
+</ul>
+<h3 id="Unix内核概述"><strong>Unix内核概述</strong></h3><h4 id="进程/内核模式"><strong>进程/内核模式</strong></h4><p>&emsp;&emsp;CPU可运行在用户态下，也可运行在内核态下。尽管CPU会拥有不同的执行状态，但标准的Unix内核仅用到<strong>用户态</strong>和<strong>内核态</strong>。<br>&emsp;&emsp;一个程序在执行时，大部分时间处于用户态下，只有需要内核所提供的服务时才切换到内核态，程序在用户态下不能直接访问内核数据结构和内核程序。当内核满足用户程序请求后，内核会让程序重新回到用户态。<br>&emsp;&emsp;请求内核服务的进程使用<strong>系统调用(system call)</strong>的特殊编程机制完成从用户态到内核态的转换(系统调用只是其中的一种方式)。每个系统调用都设置一组识别进程请求的参数，进程调用后执行与硬件相关的CPU指令。<br>&emsp;&emsp;除用户进程外，Unix系统还有几个<strong>内核线程(kernel thread)</strong>的<strong>特权进程</strong>，特权进程有如下特点：</p>
+<ul>
+<li>以内核态运行在内核地址空间中</li>
+<li>不与用户直接交互、不需要终端设备</li>
+<li>在系统启动时创建，一直处于活跃状态直到系统关闭</li>
+</ul>
+<h4 id="进程实现"><strong>进程实现</strong></h4><p>&emsp;&emsp;为了内核能管理进程，每个进程由<strong>进程描述符(process descriptor)</strong>表示，进程描述符包含有关进程当前状态的信息。<br>&emsp;&emsp;当内核需要暂停一个正在执行中的进程时，会把相关处理器寄存器的内容保存到进程描述符中，这些寄存器包括：</p>
+<ul>
+<li>程序计数器(PC)和栈指针(SP)寄存器</li>
+<li>通用寄存器</li>
+<li>浮点寄存器</li>
+<li>包含CPU状态信息的处理器控制寄存器</li>
+<li>用来跟踪进程对RAM访问的内存管理寄存器</li>
+</ul>
+<p>&emsp;&emsp;当内核需要恢复一个进程时，会用进程描述符中合适的字段来装载寄存器。<br>&emsp;&emsp;当进程不在CPU上执行时，那正在等待事件。内核可区分多种等待状态，这些等待状态由进程描述符队列实现，每个队列对应一组正在等待某事件的进程。</p>
+<h4 id="可重入内核"><strong>可重入内核</strong></h4><p>&emsp;&emsp;所有Unix内核都是<strong>可重入的(reentrant)</strong>，可重入意味着多个进程可同时在内核态下执行。<br>&emsp;&emsp;提供可重入的其中一种方式是编写可重入函数，可重入函数只能修改局部变量而不能修改全局变量。对于非重入函数，可利用锁机制保证一次只有一个进程执行一个非重入函数。<br>&emsp;&emsp;进程即使处于内核态，当一个硬件中断产生时，可重入内核也能将正在执行的进程挂起。产生硬件中断的设备控制器能快速的收到内核的应答，设备控制器在CPU处理中断时能执行其他任务，这样能提高设备控制器的吞吐量。<br>&emsp;&emsp;为了说明可重入性对内核组织的影响。引入<strong>内核控制路径(kernel control path)</strong>概念，内核控制路径表示内核处理系统调用、异常或中断所执行的指令序列。<br>&emsp;&emsp;最简单的情况下，CPU从第一条指令到最后一条指令顺序执行内核控制路径。但当以下事件之一发生时，CPU交错执行内核控制路径：</p>
+<ul>
+<li>用户态下的进程调用一个系统调用，相应的内核控制路径确定这个请求无法立即满足。于是，内核控制路径调用调度程序选择一个新的进程执行。因此发生进程切换。第一个内核控制路径没完成，CPU便开始执行其他的内核控制路径。此情况下，两条控制路径代表两个不同的进程在执行。</li>
+<li>当正在执行一个内核控制路径时，CPU检测到一个异常，第一个控制路径被挂起而CPU开始执行合适的过程。</li>
+<li>当CPU正在运行一个启用了中断的内核控制路径时，一个硬件中断产生。第一个内核控制路径还未执行完，CPU开始执行另一个内核控制路径来处理中断，中断处理完后第一个内核控制路径恢复。</li>
+<li>在支持抢占式调度的内核中，若一个更高优先级的进程进入调度队列，则CPU会中断第一个执行控制路径，优先响应更高优先级的进程。</li>
+</ul>
+<h4 id="进程地址空间"><strong>进程地址空间</strong></h4><p>&emsp;&emsp;每个进程都运行在属于自己的私有地址空间中，地址空间的最大长度和物理内存无关，所以称之为<strong>虚拟地址空间</strong>。Linux将地址空间根据用户态和内核态不同分为<strong>用户空间</strong>和<strong>内核空间</strong>。用户态下进程的地址空间在用户空间中，涉及<strong>私有栈</strong>、<strong>数据区</strong>和<strong>代码区</strong>，但进入内核态则使用内核空间的数据区和代码区。<br>&emsp;&emsp;虽说进程访问的是私有地址空间，但进程间也能共享部分地址空间，比如在实现进程间通信时，其中一种方式称为<strong>共享内存</strong>，是通过共享部分地址空间从而实现进程间通信的。<br>&emsp;&emsp;Linux的<strong><code>mmap()</code></strong>系统调用允许<strong>块设备</strong>的文件映射到进程的地址空间中，若一个文件由多个进程共享，那么这些进程的地址空间都包含该文件的内存映射。</p>
+<h4 id="进程间通信"><strong>进程间通信</strong></h4><p>&emsp;&emsp;目前Linux系统中进程间通信主要的方式有以下几种：</p>
+<ul>
+<li>管道(pipe)和命名管道(FIFO)</li>
+<li>信号(signal)</li>
+<li>消息队列</li>
+<li>共享内存</li>
+<li>套接字(socket)</li>
+</ul>
+<h4 id="进程管理"><strong>进程管理</strong></h4><p>&emsp;&emsp;Linux系统是通过调用<strong><code>fork()</code></strong>创建新进程的。<strong><code>fork()</code></strong>会创建一个与父进程<strong>完全相同</strong>的子进程，子进程被创建后继续执行<code>fork()</code>后面的代码。为了效率考虑Linux系统使用<strong>Copy-On-Write</strong>机制，简单的说就是<code>fork()</code>后的父子进程都使用相同的物理内存区域，子进程的代码区、数据区和堆栈区等都指向父进程(父子进程的虚拟地址空间是不同的)，只有当父或子进程需要进行写入时才为子进程分配数据区、堆栈区(代码区(<code>exec()</code>))并复制父进程的内容给子进程。</p>
+<ul>
+<li><strong>僵尸进程(zombie process)</strong><br>  &emsp;&emsp;Linux中是通过父进程调用<code>fork()</code>创建出新的子进程，当子进程执行完毕调用<code>exit()</code>结束自己释放绝大多数资源后，子进程并非立即就在系统中消失而是会留下部分信息(<code>PID</code>、<code>退出状态</code>、<code>CPU使用时间</code>等)并在进程列表中保留位置(即占用一个PID)，直到父进程调用<code>wait()/waitpid()</code>收集完子进程残留的信息后才会使子进程彻底从系统中消失。子进程调用<code>exit()</code>到父进程调用<code>wait()/waitpid()</code>之间所处于的状态称其为<strong>僵尸进程</strong>。<br>  &emsp;&emsp;僵尸进程是不能通过<code>kill</code>命令让其消失的，因为僵尸进程已经<code>exit()</code>退出了只是还残留信息等待被父进程收集而已。假若父进程中没有写<code>wait()/waitpid()</code>操作或父进程忙于执行其他任务无法执行<code>wait()/waitpid()</code>，那么系统中可能会出现很多僵尸进程(僵尸进程占用PID，系统PID资源也是有限的)。其中一个办法是之间杀死父进程，让子进程变成<strong>孤儿进程</strong>由<strong><code>init进程</code></strong>接管并收集残留信息使僵尸进程消失。</li>
+<li><strong>进程组(process group) &amp; 登录会话(login session)</strong><ul>
+<li><strong>进程组(process group)</strong><br>  &emsp;&emsp;Linux操作系统引入<strong>进程组(process group)</strong>是为了能对更方便的管理多个进程，若将信号(signal)发送给一个进程组则<strong>该进程组的所有进程都会收到该信号</strong>。<br>  &emsp;&emsp;每个进程组会有一个<strong>进程组组长(process group leader)</strong>，<strong>组长进程(group leader)的<code>PID</code>会成为进程组ID(process group ID, <code>PGID</code>)</strong>。新创建的进程会被加入到其父进程的进程组中。<br>  &emsp;&emsp;<strong>进程组(process group)的存在和组长进程(group leader)是否存在无关</strong>，只要进程组(process group)中有一个进程存在则进程组(process group)就存在。只有当进程组(process group)内所有进程都退出进程组(process group)才会消失。</li>
+<li><strong>登录会话(login session)</strong><br>  &emsp;&emsp;Linux系统也引入了<strong>登录会话(login session)</strong>，一个或多个进程组(process group)组成一个登录会话(login session)。会话由其中的某个进程建立，该进程称为<strong>会话首进程(session leader)</strong>。会话首进程(session leader)的<code>PID</code>成为会话ID<code>session ID, SID</code>。若会话首进程(session leader)退出，内核将发送<code>SIGHUP</code>信号给前台进程组。<br>  &emsp;&emsp;一个登录会话(login session)可让多个进程组(process group)处于活动状态，但只能有<strong>一个</strong>进程组(process group)处于前台(foreground)，其他进程组都是后台(background)。前台进程组可以访问终端，后台进程组试图访问终端时会收到<code>SIGTTIN</code>/<code>SIGTTOUT</code>信号。可使用<code>bg</code>和<code>fg</code>将一个进程组放到后台或前台。</li>
+</ul>
+</li>
+</ul>
+<h4 id="内存管理"><strong>内存管理</strong></h4><ul>
+<li><p><strong>虚拟内存</strong><br>  &emsp;&emsp;在内存管理上，Linux系统引入<strong>虚拟内存(virtual memory)</strong>这个抽象的逻辑层。虚拟内存(virtual memory)是处于<em>应用程序内存申请</em>和<em>硬件内存管理单元(Memory Management Unit, <code>MMU</code>)</em>之间。<br>  &emsp;&emsp;虚拟内存(virtual memory)的用途和优点：</p>
+<ul>
+<li>支持多进程并行执行</li>
+<li>程序所需内存大于实际物理内存是也可运行(Linux有<code>overcommit</code>机制)</li>
+<li>程序只有部分代码载入内存时进程可执行程序</li>
+<li>允许每个进程访问可用物理内存的子集</li>
+<li>进程可以共享函数库或程序的一个单独内存映象</li>
+<li>程序是可重定位的，可以把程序放在物理内存的任何地方</li>
+<li>程序员可以编写机器无关代码，无需关系物理内存的组织结构<br>&emsp;&emsp;虚拟内存子系统中最重要的概念是<strong>虚拟地址空间(virtual address space)</strong>，进程所使用的内存地址并非物理内存地址而是<strong>虚拟地址</strong>。虚拟地址由内核和<code>MMU</code>协同定位出其在内存中的物理地址。<br>&emsp;&emsp;现在的CPU有能自动把虚拟地址转换成物理地址的硬件电路，使得可以将<code>RAM</code>划分成长度为<code>4K</code>或<code>8K</code>的<strong>页框(page frame)</strong>并引入一组<strong>页表</strong>来指定虚拟地址和物理地址的关系。</li>
+</ul>
+</li>
+<li><p><strong>随机访问存储器RAM</strong><br>  &emsp;&emsp;<strong>RAM</strong>基本别分为两部分：</p>
+<ul>
+<li>若干兆节用于存放<strong>内核映象</strong>，主要是<strong>内核代码</strong>和<strong>内核静态数据结构</strong>。</li>
+<li>剩余部分全由虚拟内存子系统处理。主要用于三个方面：<ul>
+<li>满足内核对缓冲区、描述符及其他动态内核数据结构的请求</li>
+<li>满足进程对一般内存区的请求及对文件内存映射的请求</li>
+<li>借助于高速缓存从磁盘及其他缓冲设备获得较好的性能<br>&emsp;&emsp;虚拟内存子系统另外一个需要处理的问题是<strong>内存碎片</strong>，因为即使存在可用内存，但如果不能作为一个<strong>连续</strong>的块使用时，申请内存会失败的。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>内核内存分配器KMA</strong><br>  &emsp;&emsp;内核内存分配器(Kernel Memory Allocator，<strong><code>KMA</code></strong>)是一个子系统，用于满足系统所有对内存的请求。KMA需要有如下特点：</p>
+<ul>
+<li>速度快，性能高</li>
+<li>必须把内存的浪费减少到最少</li>
+<li>必须努力减轻内存碎片问题</li>
+<li>必须能与其他内存管理子系统合作<br>&emsp;&emsp;根据不同的算法有多种不同的KMA，Linux的KMA使用了<strong>Slab分配算法</strong>。</li>
+</ul>
+</li>
+<li><p><strong>进程虚拟地址空间处理</strong><br>  &emsp;&emsp;进程的虚拟地址空间包括进程能使用的所有虚拟内存地址。内核常用一组<em>内存区描述符</em>描述进程虚拟地址空间。<br>  &emsp;&emsp;当进程使用<code>exec()</code>系统调用执行程序时，内核分配给进程的虚拟地址空间由以下<em>内存区</em>组成：</p>
+<ul>
+<li>程序的可执行代码(代码区)</li>
+<li>程序的初始化数据(数据区)</li>
+<li>程序的未初始化数据(数据区)</li>
+<li>初始程序栈(用户态栈)</li>
+<li>所需共享库的可执行代码和数据</li>
+<li>堆(由程序动态申请的内存)<br>Linux系统都是采用<strong>请求调页(demand paging)</strong>的内存分配策略。进程可在其所需内存页没加载进内存前开始执行，当进程访问页不存在时，<code>MMU</code>产生一个异常，异常处理程序定位到受影响的内存区，分配空闲页并用适当的数据页进行初始化。有了<strong>请求调页(demand paging)</strong>内存分配策略，当进行使用<code>malloc()</code>系统调用动态申请内存时，内核仅需要修改<em>堆内存区</em>大小即可。</li>
+</ul>
+</li>
+<li><p><strong>高速缓存</strong><br>  &emsp;&emsp;所谓高速缓存，就是将内存作为磁盘或其他设备的缓存。将从磁盘读入的内容缓存在内存中以便再次使用时能快速提供数据，不用重新从磁盘再加载进内存。对于写入磁盘的数据，会先直接在内存中修改，内核会将变更的数据标记为<code>dirty</code>并周期性地将这些<code>dirty</code>数据写回磁盘，避免重复低效的I/O操作。</p>
+</li>
+</ul>
+<p><span id="memory_addressing"></span></p>
+<h2 id="内存寻址"><strong>内存寻址</strong></h2><p>&emsp;&emsp;《深入理解Linux内核》内存寻址这章节是以<strong><code>80x86</code>微处理器</strong>为主来讲解芯片级别的内存寻址的。</p>
+<h3 id="内存地址"><strong>内存地址</strong></h3><p>&emsp;&emsp;<code>80x86</code>微处理器将内存区分为三种不同的地址：</p>
+<ul>
+<li><strong>逻辑地址(logical address)</strong><ul>
+<li>包含在机器语言指令中用来指定一个操作数或一条指令的地址。</li>
+<li>每个<strong>逻辑地址(logical address)</strong>由一个<strong>段(segment)</strong>和<strong>偏移量(offset/displacement)</strong>组成。</li>
+</ul>
+</li>
+<li><strong>线性地址(linear address)</strong>/<strong>虚拟地址(virtual address)</strong><ul>
+<li><code>32</code>位无符号整数。最大可表达<strong><code>4GB</code></strong>的地址。(32位系统中单进程寻址最大4G的原因)</li>
+<li>通常用<strong>十六进制</strong>表示。<strong><code>0x00000000</code></strong> ~ <strong><code>0xffffffff</code></strong></li>
+</ul>
+</li>
+<li><strong>物理地址(physical address)</strong><ul>
+<li>用于内存芯片级内存单元寻址。</li>
+<li>物理地址(physical address)和从微处理器的地址引脚发送到内存总线上的电信号相对应。</li>
+<li>由<strong><code>32</code></strong>或<strong><code>64</code></strong>位无符号整数表示。</li>
+</ul>
+</li>
+</ul>
+<p>&emsp;&emsp;<strong>内存控制单元(MMU)</strong>通过<strong>分段单元(segmentation unit)</strong>硬件电路将逻辑地址(logical address)转换成虚拟地址(virtual address)，再通过<strong>分页单元(paging unit)</strong>硬件电路将虚拟地址(virtual address)转换物理地址(physical address)。<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">逻辑地址<span class="comment">(logical address)</span>——&gt;[分段单元<span class="comment">(segmentation unit)</span>]——&gt;虚拟地址<span class="comment">(virtual address)</span>——&gt;[分页单元<span class="comment">(paging unit)</span>]——&gt;物理地址<span class="comment">(physical address)</span></span><br></pre></td></tr></table></figure></p>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/Linux-Kernel/">Linux Kernel</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+					<a href="/2017/02/28/ELK-full/" title="ELK+Kafka+Search-Guard+Sentinl全攻略">&larr; Prev</a>
+				
+
+				
+					<a href="/2016/11/11/linux-memory/" title="Linux 内存小记">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
