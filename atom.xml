@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2017-03-05T05:57:24.000Z</updated>
+  <updated>2017-03-05T05:58:08.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://yoursite.com/2017/02/28/ELK-full/"/>
     <id>http://yoursite.com/2017/02/28/ELK-full/</id>
     <published>2017-02-28T08:29:11.000Z</published>
-    <updated>2017-03-05T05:57:24.000Z</updated>
+    <updated>2017-03-05T05:58:08.000Z</updated>
     <content type="html"><![CDATA[<p>&emsp;&emsp;ELK(Elasticsearch/Logstash/Kibana)是目前对日志采集分析比较适合的解决方案；Kafka是一个分布式高可用高吞吐的消息队列软件，在日志量大及对数据可靠性要求高的场景使用；Search-Guard是一款开源的、对Elasticsearch提供安全及权限控制功能的插件；Sentinl是一款类似Watch的Kibana插件，提供监控、报警和报告功能。<br>&emsp;&emsp;这整个系统为日志的采集、存储、查询、图表分析和监控报警提供一套完整的解决方案。</p>
 <h2 id="软件版本列表"><strong>软件版本列表</strong></h2><ul>
 <li>CentOS 6.8 64bit</li>
@@ -262,7 +262,7 @@
     <link href="http://yoursite.com/2017/02/02/linux-kernel-note/"/>
     <id>http://yoursite.com/2017/02/02/linux-kernel-note/</id>
     <published>2017-02-02T04:42:40.000Z</published>
-    <updated>2017-02-23T14:56:52.000Z</updated>
+    <updated>2017-02-23T14:59:35.000Z</updated>
     <content type="html"><![CDATA[<h2 id="目录"><strong>目录</strong></h2><ul>
 <li><a href="#introduction">绪论</a></li>
 <li><a href="#memory_addressing">内存寻址</a></li>
@@ -2941,7 +2941,7 @@
     <link href="http://yoursite.com/2015/11/11/ddos/"/>
     <id>http://yoursite.com/2015/11/11/ddos/</id>
     <published>2015-11-11T14:29:11.000Z</published>
-    <updated>2015-12-06T15:30:44.000Z</updated>
+    <updated>2017-03-05T06:05:28.000Z</updated>
     <content type="html"><![CDATA[<p>&emsp;<a href="https://zh.wikipedia.org/wiki/%E9%98%BB%E6%96%B7%E6%9C%8D%E5%8B%99%E6%94%BB%E6%93%8A" target="_blank" rel="external">DDOS(Distributed Denial of Service)</a>，分布式拒绝服务攻击是目前互联网上主流的攻击方式，也是最难防御的攻击方式。之前就已经有了解，只是最近刚刚好整理相关方面的资料，顺便简单记录一下。</p>
 <h3 id="SYN_Flood"><strong>SYN Flood</strong></h3><p>&emsp;<strong>SYN Flood</strong>既SYN 洪水攻击，是DDOS攻击方式中最为经典的一种，利用TCP三次握手的设计缺陷，通过发送含有虚假源IP地址的SYN报文，使得服务端永远无法完成三次握手，一直处于<strong>SYN_RECV</strong>状态无法释放资源，直到占满系统协议栈等待队列无法新建连接导致拒绝服务。(关于TCP三次握手详见<a href="https://moguol.github.io/2015/07/16/review-tcp-ip-3/" target="_blank" rel="external">这里</a>)</p>
 <ol>
@@ -2989,7 +2989,7 @@
     
       <category term="ddos" scheme="http://yoursite.com/tags/ddos/"/>
     
-      <category term="linux" scheme="http://yoursite.com/categories/linux/"/>
+      <category term="Linux" scheme="http://yoursite.com/categories/Linux/"/>
     
   </entry>
   
