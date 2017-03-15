@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" CDH5.7部署及Hadoop生态圈简录 | Hexo " />
+	<meta name="twitter:title" content=" CDH5.7部署及Hadoop生态圈简录 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" CDH5.7部署及Hadoop生态圈简录 | Hexo ">
+	<meta property="og:description" content=" CDH5.7部署及Hadoop生态圈简录 | Hexo " />
+	<meta name="twitter:description" content=" CDH5.7部署及Hadoop生态圈简录 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2016/09/19/cdh-hadoop/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Bigdata/">Bigdata</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2016-09-19">2016-09-19</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/Bigdata/">Bigdata</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2016/09/19/cdh-hadoop/" itemprop="url"><span itemprop="name">CDH5.7部署及Hadoop生态圈简录</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<h2 id="基础环境_&amp;_软件包"><strong>基础环境 &amp; 软件包</strong></h2><ul>
+<li>CentOS6.8 64bit</li>
+<li>Cloudera Manager5.7.0</li>
+<li>jdk1.7.0_75</li>
+<li>MySQL5.6</li>
+<li><a href="http://archive.cloudera.com/cm5/cm/5/cloudera-manager-el6-cm5.7.0_x86_64.tar.gz" target="_blank" rel="external">cloudera-manager-el6-cm5.7.0</a></li>
+<li><a href="http://archive.cloudera.com/cdh5/parcels/5.7.0/CDH-5.7.0-1.cdh5.7.0.p0.45-el6.parcel" target="_blank" rel="external">CDH-5.7.0-1.cdh5.7.0.p0.45-el6.parcel</a></li>
+<li><a href="http://archive.cloudera.com/cdh5/parcels/5.7.0/CDH-5.7.0-1.cdh5.7.0.p0.45-el6.parcel.sha1" target="_blank" rel="external">CDH-5.7.0-1.cdh5.7.0.p0.45-el6.parcel.sha1</a></li>
+<li><a href="http://archive.cloudera.com/cdh5/parcels/5.7.0/manifest.json" target="_blank" rel="external">manifest.json</a></li>
+<li><a href="http://dev.mysql.com/downloads/connector/j/" target="_blank" rel="external">mysql-connector-java-5.1.38-bin.jar</a></li>
+</ul>
+<h2 id="系统环境设置"><strong>系统环境设置</strong></h2><h3 id="配置JDK"><strong>配置JDK</strong></h3><p>&emsp;下载jdk，环境变量配置<strong><code>/etc/profile</code></strong>，所有节点均需要配置。<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">JAVA_HOME=/usr/local/java</span><br><span class="line">PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/lib/<span class="tag">dt</span><span class="class">.jar</span>:<span class="variable">$JAVA_HOME</span>/lib/tools<span class="class">.jar</span></span><br><span class="line">export JAVA_HOME</span><br><span class="line">export PATH</span><br><span class="line">export CLASSPATH</span><br></pre></td></tr></table></figure></p>
+<h3 id="配置hostname"><strong>配置hostname</strong></h3><ul>
+<li><p><strong><code>/etc/sysconfig/network</code></strong></p>
+  <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">NETWORKING=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">HOSTNAME=<span class="value">master-node</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong><code>/etc/hosts</code></strong><br>  &emsp;所有节点的IP及hostname</p>
+</li>
+</ul>
+<h3 id="ssh免密"><strong>ssh免密</strong></h3><p>&emsp;主节点ssh免密登录所有节点<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa -P <span class="string">''</span> -f ~<span class="regexp">/.ssh/i</span>d_rsa</span><br><span class="line">ssh-<span class="keyword">copy</span>-id all_nodes</span><br></pre></td></tr></table></figure></p>
+<h3 id="关闭iptables/selinux"><strong>关闭iptables/selinux</strong></h3><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> /etc/init.d/iptables stop</span><br><span class="line"><span class="variable">$&gt;</span> chkconfig iptables off</span><br><span class="line"><span class="comment">#临时关闭selinux</span></span><br><span class="line"><span class="variable">$&gt;</span> setenforce <span class="number">0</span></span><br><span class="line"><span class="comment">#永久关闭selinux</span></span><br><span class="line"><span class="variable">$&gt;</span> vim /etc/selinux/config</span><br><span class="line"><span class="constant">SELINUX=</span>disabled</span><br></pre></td></tr></table></figure>
+<h3 id="NTP配置"><strong>NTP配置</strong></h3><h4 id="主节点"><strong>主节点</strong></h4><ul>
+<li><p><code>/etc/ntp.conf</code></p>
+  <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">driftfile <span class="regexp">/var/</span>lib<span class="regexp">/ntp/</span>drift</span><br><span class="line">restrict <span class="number">127.0</span>.<span class="number">0.1</span></span><br><span class="line">restrict -<span class="number">6</span> ::<span class="number">1</span></span><br><span class="line">restrict <span class="keyword">default</span> nomodify notrap</span><br><span class="line">server pool.ntp.org prefer</span><br><span class="line">includefile <span class="regexp">/etc/</span>ntp<span class="regexp">/crypto/</span>pw</span><br><span class="line">keys <span class="regexp">/etc/</span>ntp<span class="regexp">/keys</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动NTP</p>
+  <figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$&gt; /etc/init.d/ntpd start</span><br><span class="line">$&gt; chkconfig ntpd <span class="function_start"><span class="keyword">on</span></span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="从节点"><strong>从节点</strong></h4><ul>
+<li><p><code>/etc/ntp.conf</code></p>
+  <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">driftfile <span class="regexp">/var/</span>lib<span class="regexp">/ntp/</span>drift</span><br><span class="line">restrict <span class="number">127.0</span>.<span class="number">0.1</span></span><br><span class="line">restrict -<span class="number">6</span> ::<span class="number">1</span></span><br><span class="line">restrict <span class="keyword">default</span> kod nomodify notrap nopeer noquery</span><br><span class="line">restrict -<span class="number">6</span> <span class="keyword">default</span> kod nomodify notrapnopeer noquery</span><br><span class="line">server master-node</span><br><span class="line">includefile <span class="regexp">/etc/</span>ntp<span class="regexp">/crypto/</span>pw</span><br><span class="line">keys <span class="regexp">/etc/</span>ntp<span class="regexp">/keys</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动NTP &amp; 同步时间</p>
+  <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> ntpdate -u master-node</span><br><span class="line"><span class="variable">$&gt;</span> /etc/init.d/ntpd start</span><br><span class="line"><span class="variable">$&gt;</span> chkconfig ntpd on</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="优化项"><strong>优化项</strong></h3><p>&emsp;安装集群时会检测基础环境，需要对以下两项进行优化设置并添加到开机启动<code>/etc/rc.local</code><br><figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$&gt; echo <span class="number">1</span> &gt; /<span class="keyword">proc</span>/sys/vm/swappiness</span><br><span class="line">$&gt; echo never &gt; /sys/kernel/mm/transparent_hugepage/defrag</span><br></pre></td></tr></table></figure></p>
+<h2 id="主节点安装配置MySQL"><strong>主节点安装配置MySQL</strong></h2><p>&emsp;MySQL只需要在主节点(cloudera-scm-server)上安装即可</p>
+<h3 id="安装MySQL"><strong>安装MySQL</strong></h3><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> wget <span class="symbol">http:</span>/<span class="regexp">/repo.mysql.com/mysql</span>-community-release-el6-<span class="number">5</span>.noarch.rpm</span><br><span class="line"><span class="variable">$&gt;</span> rpm -ivh mysql-community-release-el6-<span class="number">5</span>.noarch.rpm</span><br><span class="line"><span class="variable">$&gt;</span> yum install mysql-server</span><br></pre></td></tr></table></figure>
+<h3 id="配置MySQL"><strong>配置MySQL</strong></h3><ul>
+<li><p><code>/etc/my.cnf</code><br>  &emsp;由于要将数据全部都存放在大容量的/data分区下，所以需要对MySQL做些简单配置</p>
+  <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[mysqld]</span></span><br><span class="line"><span class="setting">datadir=<span class="value">/data/mysql</span></span></span><br><span class="line"><span class="setting">socket=<span class="value">/var/lib/mysql/mysql.sock</span></span></span><br><span class="line"><span class="setting">character-set-server=<span class="value">utf8</span></span></span><br><span class="line"><span class="setting">log-error=<span class="value">/data/log/mysql/mysqld.log</span></span></span><br><span class="line"><span class="setting">pid-file=<span class="value">/var/run/mysqld/mysqld.pid</span></span></span><br><span class="line"><span class="setting">symbolic-links=<span class="value"><span class="number">0</span></span></span></span><br><span class="line"><span class="setting">sql_mode=<span class="value">NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES</span></span></span><br><span class="line"><span class="title">[mysqld_safe]</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动</p>
+  <figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> chkconfig mysqld on</span><br><span class="line"><span class="variable">$&gt;</span> mkdir -p /data/<span class="keyword">log</span>/mysql</span><br><span class="line"><span class="variable">$&gt;</span> /etc/init.d/mysqld start</span><br><span class="line"><span class="variable">$&gt;</span> mysqladmin -u root password <span class="string">'your_root_password'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>建表及授权</p>
+  <figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$&gt; mysql -uroot -p</span><br><span class="line">mysql&gt; <span class="keyword">create</span> database hive <span class="keyword">DEFAULT</span> CHARSET utf8 COLLATE utf8_general_ci;</span><br><span class="line">mysql&gt; <span class="keyword">create</span> database amon <span class="keyword">DEFAULT</span> CHARSET utf8 COLLATE utf8_general_ci;</span><br><span class="line">mysql&gt; <span class="keyword">create</span> database oozie <span class="keyword">DEFAULT</span> CHARSET utf8 COLLATE utf8_general_ci;</span><br><span class="line">mysql&gt; grant all privileges <span class="keyword">on</span> *.* <span class="keyword">to</span> <span class="string">'root'</span>@<span class="string">'master-node'</span> identified <span class="keyword">by</span> <span class="string">'your_root_password'</span> <span class="keyword">with</span> grant option;</span><br><span class="line">mysql&gt; flush privileges;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="安装Cloudera_Manager_Server"><strong>安装Cloudera Manager Server</strong></h2><p>&emsp;在主节点上安装Cloudera Manager Server</p>
+<ul>
+<li><p>创建cloudera-scm用户</p>
+  <figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">useradd --<span class="literal">system</span> --<span class="literal">home</span>=/opt/cm-<span class="number">5.7</span>.<span class="number">0</span>/run/cloudera-scm-server/ --no-create-<span class="literal">home</span> --<span class="literal">shell</span>=/bin/<span class="keyword">false</span> --comment <span class="string">"Cloudera SCM User"</span> cloudera-scm</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装配置Cloudera Manager Server<br>  &emsp;由于要将数据都放到/data分区，所以才需要创建软连接，否则不需要。</p>
+  <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$&gt; tar -zxf cloudera-manager-el6-cm5.<span class="number">7.0</span>_x86_64.tar.gz</span><br><span class="line">$&gt; <span class="keyword">cp</span> -<span class="keyword">a</span> <span class="keyword">cm</span>-<span class="number">5.7</span>.<span class="number">0</span>/ /data</span><br><span class="line">$&gt; <span class="keyword">cp</span> -<span class="keyword">a</span> cloudera /data</span><br><span class="line">$&gt; <span class="keyword">ln</span> -<span class="keyword">s</span> /data/<span class="keyword">cm</span>-<span class="number">5.7</span>.<span class="number">0</span> /<span class="keyword">opt</span>/<span class="keyword">cm</span>-<span class="number">5.7</span>.<span class="number">0</span></span><br><span class="line">$&gt; <span class="keyword">ln</span> -<span class="keyword">s</span> /data/cloudera /<span class="keyword">opt</span>/cloudera</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>初始化Cloudera Manager Server数据库</p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$&gt; cp mysql-connector-java-<span class="number">5.1</span>.<span class="number">38</span>-bin<span class="class">.jar</span> /opt/cm-<span class="number">5.7</span>.<span class="number">0</span>/share/cmf/lib/mysql-connector-java<span class="class">.jar</span></span><br><span class="line">$&gt; mkdir -<span class="tag">p</span> /usr/share/java/ &amp;&amp; cp mysql-connector-java-<span class="number">5.1</span>.<span class="number">38</span>-bin<span class="class">.jar</span>  /usr/share/java/</span><br><span class="line">$&gt; /opt/cm-<span class="number">5.7</span>.<span class="number">0</span>/share/cmf/schema/scm_prepare_database<span class="class">.sh</span> mysql cm -hmaster-node -uroot -<span class="tag">p</span> --scm-host master-node scm scm scm</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>离线Parcels<br>  &emsp;在集群安装过程中需要下载parcels，由于国内网络原因需要先离线下载文件，再将以下文件放到<strong><code>/opt/cloudera/parcel-repo/</code></strong></p>
+<ul>
+<li>CDH-5.7.0-1.cdh5.7.0.p0.45-el6.parcel</li>
+<li>CDH-5.7.0-1.cdh5.7.0.p0.45-el6.parcel.sha1    (必须将下载的原文件<code>CDH-5.7.0-1.cdh5.7.0.p0.45-el6.parcel.sha1</code>重命名成<code>CDH-5.7.0-1.cdh5.7.0.p0.45-el6.parcel.sha</code>，否则会重新下载)</li>
+<li>manifest.json</li>
+</ul>
+</li>
+<li><p>启动Cloudera Manager Server</p>
+  <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; <span class="regexp">/opt/</span>cm-<span class="number">5.7</span>.<span class="number">0</span><span class="regexp">/etc/i</span>nit.d<span class="regexp">/cloudera-scm-server start</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="安装Cloudera_Manager_Agent"><strong>安装Cloudera Manager Agent</strong></h2><p>&emsp;Cloudera Manager Agent在所有节点都需要安装，包括主节点。</p>
+<ul>
+<li><p>创建cloudera-scm用户</p>
+  <figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; useradd --<span class="literal">system</span> --<span class="literal">home</span>=/opt/cm-<span class="number">5.7</span>.<span class="number">0</span>/run/cloudera-scm-server/ --no-create-<span class="literal">home</span> --<span class="literal">shell</span>=/bin/<span class="keyword">false</span> --comment <span class="string">"Cloudera SCM User"</span> cloudera-scm</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置cloudera-scm-agent<br>  &emsp;修改cm-5.7.0目录下文件<strong><code>cm-5.7.0/etc/cloudera-scm-agent/config.ini</code></strong>，将server_host修改成cloudera manager server地址<br>  &emsp;可自定义<code>log_file</code>路径</p>
+  <figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">server_host<span class="subst">=</span>master<span class="attribute">-node</span></span><br><span class="line">log_file<span class="subst">=</span>/<span class="built_in">data</span>/cm<span class="subst">-</span><span class="number">5.7</span><span class="number">.0</span>/<span class="keyword">log</span>/cloudera<span class="attribute">-scm</span><span class="attribute">-agent</span>/cloudera<span class="attribute">-scm</span><span class="attribute">-agent</span><span class="built_in">.</span><span class="keyword">log</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>同步cloudera-scm-agent<br>  &emsp;将修改好配置的<strong><code>cm-5.7.0</code></strong>文件夹同步到剩余所有节点。<br>  &emsp;这里需要特别注意一点：<strong>绝对不能先启动cloudera-scm-agent再同步文件夹</strong>。因为<code>cloudera-scm-agent</code>启动后会在<code>/opt/cm-5.7.0/lib/cloudera-scm-agent/</code>目录下生成<code>uuid</code>，如果启动agent后再同步文件夹则会使得集群所有agent的<code>uuid</code>都相同，而<code>uuid</code>是用来标识集群中的每个节点的，必须唯一。假若先启动后同步的话，想要修复问题则需要删除<code>/opt/cm-5.7.0/lib/cloudera-scm-agent/</code>目录下所有文件，若问题仍旧没有修复则需要清空主节点Cloudera Manager的数据库。</p>
+  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$&gt; scp -r <span class="regexp">/opt/</span>cm-<span class="number">5.7</span><span class="number">.0</span> root<span class="annotation">@bj</span>1-<span class="number">200</span>-<span class="string">centos12:</span><span class="regexp">/data/</span></span><br><span class="line">$&gt; ln -s <span class="regexp">/data/</span>cm-<span class="number">5.7</span><span class="number">.0</span> <span class="regexp">/opt/</span>cm-<span class="number">5.7</span><span class="number">.0</span></span><br><span class="line">$&gt; ln -s <span class="regexp">/data/</span>cloudera <span class="regexp">/opt/</span>cloudera</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动cloudera-scm-agent<br>  &emsp;cloudera-scm-agent有个bug，pid会放在<code>/opt/cm-5.7.0/run/cloudera-scm-agent/</code>目录下，但这个目录不会自动创建，于是启动时会报错，故需要手动创建该目录。</p>
+  <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$&gt; <span class="built_in">mkdir</span> -<span class="keyword">p</span> /<span class="keyword">opt</span>/<span class="keyword">cm</span>-<span class="number">5.7</span>.<span class="number">0</span>/run/cloudera-scm-agent/</span><br><span class="line">$&gt; /<span class="keyword">opt</span>/<span class="keyword">cm</span>-<span class="number">5.7</span>.<span class="number">0</span>/etc/init.<span class="keyword">d</span>/cloudera-scm-agent start</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="安装CDH5-7"><strong>安装CDH5.7</strong></h2><p>&emsp;当<code>cloudera-scm-server</code>和<code>cloudera-scm-agent</code>都成功启动后就可以通过Cloudera Manager的Web界面安装CDH5.7及相关服务。直接访问<strong><code>http://master-node:7180/cmf/login</code></strong>，默认初始用户及密码是：<code>admin/admin</code>。由于安装过程截图太多懒得一张张放上来了，只要安装提示一步步安装。<br>&emsp;选择安装其他服务时，若服务需要连接MySQL则可能需要将JDBC驱动文件放到相应服务的目录下。比如安装Hive，如果日志中提示连接MySQL错误则JDBC驱动文件放到<code>/opt/cloudera/parcels/CDH-5.7.0-1.cdh5.7.0.p0.45/lib/hive/lib/</code>目录下。<br>&emsp;如果安装Impala的话，需要在daemon节点安装perl：<code>yum install -y perl</code><br>&emsp;如果安装Hue的话，需要安装<code>python-lxml</code>：<code>yum install -y python-lxml</code><br>&emsp;如果启动某些服务提示<code>libxslt.so.1</code>错误，需要安装<code>yum install -y libxml2 libxslt</code><br>&emsp;在安装不同服务时可能会遇到各种各样的问题，需要到<code>/var/log/&lt;server_name&gt;</code>下查看日志逐个排查。</p>
+<h2 id="Hadoop生态圈简介"><strong>Hadoop生态圈简介</strong></h2><p>&emsp;&emsp;围绕Hadoop有一系列的服务和组件简单记录一下它们的用途。我所使用的是Cloudera的CDH集群，基本都是Cloudera的生态，故Ambari涉及的都没怎么了解。</p>
+<ul>
+<li><p><strong>Hadoop</strong><br>  &emsp;Hadoop是Apache开发的一套分布式软件框架，目前是<code>2.x</code>版本，主要有以下三部分构成：</p>
+<ul>
+<li><strong>HDFS</strong><br>  &emsp;HDFS(Hadoop分布式文件系统)是Hadoop的分布式存储系统，HDFS主要又由以下三个部分组成：<ul>
+<li><em>NameNode</em><br> &emsp;管理文件系统的元数据(metadata)，元数据(metadata)包括命名空间(namespace)、块信息等。</li>
+<li><em>Secondary NameNode</em><br> &emsp;<strong>Secondary NameNode不是NameNode的备份</strong>。需要弄明白Secondary NameNode的作用先了解NameNode是如何保存元数据(metadata)的。<br> &emsp;NameNode会维护<strong>fsimage</strong>和<strong>edits</strong>两个文件，fsimage是NameNode启动时对整个文件系统的快照，edits是NameNode启动后文件系统改动的记录(类似MySQL的binlog)。当NameNode重启时才将edits里的内容合并到fsimage中得到整个文件系统最新的快照。这样就会有个问题，当NameNode长时间没有重启时，edits文件会变得非常大，要将edits中的内容合并到fsimage将会耗费很多时间。于是有了Secondary NameNode来解决此类问题。<br> &emsp;Secondary NameNode定期向NameNode获取edits文件的内容并更新到自己维护的fsimage中，合并完后再将最新的fsimage复制给NameNode。这样NameNode重启是用的fsimage就会是最新的。</li>
+<li><em>DataNode</em><br>  &emsp;存储数据</li>
+</ul>
+</li>
+<li><strong>MapReduce</strong><br>  &emsp;分布式计算框架</li>
+<li><strong>Yarn</strong><br>  &emsp;新一代Hadoop引入的资源管理器，新一代的MapReduce(MRv2)。主要解决上一代Hadoop扩展性问题。</li>
+</ul>
+</li>
+<li><p><strong>Spark</strong><br>  &emsp;Spark是另一个分布式计算框架，基于内存计算所以能提供更快的数据处理速度，由Scala语言编写提供更通用的API。其实Spark与MapReduce对应，都是计算框架。此外还有Flink和流计算框架Storm等等。不同的计算框架各有优缺点，根据不同场景选择不同的计算框架。</p>
+</li>
+<li><p><strong>Hive</strong><br>  &emsp;Hive是Hadoop的数据仓库系统。使用HQL(HiveQL，类似SQL)的查询语言，将SQL转化为MapReduce任务在Hadoop上执行。其实就是MapReduce程序写起来麻烦，于是为了简化和方便查询开发出能使用类似SQL进行查询的组件，这就是Hive。</p>
+</li>
+<li><p><strong>Pig</strong><br>  &emsp;Pig是基于Hadoop的数据分析平台。如果说Hive是SQL在Hadoop上的实现，那么Pig就是脚本方式的实现。Pig定义一种数据流语言——Pig Latin，将脚本语言转化为MapReduce任务在Hadoop上执行。</p>
+</li>
+<li><p><strong>Hbase</strong><br>  &emsp;分布式、可伸缩的面向列的数据库，支持随机、实时读写访问，来源与Google的BigTable。个人感觉如果应要和MySQL数据库对应的话，Hbase算是类似于NoSQL的KV数据库吧。Hbase提供Web UI：<code>http://Hbase_master:60010</code></p>
+</li>
+<li><p><strong>Phoenix</strong><br>  &emsp;Phoenix简单说就是SQL On Hbase，使SQL查询转换成Hbase的查询。</p>
+</li>
+<li><p><strong>Impala</strong><br>  &emsp;Impala是Cloudera公司开放，提供批量和实时查询的工具。Impala不需要使用到MapReduce计算模型，依赖Hive并可直接对HDFS和Hbase中的数据进行SQL(HiveSQL)查询，查询是速度是Hive的数倍。之所以会有Impala是因为Hive这种需要将SQL转成MapReduce的方式查询速度实在太慢，改用直接使用SQL(HiveSQL)在HDFS/Hbase中进行查询以提高速度。</p>
+</li>
+<li><p><strong>Oozie</strong><br>  &emsp;Oozie是一个工作流调度管理工具，协调数据接收、存储、转换和分析等工作。当需要将多个MapReduce任务连接在一起完成整个工作时，就需要使用到Oozie来协调多个MapReduce任务。</p>
+</li>
+<li><p><strong>Hue</strong><br>  &emsp;Hue是Cloudera开发的Web UI工具，用Pyhton的Django框架编写的。<code>Hue UI</code>、<code>Hue Server</code>和<code>Hue DB</code>三部分组成，<code>http://Hue_Server:8000</code></p>
+</li>
+<li><p><strong>Solr</strong><br>  &emsp;Solr是个企业级搜索引擎。</p>
+</li>
+<li><p><strong>Sqoop</strong><br>  &emsp;Sqoop是数据迁移工具，全称是Sql-To-Hadoop，主要用于传统关系型数据库(MySQL/Oracle/Postgres)和Hadoop之间的数据转换。</p>
+</li>
+<li><p><strong>Mahout</strong><br>  &emsp;Hadoop的机器学习库。</p>
+</li>
+</ul>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/CDH/">CDH</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+					<a href="/2016/11/11/linux-memory/" title="Linux 内存小记">&larr; Prev</a>
+				
+
+				
+					<a href="/2016/09/11/python-library-module/" title="Python库札记">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
