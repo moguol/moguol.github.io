@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" Kubernetes | Hexo " />
+	<meta name="twitter:title" content=" Kubernetes | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" Kubernetes | Hexo ">
+	<meta property="og:description" content=" Kubernetes | Hexo " />
+	<meta name="twitter:description" content=" Kubernetes | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2017/03/23/kubernetes/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Bigdata/">Bigdata</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2017-03-23">2017-03-23</span>
+
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2017/03/23/kubernetes/" itemprop="url"><span itemprop="name">Kubernetes</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<h2 id="基本概念"><strong>基本概念</strong></h2><ul>
+<li><p><strong>Master</strong><br>  &emsp;Master是整个Kubernetes系统的调度中心，其主要由以下3个重要组件组成(原本为4个组件，但etcd存在单点此处就使用了自建的外部etcd集群):</p>
+<ul>
+<li><strong>kube-apiserver</strong><br>  &emsp;以RESTful方式提供API给外部调用，将核心对象存储在etcd中并提供增删改查功能。</li>
+<li><strong>kube-scheduler</strong><br>  &emsp;负责集群资源调度。监听etcd集群pod目录变化，将新增的pod按照分配算法分配到node节点中，调用kube-apiserver接口将node和pod进行关联。</li>
+<li><strong>kube-controller-manager</strong><br>  &emsp;Master的主要功能集中在kube-controller-manager组件上。主要负责执行不同的控制器，主要的控制器有以下几种：<ol>
+<li><strong>Endpoint Controller</strong>：维护Service和Pod的关联关系。</li>
+<li><strong>Replication Controller</strong>：维护Pod实例的运行个数，确保Pod的运行个数和设置的一致，Pod副本数过多则销毁，过少则增加。</li>
+<li><strong>Namespace Controller</strong>：通过调用kube-apiserver提供的接口获取Namespace信息，删除被标记为<code>Terminating</code>的Namespace并删除该Namespace下ServiceAccount、RC、Pod、Secret、ResourceQuota等资源。</li>
+<li><strong>ServiceAccount Controller &amp; Token Controller</strong>：主要负责新的Namespace中默认帐号、密钥、证书和Token的管理。</li>
+<li><strong>Node Controller</strong>：负责发现、管理和监控Node节点。Node Controller通过定期调用kube-apiserver提供的接口获取Node节点信息(<code>kubelet启动时调用kube-apiserver接口注册Node信息并定时更新Node信息</code>)</li>
+<li><strong>ResourceQuota Controller</strong>：负责资源配额控制，确保指定对象使用的系统资源在规定范围内。</li>
+<li><strong>Service Controller</strong>：负责监控Service变化，确保外部 LoadBalancer 被更新。</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p><strong>Node</strong><br>  &emsp;Node是Kubernetes相对于Master的节点，Node上主要运行着众多Pod(默认Master不运行Pods等)。Node上由2个组件组成：</p>
+<ul>
+<li><strong>kubelet</strong><br>  &emsp;kubelet主要负责监控和管理Pod(启动/停止)、Volume等，定期调用kube-apiserver接口从etcd获取分配到该Node的Pod信息并启动/停止容器，定期通过kub-apiserver汇报Pod状态。</li>
+<li><strong>kube-proxy</strong><br>  &emsp;kube-proxy主要用于Kubernetes的Service。kube-proxy从etcd中获取Service和Endpoints(Pod’s IP+Port)信息，Kubernetes为每个Service分配一个ClusterIP，kube-proxy根据从etcd获取到的信息为每个Service随机监听一个端口，所有到该Service的请求(<code>ClusterIP:Port</code>)会被转发到该kube-proxy的随机端口上(通过iptables的nat实现转发)，再由kube-proxy根据从etcd中获取到的信息转发给Pod(Pod在别的Node就转发到kube-proxy)。</li>
+</ul>
+</li>
+<li><p><strong>Pod</strong><br>  &emsp;Pod是Kubernetes中最小的操作单元，一个Pod中可以有一个或多个容器(Container)(一个Pod中的多个容器应该是紧耦合的)。Pod的生命周期是通过Replication Controller来管理的，Pod被分配到具体的Node上并被创建、启动和销毁(默认Master不运行Pod )。<br>  &emsp;Kubernetes之所以要在容器(Container)之上再封装一层Pod，是因为Docker容器之间通信麻烦和效率不高，所以通过Pod将多个紧耦合的容器(Container)组合起来，每个Pod内都会启动一个<code>google_containers/pause</code>的容器(Container)，然后再启动所需的业务容器，业务容器通过<code>google_containers/pause</code>容器共享网络。<br>  &emsp;同一个Pod内的容器共享以下资源：</p>
+<ul>
+<li><strong>PID Namespace</strong>：同一个Pod内的应用程序能看到其他应用程序的PID(原本不同容器的PID是相互隔离的)</li>
+<li><strong>Network Namespace</strong>：Pod内多个容器能访问同一个IP和端口(原本不同容器网络访问需要通过容器IP+Port方式，共享后同一个Pod内的所有容器都可直接通过localhost相互访问)</li>
+<li><strong>IPC Namespace</strong>：Pod内多个容器可使用SystemV IPC或POSIX消息队列通信</li>
+<li><strong>UTS Namespace</strong>：Pod内的多个容器共享一个主机名</li>
+<li><strong>Volume(共享存储卷)</strong>：Pod内的多个容器可访问Pod级别的Volumes，即多个容器可共享存储空间。</li>
+</ul>
+</li>
+<li><p><strong>Label</strong><br>  &emsp;Label以<code>key/value</code>的形式附加到Pod、Service、RC(ReplicationController)、Node等对象上，定义对象的<strong>可识别属性</strong>，然后通过Label Selector(选择器)对对象进行选择和管理。Replication Controller就是通过Label Selector来选择需要管理的Pod的。<br>  &emsp;Label Selector的定义由多个逗号分隔，如下例子所示：</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"label"</span>: &#123;</span><br><span class="line"><span class="string">"key1"</span>: <span class="string">"value1"</span>,</span><br><span class="line"><span class="string">"key2"</span>: <span class="string">"value2"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  &emsp;Label Selector有基于等式(Equality-based)和基于集合(Set-based)两种形式。</p>
+<ul>
+<li>基于等式：name = nginx，选择所有Label中<code>key=name</code>且<code>value=nginx</code>的对象。</li>
+<li>基于集合：name in (nginx, tengine)，选择所有Label中<code>key=name</code>且<code>value=nginx</code>或<code>value=tengine</code>的对象。</li>
+</ul>
+</li>
+<li><p><strong>RC(Replication Controller)</strong><br>  &emsp;Replication Controller用于定义Pod副本的数量。Kubernetes通过Replication Controller实现动态伸缩以达到应用集群高可用的目的。<br>  &emsp;Kubernetes可通过<code>kubectl scale</code>实现动态伸缩Pod</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl scale rc &lt;ReplicationControllerName&gt; --replicas=<span class="number">3</span></span><br></pre></td></tr></table></figure>
+<p>  &emsp;<strong>删除RC，通过RC创建的Pods并不会随之跟着删除。</strong></p>
+</li>
+<li><p><strong>Service</strong><br>  &emsp;Service是一组相同服务Pod集群的对外访问入口，Kubernetes会为Service分配一个<strong>ClusterIP</strong>作为该Service的入口。引入Service是为了外部对后端Pod的变化无感知。<br>  &emsp;Kubernetes会根据Service定义中的Label Selector，将Service和Endpoint对象(Pod的IP:Port)关联起来。查看Endpoint对象：</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get endpoints</span><br></pre></td></tr></table></figure>
+<p>  &emsp;Kubernetes分配给Service的ClusterIP只能在内部访问，若想Service被外部访问则需要分配一个”公网IP”。暴露Service的方式有三种：</p>
+<ul>
+<li><strong>NodePort</strong>：这种是最常用的方式，直接在Node机器上监听端口。在定义Service时指定<code>spec.type=NodePort</code>并指定<code>spec.ports.nodePort</code>的值。Kubernetes会在Node上监听<code>spec.ports.nodePort</code>端口提供外部访问。并非一定要要指定<code>spec.ports.nodePort</code>的值，<code>spec.ports.nodePort</code>端口的范围必须在<code>30000</code>~<code>32767</code>内，不指定<code>spec.ports.nodePort</code>则会随机在范围内分配一个IP。</li>
+<li><strong>LoadBalancer</strong>：这种是在云服务(GCE/AWS)提供LoadBalancer时可使用，在定义Service时指定<code>spec.type=LoadBalancer</code>并指定Service的<code>nodePort</code>和<code>ClusterIP</code></li>
+<li><strong>Ingress</strong>：Ingress是Kubernetes1.2版本后引入的，通过Ingress来利用Nginx/HAProxy等常见开源反向代理软件实现对外暴露服务功能。</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p><strong>Volume</strong><br>  &emsp;Volume是Pod中能被多个容器访问的共享目录。Kubernetes的Volume和Docker的Volume差不多，但Kubernetes的Volume是随Pod销毁而销毁的，Pod中的容器停止或重启不影响Kubernetes的Volume。<br>  &emsp;Kubernetes提供多种类型的Volume，如下所示：</p>
+<ul>
+<li><strong>EmptyDir</strong>：EmptyDir Volume在Pod被分配到Node时创建，Pod内的所有容器都可以读写EmptyDir中的文件。Pod被删除时EmptyDir也会被删除。</li>
+<li><p><strong>hostPath</strong>：hostPath Volume是在Pod中挂载宿主机上的文件或目录。常用于需要持久保留的文件。由于Pod可能分配到多个Node上，挂载多个Node的hostPath Volume可能会导致数据的不一致。可在创建RC的时候指定Pod挂载宿主机的目录，比如将宿主机中<code>/data</code>目录挂载到Pod容器内的<code>/data</code>上：</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: ReplicationController</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx</span><br><span class="line">  labels:</span><br><span class="line">    name: nginx</span><br><span class="line">spec:</span><br><span class="line">  replicas: <span class="number">2</span></span><br><span class="line">  selector:</span><br><span class="line">    name: nginx</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        name: nginx</span><br><span class="line">    spec:</span><br><span class="line">      volumes:</span><br><span class="line">        - name: <span class="string">"nginx-log"</span></span><br><span class="line">          hostPath:</span><br><span class="line">            path: <span class="string">"/data"</span></span><br><span class="line">      containers:</span><br><span class="line">        - name: nginx</span><br><span class="line">          image: nginx</span><br><span class="line">          imagePullPolicy: IfNotPresent</span><br><span class="line">          ports:</span><br><span class="line">            - containerPort: <span class="number">80</span></span><br><span class="line">          volumeMounts:</span><br><span class="line">            - name: <span class="string">"nginx-log"</span></span><br><span class="line">              mountPath: <span class="string">"/data"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>gcePersistentDisk</strong>：使用GCE的永久磁盘(Persistent Disk)，当Pod被删除时，这类磁盘只被卸载不会被删除。</p>
+</li>
+<li><strong>awsElasticBlockStore</strong>：使用AWS的EBS。</li>
+<li><strong>nfs</strong>：使用NFS提供的目录挂载到Pod中。</li>
+<li><strong>glusterfs</strong>：使用GlusterFS提供的目录挂载到Pod中。</li>
+<li><strong>rdb</strong>：使用Linux块设备共享存储挂载到Pod中。</li>
+<li><strong>gitRepo</strong>：通过挂载一个空目录，并从GIT库clone一个git repository以供pod使用。</li>
+<li><strong>secret</strong>：为Pod提供加密存储，Secret Volume是通过tmpfs实现的，不能持久化。</li>
+<li><strong>persistentVolumeClaim</strong>：从PV（persistentVolume）中申请所需的空间，PV通常是种网络存储，如GCEPersistentDisk、AWSElasticBlockStore、NFS、iSCSI等。</li>
+</ul>
+</li>
+<li><p><strong>Namespace</strong><br>  &emsp;Kubernetes的Namespace和Linux系统中的Namespace并非同一个东西，但功能相似都是用于隔离。Kubernetes通过将对象分配到不同的Namespace中以达到分组管理的目的。<br>  &emsp;Kubernetes启动后会创建一个<strong><code>default</code></strong>的Namespace，使用<code>kubeadm</code>部署集群的话会创建<code>kube-system</code>的Namespace。若不知道资源对象的Namespace，则Pod、RC、Service等都会被创建到<code>default</code>的默认Namespace中。可通过以下命令查看Namespace：</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get namespace</span><br></pre></td></tr></table></figure>
+<p>  &emsp;可通过yaml文件创建Namespace：</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#namespace-test.yaml</span></span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Namespace</span><br><span class="line">metadata:</span><br><span class="line">  name: <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create <span class="operator">-f</span> namespace-test.yaml</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Annotation</strong><br>  &emsp;Annotation也是使用<code>key/value</code>形式进行定义，个人理解为相当于备注的作用。</p>
+</li>
+</ul>
+<h4 id="Kubernetes创建Pod流程"><strong>Kubernetes创建Pod流程</strong></h4><ol>
+<li>通过<code>kubectl</code>提交一个创建RC请求给<code>kube-apiserver</code>，<code>kube-apiserver</code>将请求存到<code>etcd</code></li>
+<li><code>kube-controller-manager</code>通过调用<code>kube-apiserver</code>接口得知创建RC事件，分析后发现集群中没有该RC对应的Pod，根据RC定义中的Pod模板生成Pod对象并调用<code>kube-apiserver</code>接口存入<code>etcd</code>。</li>
+<li><code>kube-scheduler</code>监听etcd发现有创建Pod事件，<code>kube-scheduler</code>根据算法得出Pod被分配到哪个Node，调用<code>kube-apiserver</code>将结果存入<code>etcd</code>。</li>
+<li>目标Node上的<code>kubectl</code>通过调用<code>kube-apiserver</code>得知需要创建Pod并按照相关定义创建Pod及容器。该Node的<code>kubectl</code>对Pod进行监控和管理并定期调用<code>kube-apiserver</code>接口上报Pod的状态。</li>
+</ol>
+<h4 id="Kubernetes创建Service流程"><strong>Kubernetes创建Service流程</strong></h4><ol>
+<li>通过<code>kubectl</code>提交创建Service请求给<code>kube-apiserver</code>，<code>kube-apiserver</code>将请求存到<code>etcd</code></li>
+<li><code>kube-controller-manager</code>调用<code>kube-apiserver</code>接口得知创建Service事件，通过<code>Label</code>查询到与Service相关的Pod，生成Service的Endpoint信息并调用<code>kube-apiserver</code>接口存入<code>etcd</code>。</li>
+<li>Node上的<code>kube-proxy</code>调用<code>kube-apiserver</code>接口查询到Service和对应Endpoint信息，在Node上监听随机端口，配置iptables将所有到Service的ClusterIP:Port的请求都转发到<code>kube-proxy</code>监听的随机端口上，<code>kube-proxy</code>将请求转发到Pod上。</li>
+</ol>
+<h2 id="Kubernetes核心原理"><strong>Kubernetes核心原理</strong></h2><h3 id="kube-apiserver"><strong>kube-apiserver</strong></h3><p>&emsp;&emsp;kube-apiserver默认会监听两个端口，一个是非安全用于接受HTTP请求的<code>8080</code>端口，另一个是安全的HTTPS端口<code>6443</code>用于认证等安全机制请求，kube-apiserver主要功能：</p>
+<ul>
+<li>提供集群管理API接口</li>
+<li>集群各功能模块间数据交互和通信的中枢</li>
+<li>提供安全机制</li>
+</ul>
+<p>&emsp;&emsp;Kubernetes提供<code>kubectl</code>命令行工具将API功能封装成简单的命令集。更多具体功能使用<code>kubectl -h</code>获取。<br>&emsp;&emsp;kube-apiserver提供API接口访问Pod、Node和Service等，详细的API接口没去研究。<br>&emsp;&emsp;Kubernetes中基本上都是通过调用kube-apiserver提供的接口完成集群中模块间信息的交换的。比如Node上的<code>kubectl</code>会定期调用API报告节点状态并存入etcd中，Node Controller通过调用API获取到节点相关信息并作出相应操作。为了缓解kube-apiserver的压力各功能模块会定时调用API获取信息并保持到本地缓存，使得某些情况下模块不需要直接调用API而通过访问缓存数据间接调用API。</p>
+<h3 id="kube-controller-manager原理"><strong>kube-controller-manager原理</strong></h3><p>&emsp;&emsp;<code>kube-controller-manager</code>作为Kubernetes集群的管理控制中心，对集群内的Node、Pod副本、Endpoint、Namespace、ServiceAccount和ResourceQuota等资源进行管理及执行自动修复流程。如上所说，<code>kube-controller-manager</code>是由多个Controller组成，对各个Controller进行较深入了解。</p>
+<h4 id="Replication_Controller"><strong>Replication Controller</strong></h4><p>&emsp;&emsp;Replication Controller的主要功能是确保Pod的副本数目和RC定义中的一致。正常来说，都是通过RC来创建Pod的，所以Replication Controller的管理对象是Pod。Pod的状态值如下：</p>
+<ul>
+<li><strong>pending</strong>：API Server已创建Pod，但Pod内有一个或多个容器没创建</li>
+<li><strong>running</strong>：Pod内所有容器已创建，且至少有一个容器正常运行</li>
+<li><strong>successded</strong>：Pod内所有容器均停止成功且不会再重启</li>
+<li><strong>failed</strong>：Pod内所有容器已退出，且至少一个发生错误退出</li>
+</ul>
+<p>&emsp;&emsp;Pod的重启策略有三种<code>Always</code>、<code>OnFailure</code>和<code>Never</code>，只有是<code>Always</code>时，Replication  Controller才会管理该Pod。当Pod副本状态为<code>failed</code>或被删除且<code>RestartPolicy=Always</code>时，Replication Controller会重新创建该Pod的副本。</p>
+<p>&emsp;&emsp;通过具体的RC实例来说明Replication Controller是如何创建Pod的。创建一个Nginx的RC实例，启动2个Pod：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: ReplicationController</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx</span><br><span class="line">  labels:</span><br><span class="line">    name: nginx</span><br><span class="line">spec:</span><br><span class="line">  replicas: <span class="number">2</span></span><br><span class="line">  selector:</span><br><span class="line">    name: nginx</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        name: nginx</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">        - name: nginx</span><br><span class="line">          image: nginx</span><br><span class="line">          imagePullPolicy: IfNotPresent</span><br><span class="line">          ports:</span><br><span class="line">            - containerPort: <span class="number">80</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><code>kind: ReplicationController</code>：指明这是个ReplicationController</li>
+<li><code>spec.replicas</code>：指明该RC的Pod副本数目</li>
+<li><code>spec.selector</code>：指明该RC关联的Pod</li>
+<li><code>spec.template</code>：RC创建的Pod实例都是根据RC定义中的创建。</li>
+<li><code>spec.template.spec.containers</code>：指明Pod中容器的属性(该使用什么镜像、端口等)</li>
+</ul>
+<p>&emsp;&emsp;需要注意到是，删除RC并不会影响其所已经创建的Pod。Pod可以通过修改其Label实现脱离RC的管控(RC是通过<code>spec.selector</code>中的<code>name</code>来关联Pod的)。<br>&emsp;&emsp;Replication Controller主要就是根据RC定义中的<code>spec.replicas</code>值来调整Pod的副本数目，以确保集群中有且仅有<code>spec.replicas</code>个Pod实例。<br>&emsp;&emsp;Replication Controller的常用模式如下：</p>
+<ul>
+<li><strong>Rescheduling</strong>：重新调度，即在Pod副本实例发生异常时重新创建Pod副本实例。</li>
+<li><p><strong>Scaling</strong>：手动或自动扩容/缩容。可通过<code>kubectl scale</code>命令实现</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl scale rc &lt;ReplicationControllerName&gt; --replicas=&lt;NUM&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Rolling Updates</strong>：滚动更新，ReplicationController通过逐个对Pod进行更新来实现滚动升级。一般是重新创建一个RC，然后新RC中的Pod数目不断增加，旧RC中Pod数目不断减少直至<code>0</code>。</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl rolling-update &lt;OLD_RC_NAME&gt; --update-period=<span class="number">10</span>s <span class="operator">-f</span> &lt;NEW_RC&gt;.yaml</span><br></pre></td></tr></table></figure>
+<p>  &emsp;Kubernetes1.2版本后推荐使用<strong>Deployment</strong>来进行Rolling Updates。新的Deployment会创建<strong>ReplicaSet</strong>，关于这个内容改天专门来写。</p>
+</li>
+</ul>
+<h4 id="Node_Controller"><strong>Node Controller</strong></h4><p>&emsp;&emsp;Node Controller主要负责发现、管理和监控Node。<code>kubectl</code>启动时调用API注册Node并定时调用API上报Node信息，<code>kube-apiserver</code>将Node信息存入etcd。Node信息包括：Node健康状态、节点资源、节点名称、节点地址信息、OS版本、Docker版本和kubelet版本。<br>&emsp;&emsp;Node健康状态分为：<code>True</code>(就绪)、<code>False</code>(未就绪)和<code>Unknown</code>(未知)<br>&emsp;&emsp;Node Controller会定期调用API接口获取Node信息。如果<code>kube-controller-manager</code>启动时没有指定<code>CIDR</code>则为每个Node生产<code>CIDR</code>并设置Node的<code>spec.PodCIDR</code>属性；逐个读取Node信息并和Node Controller中<code>nodeStatusMap</code>中保存的信息做对比，若无变化则更新探测时间，有变化则更新<code>nodeStatusMap</code>中的信息。若规定时间内没收到Node信息则将状态设置为<code>Unknown</code>并调用API存入etcd。再逐个读取Node信息，将非<code>True</code>状态Node加入待删队列，若发现该Node故障则删除etcd中Node信息及相关资源信息。</p>
+<h4 id="ResourceQuota_Controller"><strong>ResourceQuota Controller</strong></h4><p>&emsp;&emsp;ResourceQuota Controller是对Kubernetes集群进行资源配额管理的，支持三个层次的资源配额管理：</p>
+<ul>
+<li>容器级别：对容器CPU和Memory进行限制</li>
+<li>Pod级别：对Pod内所有容器进行资源限制</li>
+<li>Namespace级别：Namespace级别的限制包括以下方面：<ul>
+<li>Pod数量</li>
+<li>RC数量</li>
+<li>Service数量</li>
+<li>ResourceQuota数量</li>
+<li>Secret数量</li>
+<li>PV(persistentVolume)数量</li>
+</ul>
+</li>
+</ul>
+<p>&emsp;&emsp;Kubernetes中配额管理是通过<strong>准入机制(admission control)</strong>实现的，配额的准入控制器有<strong>LimitRanger</strong>和<strong>ResourceQuota</strong>，LimitRanger作用于Pod和Container，ResourceQuota作用于Namespace。<br>&emsp;&emsp;ResourceQuota Controller以Namespace作为分组统计单元，调用API定时从etcd中获取每个Namespace中的ResourceQuota信息，计算Pod、RC、Service等资源对象和Container实例使用的资源(CPU/Memory)并调用API存入etcd。用户请求创建资源时，kube-apiserver调用admission controller的ResourceQuota插件从etcd中配额信息，若某项资源超过配额则该请求被拒绝。</p>
+<h4 id="Namespace_Controller"><strong>Namespace Controller</strong></h4><p>&emsp;&emsp;Namespace Controller主要就是用来管理Namespace的。当Namespace被标记为<strong>优雅删除</strong>(即设置了<code>DeletionTimestamp</code>删除期限)，则该Namespace状态被设置为<code>Terminating</code>。Namespace Controller会删除该Namespace下的所有资源，然后执行<code>finalize</code>操作(删除<code>spec.finalizers</code>信息)。当Namespace Controller发现一个Namespace设置了<code>DeletionTimestamp</code>且<code>spec.finalizers</code>值为空则调用API删除Namespace。</p>
+<h4 id="Service_Controller_&amp;_Endpoint_Controller"><strong>Service Controller &amp; Endpoint Controller</strong></h4><p>&emsp;&emsp;当调用API创建Service时，Kubernetes会为该Service指派一个集群内网IP<code>ClusterIP</code>，Service中的<code>spec.selector</code>指明该Service和<code>name: nginx</code>的Pod关联，每个Pod的<code>80</code>端口都被映射到本地节点的<code>80</code>端口(<code>targetPort</code>)。创建Service时指定了<code>spec.selector</code>的话，Kubernetes会创建一个和Service<strong>同名的</strong>Endpoint对象。该Endpoint对象其实就是和Service关联的Pod的IP+Port。<br>&emsp;&emsp;也可创建没<code>spec.selector</code>的Service，Kubernetes便不会自动创建与之相关的Endpoint，可手动创建和Service同名的Endpoint指定后端Pod。<br>&emsp;创建Nginx的Service实例：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx-service</span><br><span class="line">  labels:</span><br><span class="line">    name: nginx-service</span><br><span class="line">spec:</span><br><span class="line">  ports:</span><br><span class="line">    - port: <span class="number">80</span></span><br><span class="line">      targetPort: <span class="number">80</span></span><br><span class="line">      protocol: TCP</span><br><span class="line">  selector:</span><br><span class="line">    name: nginx</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;&emsp;Service是Kubernetes中的对象，请求从Service到Pod的工作是由<code>kube-proxy</code>来完成的。<code>kube-proxy</code>为每个Service在本机上随机监听一个端口，通过添加iptables规则将访问Service的请求转发到<code>kube-proxy</code>的随机端口，然后<code>kube-proxy</code>根据<code>Round Robin</code>算法及Session保持(<code>SessionAffinity</code>)决定将请求转发到后端的哪个Pod。<br>&emsp;&emsp;Kubernetes支持两种模式找到Service：</p>
+<ul>
+<li>Container的Service环境变量<br>  在创建Pod时，在所有Pod中的Container中加入一系列的Service环境变量，如<code>{SVCNAME}_SERVICE_HOST</code>/<code>{SVCNAME}_SERVICE_PORT</code>等，<code>{SVCNAME}</code>是大写的Service Name，若有<code>-</code>则自动转换为<code>_</code>。</li>
+<li>DNS<br>  DNS服务器通过调用API监控Service相关活动，新增Service时创建一系列DNS记录。<br>  更为常用的是DNS SVC被命名端口的记录，若<code>service_name.namespace_name</code>的Service有名为”http”的端口，则可用<code>_http._tcp.service_name.namespace_name</code>通过DNS服务器找到对于的Pod暴露端口。</li>
+</ul>
+<p>&emsp;&emsp;对于Service的暴露，如前面所说常用三种方式：<strong>LoadBalancer</strong>、<strong>NodePort</strong>和<strong>Ingress</strong>。详细参照前面。<br>&emsp;&emsp;Service Controller和Endpoint Controller分别监控Service和Endpoint对象，调用API更新变更再存入etcd中。</p>
+<h4 id="kube-scheduler"><strong>kube-scheduler</strong></h4><p>&emsp;&emsp;<code>kube-scheduler</code>主要负责Pod的调度，将待调度的Pod按照特定的调度算法和调度策略绑定到合适的Node上并将信息存入etcd。Node上的<code>kubelet</code>监听到<code>kube-scheduler</code>产生的Pod绑定事件后，获取对应的Pod清单、下载image镜像并启动Container容器。<br>&emsp;&emsp;<code>kube-scheduler</code>默认调度流程分两步，Kubernetes提供一系列的预选策略和优选策略，此处不一一具体分析：</p>
+<ul>
+<li>预选策略：遍历所有Node，筛选符合条件的Node。</li>
+<li>优选策略：基于预选策略，采用优选策略计算积分，最终选出最佳Node。</li>
+</ul>
+<h4 id="kubelet"><strong>kubelet</strong></h4><p>&emsp;&emsp;Kubernetes会在每个Node节点中运行<code>kubelet</code>，<code>kubelet</code>主要负责以下功能：</p>
+<ul>
+<li>Node管理<br>  <code>kubelet</code>在启动时会调用API以注册Node信息(可手动设置不进行自动注册)，并定期调用API将信息存入etcd。</li>
+<li>Pod管理<br>  <code>kubelet</code>通常通过以下3种获取Node上的Pod清单：<ul>
+<li>文件：在启动<code>kubelet</code>时指定，<code>--pod-manifest-path=/etc/kubernetes/manifests</code>。</li>
+<li>HTTP URL：指定<code>--manifest-url</code>。</li>
+<li>API Server：调用API监听etcd目录同步Pod清单。<br>前两种非API Server方式创建的Pod称之为<strong>Static Pod</strong>，<code>kubelet</code>会将Static Pod汇报给API Server，API Server会为Static Pod创建Mirror Pod与其匹配。<br><code>kubelet</code>通过API Server方式创建或修改Pod大致流程如下：</li>
+</ul>
+<ol>
+<li>创建Pod的数据目录</li>
+<li>调用API获取Pod清单</li>
+<li>挂载外部卷(Extenal Volume)到Pod</li>
+<li>下载Pod所需的Secret</li>
+<li>检查Node运行中的Pod，若Pod中无容器或<code>Pause</code>容器没启动，则先停止Pod内所有容器，若有要删除的容器则删除</li>
+<li>为每个Pod创建<code>Pause</code>容器，Pod中的其他容器通过<code>Pause</code>容器共享网络</li>
+<li>为Pod中的每个容器做如下处理：为容器计算hash值，用容器名去Docker查询对应容器的hash值，若hash值不同则停止容器。若设置了<code>restartPolicy</code>则按照策略处理，无则调用Docker client下载镜像并运行容器。</li>
+</ol>
+</li>
+<li><p>健康检查<br>  Pod通过两种探针检查容器健康状态：</p>
+<ul>
+<li><p><strong>LivenessProbe</strong>：用于判断容器是否健康。若不健康，<code>kubelet</code>则删除容器并按照<code>restartPolicy</code>策略处理。LivenessProbe检查可分成三种实现方式，<code>LivenessProbe</code>的定义在Pod的<strong><code>spec.containers</code></strong>中：</p>
+<ol>
+<li><p><strong>ExecAction</strong>：容器内执行一条命令，退出码为<code>0</code>则健康</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">spec:</span><br><span class="line">  containers:</span><br><span class="line">    - name: nginx</span><br><span class="line">      image: nginx</span><br><span class="line">      imagePullPolicy: IfNotPresent</span><br><span class="line">      ports:</span><br><span class="line">        - containerPort: <span class="number">80</span></span><br><span class="line">      livenessProbe:</span><br><span class="line">        <span class="built_in">exec</span>:</span><br><span class="line">          <span class="built_in">command</span>:</span><br><span class="line">          - cat</span><br><span class="line">          - /tmp/healthy</span><br><span class="line">        initialDelaySeconds: <span class="number">5</span></span><br><span class="line">        periodSeconds: <span class="number">3</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>TCPSocketAction</strong>：对容器内端口做TCP检测，端口能被访问则健康</p>
+</li>
+<li><strong>HTTPGetAction</strong>：对容器特点的端口+路径调用<code>GET</code>方法，HTTP响应状态码在<code>200</code>~<code>400</code>之间为健康 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">spec:</span><br><span class="line">  containers:</span><br><span class="line">    - name: nginx</span><br><span class="line">      image: nginx</span><br><span class="line">      imagePullPolicy: IfNotPresent</span><br><span class="line">      ports:</span><br><span class="line">        - containerPort: <span class="number">80</span></span><br><span class="line">      livenessProbe:</span><br><span class="line">        httpGet:</span><br><span class="line">          path: /heath_pah</span><br><span class="line">          port: <span class="number">80</span></span><br><span class="line">          httpHeaders:</span><br><span class="line">            - name: X-Custom-Header</span><br><span class="line">              value: Awesome</span><br><span class="line">        initialDelaySeconds: <span class="number">5</span></span><br><span class="line">        periodSeconds: <span class="number">3</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li><p><strong>ReadinessProbe</strong>：用于判断容器是否启动完成且准备接受请求。若ReadinessProbe检查失败，Endpoint Controller会删除Service中该Pod的Endpoint信息。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="网络原理"><strong>网络原理</strong></h4><ul>
+<li><p><strong>Kubernetes网络模型</strong><br>  &emsp;&emsp;Kubernetes使用的网络模型称为<strong>IP-per-Pod</strong>模型，每个Pod拥有单独的IP地址，IP是以Pod为单位分配的。一个Pod内的所有容器共享网络(使用同一个Network Namespace通过Pause容器实现)，IP和端口在Pod内部和外部都是一致的(不需要NAT)。<br>  &emsp;&emsp;Kubernetes设计之初是运行在谷歌的GCE环境上的，GCE默认就支持Kubernetes的网络。但要在非GCE环境运行Kubernetes则需要先搭建出符合Kubernetes网络要求的环境，目前开源的方案有很多诸如Flannel、Weave等用于实现Kubernetes中容器与容器之间网络的环境。<br>  &emsp;&emsp;Kubernetes主要针对一下几种网络场景制定不同的解决方案：</p>
+<ul>
+<li>容器间通信<br>  这里的容器间通信特指在同一个Pod内的容器间通信，正如前面所说，同一个Pod内的容器是通过Pause容器共享同一个Network Namespace的，同一个Pod内的容器甚至可以通过<code>localhost</code>直接访问彼此的端口，这就使得同一个Pod内容器间的通信变得简单高效。</li>
+<li><p>Pod间通信</p>
+<ul>
+<li>同一Node中Pod间通信<br>  由于同一个Node中的不同Pod都是通过<code>veth</code>连接到同一个<code>docker0</code>网桥上，Pod的IP地址和<code>docker0</code>的IP地址在同一个网段内，所有同一个Node上的不同Pod都由<code>docker0</code>网桥进行中转，可直接通信。</li>
+<li><p>不同Node中Pod间通信<br>  由于Pod的IP是隐藏在<code>docker0</code>网桥后的，出了<code>docker0</code>后不同Node之间的Pod是无法感知到对方，所以需要有完善的网络方案使得Pod之间能使用私有IP进行通信、集群内Pod的IP分配不会冲突、Pod的IP和Node的IP关联(Pod通信时需要先找到Node)。为此有了多个不同的开源网络组件：</p>
+<ul>
+<li><p>Flannel<br>  Flannel会创建<code>flannel0</code>网桥，一端连接<code>docker0</code>，另一端连接<code>flanneld</code>服务进程。<code>flanneld</code>服务进程利用<code>etcd</code>来管理分配IP并监听<code>etcd</code>中每个Pod的IP，创建Pod节点路由表。<code>flanneld</code>服务进程根据Pod节点路由表将从<code>docker0</code>发来的数据包进行封装通过物理网络传输到目的<code>flanneld</code>上，以此完成不同Node上的Pod通信。</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">containerA--&gt;docker0--&gt;flannel0--&gt;flanneld--&gt;NodeA--&gt;[Network]--&gt;NodeB--&gt;flanneld--&gt;flannel0--&gt;docker0--&gt;containerB</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Open vSwitch<br>  Open vSwitch是一个开源虚拟交换机软件，该项目较成熟但比较复杂，一般最求高性能网络的话网上都比较推荐此方案，由于比较复杂我也没怎么研究。</p>
+</li>
+<li>直接路由<br>  简单来说，直接路由就是让集群能够通过<code>docker0</code>直接通信，让每个Node的路由表有到所有<code>docker0</code>的路由，将<code>docker0</code>和Node的<code>eth0</code>关联起来。简单的可手动在所有Node上添加到集群内所有<code>docker0</code>地址的路由，但更实际的方案是结合动态路由协议来做。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Pod和Service间通信<br>  正如前面所说，Pod和Service间的通信是通过<code>kube-proxy</code>实现的，<code>kube-proxy</code>为Service随机监听一个端口并添加iptables规则将到Service的请求转发到<code>kube-proxy</code>，再由<code>kube-proxy</code>根据Endpoint信息转发到后端的Pod。<br>  值得一提的是如果Service定义中指定了Session保持，则<code>kube-proxy</code>会查看是否存在改IP的<code>affinityState</code>对象，存在则转到改对象对应的Pod。</li>
+<li>外部到内部访问<br>  同样如前面所说，外部访问内部目前主要有3种方式：NodePort、LoadBalancer和Ingress。接下来重点讲一下<strong>Ingress</strong>。<br>  Ingress是利用Nginx/HAProxy等反向代理软件来暴露服务，从而实现外部到内部的访问，Ingress可根据URL(<code>/serviceA</code>)、域名来进行暴露Service。<br>  Ingress在Kubernetes中也是一个对象资源，Kubernetes使用<strong>Ingress Controller</strong>来对控制管理Ingress资源，Ingress Controller主要与Kubernetes API交互，负责感知规则变化，然后生成配置文件，最后reload Pod中的Nginx。Ingress Controller不像其他Controller一样包含在<code>kube-controller-manager</code>里，需要选择适合的Ingress Controller并运行。</li>
+</ul>
+</li>
+</ul>
+
+				</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+
+				
+					<a href="/2017/02/28/ELK-full/" title="ELK+Kafka+Search-Guard+Sentinl全攻略">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
