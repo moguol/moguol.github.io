@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2017-05-06T15:03:18.000Z</updated>
+  <updated>2017-05-06T15:08:59.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -19,8 +19,9 @@
     <link href="http://yoursite.com/2017/03/23/kubernetes/"/>
     <id>http://yoursite.com/2017/03/23/kubernetes/</id>
     <published>2017-03-23T04:17:30.000Z</published>
-    <updated>2017-05-06T15:03:18.000Z</updated>
-    <content type="html"><![CDATA[<h2 id="基本概念"><strong>基本概念</strong></h2><ul>
+    <updated>2017-05-06T15:08:59.000Z</updated>
+    <content type="html"><![CDATA[<p>&emsp;&emsp;《Kubernetes权威指南》的阅读笔记，由于Kubernetes项目还在快速发展中，书里有些内容已有更新的变化，不过核心内容变化不大，书还是值得认真看的。</p>
+<h2 id="基本概念"><strong>基本概念</strong></h2><ul>
 <li><p><strong>Master</strong><br>  &emsp;Master是整个Kubernetes系统的调度中心，其主要由以下3个重要组件组成(原本为4个组件，但etcd存在单点此处就使用了自建的外部etcd集群):</p>
 <ul>
 <li><strong>kube-apiserver</strong><br>  &emsp;以RESTful方式提供API给外部调用，将核心对象存储在etcd中并提供增删改查功能。</li>
@@ -238,8 +239,8 @@
 </ul>
 ]]></content>
     <summary type="html">
-    <![CDATA[<h2 id="基本概念"><strong>基本概念</strong></h2><ul>
-<li><p><strong>Master</strong><br>  &emsp;Master是整个Kubernetes系统的调度中心，其主要由以下3个重要组件组成(原本为4个组件，但et]]>
+    <![CDATA[<p>&emsp;&emsp;《Kubernetes权威指南》的阅读笔记，由于Kubernetes项目还在快速发展中，书里有些内容已有更新的变化，不过核心内容变化不大，书还是值得认真看的。</p>
+<h2 id="基本概念"><strong>基本概念</strong></h2><]]>
     </summary>
     
   </entry>
