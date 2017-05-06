@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2017-05-04T14:49:22.000Z</updated>
+  <updated>2017-05-06T15:03:18.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,11 +15,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title><![CDATA[Kubernetes]]></title>
+    <title><![CDATA[Kubernetes理论篇]]></title>
     <link href="http://yoursite.com/2017/03/23/kubernetes/"/>
     <id>http://yoursite.com/2017/03/23/kubernetes/</id>
     <published>2017-03-23T04:17:30.000Z</published>
-    <updated>2017-05-04T14:49:22.000Z</updated>
+    <updated>2017-05-06T15:03:18.000Z</updated>
     <content type="html"><![CDATA[<h2 id="基本概念"><strong>基本概念</strong></h2><ul>
 <li><p><strong>Master</strong><br>  &emsp;Master是整个Kubernetes系统的调度中心，其主要由以下3个重要组件组成(原本为4个组件，但etcd存在单点此处就使用了自建的外部etcd集群):</p>
 <ul>
