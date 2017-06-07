@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" Kubernetes实践篇 | Hexo " />
+	<meta name="twitter:title" content=" Kubernetes实践篇 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" Kubernetes实践篇 | Hexo ">
+	<meta property="og:description" content=" Kubernetes实践篇 | Hexo " />
+	<meta name="twitter:description" content=" Kubernetes实践篇 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2017/05/24/kubernetes-practice/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Bigdata/">Bigdata</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2017-05-24">2017-05-24</span>
+
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2017/05/24/kubernetes-practice/" itemprop="url"><span itemprop="name">Kubernetes实践篇</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<h2 id="基础环境"><strong>基础环境</strong></h2><ul>
+<li>CentOS 7.3 64bit</li>
+<li>Docker 1.13.0</li>
+<li>Kubernetes 1.5.4</li>
+<li>etcd 3.1.0</li>
+</ul>
+<h2 id="系统基础配置"><strong>系统基础配置</strong></h2><ul>
+<li>10.201.3.222 Master</li>
+<li>10.201.3.223 Node、etcd(leader)</li>
+<li>10.201.3.224 Node、etcd(follower)</li>
+</ul>
+<h4 id="设置hostname"><strong>设置hostname</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hostnamectl --static <span class="built_in">set</span>-hostname &lt;hostname&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="关闭防火墙_&amp;_selinux"><strong>关闭防火墙 &amp; selinux</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">disable</span> firewalld</span><br><span class="line">systemctl stop firewalld</span><br><span class="line">sed -i <span class="string">'/SELINUX/s/\(enforcing\|permissive\)/disabled/'</span> /etc/selinux/config</span><br><span class="line">setenforce <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<h4 id="YUM源设置"><strong>YUM源设置</strong></h4><ul>
+<li><p>epel</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-<span class="number">7</span>.noarch.rpm</span><br><span class="line">rpm -ivh epel-release-latest-<span class="number">7</span>.noarch.rpm</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>docker.repo：<code>/etc/yum.repos.d/docker.repo</code></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[dockerrepo]</span><br><span class="line">name=Docker Repository</span><br><span class="line">baseurl=https://mirrors.tuna.tsinghua.edu.cn/docker/yum/repo/centos7</span><br><span class="line">enabled=<span class="number">1</span></span><br><span class="line">gpgcheck=<span class="number">1</span></span><br><span class="line">gpgkey=https://mirrors.tuna.tsinghua.edu.cn/docker/yum/gpg</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>kubernetes.repo：<code>/etc/yum.repos.d/kubernetes.repo</code></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[kubernetes]</span><br><span class="line">name=Kubernetes</span><br><span class="line">baseurl=http://yum.kubernetes.io/repos/kubernetes-el7-x86_64</span><br><span class="line">enabled=<span class="number">1</span></span><br><span class="line">gpgcheck=<span class="number">0</span></span><br><span class="line">repo_gpgcheck=<span class="number">0</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="安装Docker_&amp;_kubernetes组件"><strong>安装Docker &amp; kubernetes组件</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y ebtables socat docker-engine-<span class="number">1.13</span>.<span class="number">0</span> docker-engine-selinux-<span class="number">1.13</span>.<span class="number">0</span> kubelet kubeadm kubectl kubernetes-cni</span><br></pre></td></tr></table></figure>
+<h2 id="部署etcd集群"><strong>部署etcd集群</strong></h2><p>&emsp;&emsp;Kubernetes使用etcd做存储，默认会部署单点的etcd，为了高可用单独部署etcd集群。</p>
+<ul>
+<li>10.201.3.223：leader</li>
+<li>10.201.3.224：follower</li>
+<li><code>2379</code>端口：etcd提供给外部客户端端口(etcd2.0前为<code>4001</code>)</li>
+<li><code>2380</code>端口：etcd集群节点通信端口(etcd2.0前为<code>7001</code>)</li>
+</ul>
+<h4 id="安装etcd"><strong>安装etcd</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y etcd</span><br></pre></td></tr></table></figure>
+<h4 id="配置etcd"><strong>配置etcd</strong></h4><p>&emsp;&emsp;<strong><code>/etc/etcd/etcd.conf</code></strong><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#节点名称</span></span><br><span class="line">ETCD_NAME=etcd0</span><br><span class="line"><span class="comment">#数据目录</span></span><br><span class="line">ETCD_DATA_DIR=<span class="string">"/var/lib/etcd/etcd0"</span></span><br><span class="line"><span class="comment">#etcd监听地址</span></span><br><span class="line">ETCD_LISTEN_PEER_URLS=<span class="string">"http://0.0.0.0:2380"</span></span><br><span class="line"><span class="comment">#客户端监听地址</span></span><br><span class="line">ETCD_LISTEN_CLIENT_URLS=<span class="string">"http://0.0.0.0:2379,http://0.0.0.0:4001"</span></span><br><span class="line"><span class="comment">#集群节点通信地址</span></span><br><span class="line">ETCD_INITIAL_ADVERTISE_PEER_URLS=<span class="string">"http://10.201.3.223:2380"</span></span><br><span class="line"><span class="comment">#初始化集群节点</span></span><br><span class="line">ETCD_INITIAL_CLUSTER=<span class="string">"etcd0=http://10.201.3.223:2380,etcd1=http://10.201.3.224:2380"</span></span><br><span class="line"><span class="comment">#初始化集群状态，new为新建</span></span><br><span class="line">ETCD_INITIAL_CLUSTER_STATE=<span class="string">"new"</span></span><br><span class="line"><span class="comment">#集群token</span></span><br><span class="line">ETCD_INITIAL_CLUSTER_TOKEN=<span class="string">"test-etcd-cluster"</span></span><br><span class="line"><span class="comment">#通知客户端地址</span></span><br><span class="line">ETCD_ADVERTISE_CLIENT_URLS=<span class="string">"http://10.201.3.223:2379,http://10.201.3.223:4001"</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="启动etcd集群"><strong>启动etcd集群</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">enable</span> etcd</span><br><span class="line">systemctl start etcd</span><br><span class="line">systemctl status etcd</span><br></pre></td></tr></table></figure>
+<h4 id="查看etcd集群状态"><strong>查看etcd集群状态</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看集群监控状态</span></span><br><span class="line">etcdctl cluster-health</span><br><span class="line"><span class="comment">#member 2076196e6a1f8bed is healthy: got healthy result from http://10.201.3.223:2379</span></span><br><span class="line"><span class="comment">#member 703f1d56a3b37f45 is healthy: got healthy result from http://10.201.3.224:2379</span></span><br><span class="line"><span class="comment">#cluster is healthy</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看集群成员列表</span></span><br><span class="line">etcdctl member list</span><br><span class="line"><span class="comment">#2076196e6a1f8bed: name=etcd0 peerURLs=http://10.201.3.223:2380 clientURLs=http://10.201.3.223:2379,http://10.201.3.223:4001 isLeader=true</span></span><br><span class="line"><span class="comment">#703f1d56a3b37f45: name=etcd1 peerURLs=http://10.201.3.224:2380 clientURLs=http://10.201.3.224:2379,http://10.201.3.224:4001 isLeader=false</span></span><br></pre></td></tr></table></figure>
+<h4 id="etcd集群增加新节点"><strong>etcd集群增加新节点</strong></h4><ul>
+<li><p><strong>添加新节点</strong></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">etcdctl member add etcd2 http://<span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2380</span></span><br><span class="line"><span class="comment">#Added member named etcd2 with ID 9975afe1f36cc116 to cluster</span></span><br><span class="line"><span class="comment">#ETCD_NAME="etcd2"</span></span><br><span class="line"><span class="comment">#ETCD_INITIAL_CLUSTER="etcd0=http://10.201.3.223:2380,etcd1=http://10.201.3.224:2380,etcd2=http://10.201.3.222:2380"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>配置新节点</strong><br>  将<code>ETCD_NAME</code>、<code>ETCD_INITIAL_CLUSTE</code>、<code>ETCD_INITIAL_CLUSTER_STATE</code>用于etcd2的配置文件中</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ETCD_NAME=etcd2</span><br><span class="line">ETCD_DATA_DIR=<span class="string">"/var/lib/etcd/etcd2"</span></span><br><span class="line">ETCD_LISTEN_PEER_URLS=<span class="string">"http://0.0.0.0:2380"</span></span><br><span class="line">ETCD_LISTEN_CLIENT_URLS=<span class="string">"http://0.0.0.0:2379,http://0.0.0.0:4001"</span></span><br><span class="line">ETCD_INITIAL_ADVERTISE_PEER_URLS=<span class="string">"http://10.201.3.222:2380"</span></span><br><span class="line">ETCD_INITIAL_CLUSTER=<span class="string">"etcd0=http://10.201.3.223:2380,etcd1=http://10.201.3.224:2380,etcd2=http://10.201.3.222:2380"</span></span><br><span class="line">ETCD_INITIAL_CLUSTER_STATE=<span class="string">"existing"</span></span><br><span class="line">ETCD_INITIAL_CLUSTER_TOKEN=<span class="string">"ssj-etcd-cluster"</span></span><br><span class="line">ETCD_ADVERTISE_CLIENT_URLS=<span class="string">"http://10.201.3.222:2379,http://10.201.3.222:4001"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>启动新节点</strong></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl start etcd</span><br><span class="line">etcdctl member list</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>移除etcd2节点</strong><br>  演示移除节点操作</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">etcdctl member list</span><br><span class="line"><span class="comment">#2076196e6a1f8bed: name=etcd0 peerURLs=http://10.201.3.223:2380 clientURLs=http://10.201.3.223:2379,http://10.201.3.223:4001 isLeader=true</span></span><br><span class="line"><span class="comment">#703f1d56a3b37f45: name=etcd1 peerURLs=http://10.201.3.224:2380 clientURLs=http://10.201.3.224:2379,http://10.201.3.224:4001 isLeader=false</span></span><br><span class="line"><span class="comment">#9975afe1f36cc116: name=etcd2 peerURLs=http://10.201.3.222:2380 clientURLs=http://10.201.3.222:2379,http://10.201.3.222:4001 isLeader=false</span></span><br><span class="line">etcdctl member remove <span class="number">9975</span>afe1f36cc116</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="启动Docker_&amp;_Kubelet"><strong>启动Docker &amp; Kubelet</strong></h2><p>&emsp;&emsp;在所有节点启动Docker、Kubelet，Kubelet因为没有配置可能无法启动，但没关系。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl <span class="built_in">enable</span> docker &amp;&amp; systemctl start docker</span><br><span class="line">systemctl <span class="built_in">enable</span> kubelet &amp;&amp; systemctl start kubelet</span><br></pre></td></tr></table></figure></p>
+<h2 id="导出导入镜像"><strong>导出导入镜像</strong></h2><p>&emsp;&emsp;由于Kubernetes组件都容器化了，需要到<code>gcr.io</code>上pull镜像，但由于GFW的原因无法pull。要么在国外机器pull镜像后导入然后在导入到本地集群，要么使用代理，这里使用前者方法。再或者绑定hosts也可，pull镜像比较慢<code>61.91.161.217 gcr.io www.gcr.io</code><br>&emsp;&emsp;Kubernetes1.5.4所需要的镜像</p>
+<ul>
+<li>gcr.io/google_containers/dnsmasq-metrics-amd64:1.0</li>
+<li>gcr.io/google_containers/exechealthz-amd64:1.2</li>
+<li>gcr.io/google_containers/kube-apiserver-amd64:v1.5.4</li>
+<li>gcr.io/google_containers/kube-controller-manager-amd64:v1.5.4</li>
+<li>gcr.io/google_containers/kube-discovery-amd64:1.0</li>
+<li>gcr.io/google_containers/kubedns-amd64:1.9</li>
+<li>gcr.io/google_containers/kube-dnsmasq-amd64:1.4</li>
+<li>gcr.io/google_containers/kube-proxy-amd64:v1.5.4</li>
+<li>gcr.io/google_containers/kube-scheduler-amd64:v1.5.4</li>
+<li>gcr.io/google_containers/pause-amd64:3.0</li>
+<li>gcr.io/google_containers/kubernetes-dashboard-amd64:v1.6.0</li>
+<li>gcr.io/google_containers/etcd-amd64:3.0.14-kubeadm</li>
+</ul>
+<h4 id="导出镜像"><strong>导出镜像</strong></h4><p>&emsp;&emsp;所有节点都需要导入镜像<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker save `docker images | grep -v TAG | awk <span class="string">'&#123;print $1":"$2&#125;'</span>` &gt; kube.tar</span><br></pre></td></tr></table></figure></p>
+<h4 id="导入镜像"><strong>导入镜像</strong></h4><p>&emsp;&emsp;将导出的镜像下载到本地集群然后导入<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker load &lt; kube.tar</span><br></pre></td></tr></table></figure></p>
+<h2 id="部署k8s集群"><strong>部署k8s集群</strong></h2><h3 id="初始化集群"><strong>初始化集群</strong></h3><p>&emsp;&emsp;在master节点使用<strong><code>kubeadm</code></strong>初始化集群，初始化过程中若发现本地没有镜像会去<code>gcr.io</code>pull镜像。<br>&emsp;&emsp;使用<strong><code>kubeadm init</code></strong>初始化集群时若是使用<strong>Flannel</strong>网络的话需要添加<strong><code>--pod-network-cidr=10.244.0.0/16</code></strong>，性能上Flannel会比Weave好，生产环境的话可以考虑Open vSwitch。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#指定日志级别</span></span><br><span class="line"><span class="built_in">export</span> KUBE_COMPONENT_LOGLEVEL=<span class="string">'--v=1'</span></span><br><span class="line"><span class="comment">#weave网络init</span></span><br><span class="line">kubeadm init --use-kubernetes-version v1.<span class="number">5.4</span> --api-advertise-addresses=<span class="number">10.201</span>.<span class="number">3.222</span> --external-etcd-endpoints http://<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2379</span>,http://<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2379</span></span><br><span class="line"><span class="comment">#flannel网络init</span></span><br><span class="line">kubeadm init --use-kubernetes-version v1.<span class="number">5.4</span> --api-advertise-addresses=<span class="number">10.201</span>.<span class="number">3.222</span> --pod-network-cidr=<span class="number">10.244</span>.<span class="number">0.0</span>/<span class="number">16</span> --external-etcd-endpoints http://<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2379</span>,http://<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2379</span></span><br></pre></td></tr></table></figure></p>
+<p>&emsp;&emsp;执行完<strong>kubeadm init</strong>初始化集群后会生成一个<strong>token</strong>，需要记录便于以后添加Node进集群使用。<br>&emsp;&emsp;假若丢失了<strong>token</strong>可使用命令查看<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl -n kube-system get secret clusterinfo -o yaml | grep token-map | awk <span class="string">'&#123;print $2&#125;'</span> | base64 --decode | sed <span class="string">"s|&#123;||g;s|&#125;||g;s|:|.|g;s/\"//g;"</span> | xargs <span class="built_in">echo</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="记录Node加入集群命令"><strong>记录Node加入集群命令</strong></h4><p>&emsp;&emsp;<code>kubeadm init</code>初始化完后会给出其余Node节点加入集群的命令，记录下来方便其余Node加入集群<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubeadm join --token=<span class="number">06</span>ac4c.a0f93b8da729ac48 <span class="number">10.201</span>.<span class="number">3.222</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="查看k8s节点集群状态"><strong>查看k8s节点集群状态</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kubectl get nodes</span><br><span class="line"><span class="comment">#NAME             STATUS         AGE</span></span><br><span class="line"><span class="comment">#sd-3-centos222   Ready,master   12m</span></span><br></pre></td></tr></table></figure>
+<h4 id="设置master运行Pod"><strong>设置master运行Pod</strong></h4><p>&emsp;&emsp;默认master节点不会运行Pod，可通过命令设置运行在master节点运行Pod<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl taint nodes --all dedicated-</span><br></pre></td></tr></table></figure></p>
+<h3 id="添加Node节点"><strong>添加Node节点</strong></h3><p>&emsp;&emsp;Kubernetes的master节点部署成功后，可将其余Node节点加入集群<br>&emsp;&emsp;之前步骤已将Docker、Kubelet启动并且将所需的镜像都导入，所以直接将节点添加入集群即可。在Node节点上执行(<code>10.201.3.222</code>为master节点)：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubeadm join --token=<span class="number">06</span>ac4c.a0f93b8da729ac48 <span class="number">10.201</span>.<span class="number">3.222</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="部署Pod网络"><strong>部署Pod网络</strong></h3><p>&emsp;&emsp;为了使不同Node之间的Pod能相互通信，需要专门部署Pod网络。一般默认可使用Weave，性能上有要求可使用Flannel，生产环境可考虑Open vSwitch。<br>&emsp;&emsp;若是部署Flannel网络，<code>kube-flannel.yml</code>文件中的<code>net-conf.json</code>/<code>Network</code>网段要和<code>--pod-network-cidr=10.244.0.0/16</code>设置<strong>保持一致</strong>。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#部署Weave网络</span></span><br><span class="line">kubectl apply <span class="operator">-f</span> https://git.io/weave-kube</span><br><span class="line"><span class="comment">#部署Flannel网络</span></span><br><span class="line">kubectl create <span class="operator">-f</span> https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml</span><br></pre></td></tr></table></figure></p>
+<h3 id="DNS注意事项"><strong>DNS注意事项</strong></h3><p>&emsp;&emsp;Kubernetes的DNS功能是有<strong><code>kube-dns</code></strong>提供的，kube-dns依赖Pod网络，所以在Pod网络弄好前kube-dns都会是<strong><code>ContainerCreating</code></strong>状态。通过以下命令查看所有Pod服务，若都正常则状态都是<strong><code>Running</code></strong>。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods --all-namespaces</span><br></pre></td></tr></table></figure></p>
+<h4 id="扩展kube-dns数量"><strong>扩展kube-dns数量</strong></h4><p>&emsp;&emsp;DNS服务为重要服务，使用<code>kubeadm</code>创建的<code>kube-dns</code>是单点的，一旦该Pod出现问题整个集群的DNS服务就瘫痪了，所有要扩展<code>kube-dns</code>数量以防单点故障。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 扩展kube-dns数量</span></span><br><span class="line">kubectl --namespace=kube-system scale deployment kube-dns --replicas=&lt;NUMBER&gt;</span><br><span class="line"><span class="comment"># 查看kube-dns数量</span></span><br><span class="line">kubectl get pods --namespace=kube-system | grep <span class="string">'kube-dns'</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="部署Dashboard"><strong>部署Dashboard</strong></h3><p>&emsp;&emsp;Kubernetes提供Web的Dashboard图形界面管理集群<br>&emsp;&emsp;镜像同样需要pull后导出再导入到本地，这里<code>kubernetes-dashboard.yaml</code>中的镜像为<code>gcr.io/google_containers/kubernetes-dashboard-amd64:v1.6.0</code><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget https://rawgit.com/kubernetes/dashboard/master/src/deploy/kubernetes-dashboard.yaml</span><br><span class="line">kubectl create <span class="operator">-f</span> ./kubernetes-dashboard.yaml</span><br><span class="line"><span class="comment">#查看监听端口NodePort</span></span><br><span class="line">kubectl describe svc kubernetes-dashboard --namespace=kube-system</span><br><span class="line"><span class="comment">#Web访问kubernetes-dashboard</span></span><br><span class="line">http://<span class="number">10.201</span>.<span class="number">3.222</span>:NodePort</span><br></pre></td></tr></table></figure></p>
+<h2 id="Kubernetes应用实例"><strong>Kubernetes应用实例</strong></h2><h3 id="Kubernetes部署Nginx"><strong>Kubernetes部署Nginx</strong></h3><p>&emsp;&emsp;Kubernetes部署服务一般有两种模式，这里用第2种模式：</p>
+<ol>
+<li>先定义RC创建Pod，再定义与之关联的Service</li>
+<li>先定义Service，再定义RC来创建Pod</li>
+</ol>
+<h4 id="下载镜像"><strong>下载镜像</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull nginx</span><br></pre></td></tr></table></figure>
+<h4 id="定义RC文件"><strong>定义RC文件</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># nginx.yaml</span></span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ReplicationController</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx</span><br><span class="line">  labels:</span><br><span class="line">    name: nginx</span><br><span class="line">spec:</span><br><span class="line">  replicas: <span class="number">2</span></span><br><span class="line">  selector:</span><br><span class="line">    name: nginx</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        name: nginx</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">        - name: nginx</span><br><span class="line">          image: nginx</span><br><span class="line">          imagePullPolicy: IfNotPresent</span><br><span class="line">          ports:</span><br><span class="line">            - containerPort: <span class="number">80</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>kind</code>表明类型</li>
+<li><code>spec.selector</code>为RC的Pod选择器，监控和管理拥有此label的Pod实例，确保集群中始终有且仅有replicas个Pod实例运行</li>
+<li><code>spec.template</code>定义生产Pod实例的模板，此处的labels必须和spec.selector一致</li>
+<li><code>spec.template.spec.containers</code>指明容器的一些属性</li>
+</ul>
+<p>现在Kubernetes推荐使用<strong><code>Deployment</code></strong>代替<strong><code>RC</code></strong><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#nginx-deployment.yaml</span></span><br><span class="line">apiVersion: extensions/v1beta1</span><br><span class="line">kind: Deployment</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx</span><br><span class="line">spec:</span><br><span class="line">  replicas: <span class="number">2</span></span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: nginx</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - name: nginx</span><br><span class="line">        image: nginx</span><br><span class="line">        ports:</span><br><span class="line">        - containerPort: <span class="number">80</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="创建Pod_&amp;_查看Pod"><strong>创建Pod &amp; 查看Pod</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">kubectl create <span class="operator">-f</span> nginx.yaml</span><br><span class="line"></span><br><span class="line">kubectl get pods -o wide</span><br><span class="line"><span class="comment">#NAME          READY     STATUS    RESTARTS   AGE       IP          NODE</span></span><br><span class="line"><span class="comment">#nginx-dftws   1/1       Running   0          2d        10.32.0.4   sd-3-centos224</span></span><br><span class="line"><span class="comment">#nginx-vj60j   1/1       Running   0          2d        10.40.0.4   sd-3-centos223</span></span><br></pre></td></tr></table></figure>
+<h4 id="定义Service文件"><strong>定义Service文件</strong></h4><p>&emsp;&emsp;<code>nginx-service.yaml</code>创建的Service是无法被外部访问的，要想外部能访问需要创建带有NodePort的Service<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#nginx-service.yaml</span></span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx-service</span><br><span class="line">  labels:</span><br><span class="line">    name: nginx-service</span><br><span class="line">spec:</span><br><span class="line">  ports:</span><br><span class="line">    - port: <span class="number">80</span></span><br><span class="line">      targetPort: <span class="number">80</span></span><br><span class="line">      protocol: TCP</span><br><span class="line">  selector:</span><br><span class="line">    name: nginx</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><code>metadata.name</code>为Service的名称(ServerName)</li>
+<li><code>spec.selector</code>表明哪些Pod对应此Service(此处指明拥有nginx labels的Pod属于nginx-service这个Service)</li>
+<li><code>spec.ports.targetPort</code>具体进程在容器内的端口，spec.ports.port是该Service的端口</li>
+</ul>
+<p><code>nginx-service-nodeport.yaml</code>创建的Service使用Node节点系统上的Port，可直接通过<code>Node:Port</code>访问<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#nginx-service-nodeport.yaml</span></span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx-service-nodeport</span><br><span class="line">  labels:</span><br><span class="line">    name: nginx-service-nodeport</span><br><span class="line">spec:</span><br><span class="line">  <span class="built_in">type</span>: NodePort</span><br><span class="line">  ports:</span><br><span class="line">    - port: <span class="number">80</span></span><br><span class="line">      nodePort: <span class="number">32222</span></span><br><span class="line">      targetPort: <span class="number">80</span></span><br><span class="line">      protocol: TCP</span><br><span class="line">  selector:</span><br><span class="line">    name: nginx</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><strong>NodePort</strong>表示使用Node节点上的物理机端口提供外网访问功能</li>
+<li><code>spec.ports.nodePort</code>端口范围定义必须在<code>30000</code>~<code>32767</code>内，故一般可不指定<code>spec.ports.nodePort</code>而随机分配。然后用<code>kubectl describe svc &lt;service-name&gt;</code>查看分配的NodePord</li>
+</ul>
+<h4 id="查看Service情况"><strong>查看Service情况</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">kubectl get svc -o wide</span><br><span class="line"><span class="comment">#NAME                     CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE       SELECTOR</span></span><br><span class="line"><span class="comment">#kubernetes               10.96.0.1        &lt;none&gt;        443/TCP        4d        &lt;none&gt;</span></span><br><span class="line"><span class="comment">#nginx-service            10.107.214.134   &lt;none&gt;        80/TCP         29m       name=nginx</span></span><br><span class="line"><span class="comment">#nginx-service-nodeport   10.100.84.60     &lt;nodes&gt;       80:32222/TCP   3m        name=nginx</span></span><br><span class="line"></span><br><span class="line">kubectl describe svc nginx-service-nodeport</span><br><span class="line"><span class="comment">#Name:			nginx-service-nodeport</span></span><br><span class="line"><span class="comment">#Namespace:		default</span></span><br><span class="line"><span class="comment">#Labels:			name=nginx-service-nodeport</span></span><br><span class="line"><span class="comment">#Selector:		name=nginx</span></span><br><span class="line"><span class="comment">#Type:			NodePort</span></span><br><span class="line"><span class="comment">#IP:			10.100.84.60</span></span><br><span class="line"><span class="comment">#Port:			&lt;unset&gt;	80/TCP</span></span><br><span class="line"><span class="comment">#NodePort:		&lt;unset&gt;	32222/TCP</span></span><br><span class="line"><span class="comment">#Endpoints:		10.32.0.4:80,10.40.0.4:80</span></span><br><span class="line"><span class="comment">#Session Affinity:	None</span></span><br><span class="line"><span class="comment">#No events.</span></span><br></pre></td></tr></table></figure>
+<h4 id="手动扩容RC"><strong>手动扩容RC</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl scale rc nginx --replicas=&lt;NUMBER&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="使用Kubernetes_Ingress访问kubernetes_Dashboard"><strong>使用Kubernetes Ingress访问kubernetes Dashboard</strong></h3><p>&emsp;&emsp;Ingress是Kubernetes1.2后引入，用于暴露服务用的。在1.2版本前只有LoadBalancer、NodePort两种方式。Ingress利用Nginx/HAProxy等反向代理软件实现所有Service的对外暴露服务，根据域名/URL规则动态将请求转到相应的Service。<br>&emsp;&emsp;这里演示使用Nginx Ingress来反向代理Kubernetes Dashboard。</p>
+<h4 id="部署默认后端"><strong>部署默认后端</strong></h4><p>&emsp;&emsp;一般可部署一个默认后端，用于当域名、URL全都不匹配时候用。<strong><code>default-backend</code></strong>什么也不做，只返回<code>404</code>页面。官方提供的<a href="https://github.com/kubernetes/ingress/blob/master/examples/deployment/nginx/default-backend.yaml" target="_blank" rel="external">default-backend.yaml</a><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create <span class="operator">-f</span> default-backend.yaml</span><br></pre></td></tr></table></figure></p>
+<h4 id="部署Ingress_Controller"><strong>部署Ingress Controller</strong></h4><p>&emsp;&emsp;Ingress Controller部署方式可选<strong>Deployment</strong>或<strong>DaemonSet</strong>，这里选择使用<strong>DaemonSet</strong>方式部署。官方有个<a href="https://github.com/kubernetes/ingress/blob/master/examples/daemonset/nginx/nginx-ingress-daemonset.yaml" target="_blank" rel="external">nginx-ingress-daemonset</a><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: extensions/v1beta1</span><br><span class="line">kind: DaemonSet</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx-ingress-lb</span><br><span class="line">  labels:</span><br><span class="line">    name: nginx-ingress-lb</span><br><span class="line">  namespace: kube-system</span><br><span class="line">spec:</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        name: nginx-ingress-lb</span><br><span class="line">      annotations:</span><br><span class="line">        prometheus.io/port: <span class="string">'10254'</span></span><br><span class="line">        prometheus.io/scrape: <span class="string">'true'</span></span><br><span class="line">    spec:</span><br><span class="line">      terminationGracePeriodSeconds: <span class="number">60</span></span><br><span class="line">      hostNetwork: <span class="literal">true</span></span><br><span class="line">      containers:</span><br><span class="line">      - image: gcr.io/google_containers/nginx-ingress-controller:<span class="number">0.9</span>.<span class="number">0</span>-beta.<span class="number">5</span></span><br><span class="line">        name: nginx-ingress-lb</span><br><span class="line">        readinessProbe:</span><br><span class="line">          httpGet:</span><br><span class="line">            path: /healthz</span><br><span class="line">            port: <span class="number">10254</span></span><br><span class="line">            scheme: HTTP</span><br><span class="line">        livenessProbe:</span><br><span class="line">          httpGet:</span><br><span class="line">            path: /healthz</span><br><span class="line">            port: <span class="number">10254</span></span><br><span class="line">            scheme: HTTP</span><br><span class="line">          initialDelaySeconds: <span class="number">10</span></span><br><span class="line">          timeoutSeconds: <span class="number">1</span></span><br><span class="line">        ports:</span><br><span class="line">        - containerPort: <span class="number">80</span></span><br><span class="line">          hostPort: <span class="number">80</span></span><br><span class="line">        - containerPort: <span class="number">443</span></span><br><span class="line">          hostPort: <span class="number">443</span></span><br><span class="line">        env:</span><br><span class="line">          - name: POD_NAME</span><br><span class="line">            valueFrom:</span><br><span class="line">              fieldRef:</span><br><span class="line">                fieldPath: metadata.name</span><br><span class="line">          - name: POD_NAMESPACE</span><br><span class="line">            valueFrom:</span><br><span class="line">              fieldRef:</span><br><span class="line">                fieldPath: metadata.namespace</span><br><span class="line">        args:</span><br><span class="line">        - /nginx-ingress-controller</span><br><span class="line">        - --default-backend-service=$(POD_NAMESPACE)/default-http-backend</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;&emsp;创建Nginx Ingress  Controller<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create <span class="operator">-f</span> nginx-ingress-controller.yaml</span><br></pre></td></tr></table></figure></p>
+<h4 id="部署Ingress"><strong>部署Ingress</strong></h4><p>&emsp;&emsp;<code>kind: Ingress</code>用于创建Ingress资源，设置Nginx Ingress规则(域名/URL)。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#kubernetes-dashboard-ingress.yaml</span></span><br><span class="line">apiVersion: extensions/v1beta1</span><br><span class="line">kind: Ingress</span><br><span class="line">metadata:</span><br><span class="line">  name: kubernetes-dashboard-ingress</span><br><span class="line">  namespace: kube-system</span><br><span class="line">spec:</span><br><span class="line">  rules:</span><br><span class="line">  - host: your.domain.com</span><br><span class="line">    http:</span><br><span class="line">      paths:</span><br><span class="line">      - backend:</span><br><span class="line">          serviceName: kubernetes-dashboard</span><br><span class="line">          servicePort: <span class="number">80</span></span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">kubectl create <span class="operator">-f</span> kubernetes-dashboard-ingress.yaml</span><br><span class="line"></span><br><span class="line">kubectl get ingress -n kube-system</span><br><span class="line"><span class="comment">#NAME                           HOSTS             ADDRESS            PORTS     AGE</span></span><br><span class="line"><span class="comment">#kubernetes-dashboard-ingress   your.domain.com   10.201.3.222,...   80        1m</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;部署成功后直接使用域名<code>http://your.domain.com</code>访问就能直接跳转到kubernetes-dashboard。</p>
+<h3 id="Kubernetes常用命令简录"><strong>Kubernetes常用命令简录</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#查看Kubernetes集群状态(master节点上执行)</span></span><br><span class="line">kubectl cluster-info</span><br><span class="line"></span><br><span class="line"><span class="comment">#查看节点信息</span></span><br><span class="line">kubectl get nodes</span><br><span class="line"></span><br><span class="line"><span class="comment">#查看ReplicationController情况</span></span><br><span class="line">kubectl get rc</span><br><span class="line"></span><br><span class="line"><span class="comment">#查看Pods情况</span></span><br><span class="line">kubectl get pods</span><br><span class="line">kubectl get pods -o wide</span><br><span class="line">kubectl get pods -n kube-system</span><br><span class="line"></span><br><span class="line"><span class="comment">#查看Pods详细情况</span></span><br><span class="line">kubectl describe pods &lt;pod-name&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">#查看Service情况</span></span><br><span class="line">kubectl get services</span><br><span class="line">kubectl get svc</span><br><span class="line"></span><br><span class="line"><span class="comment">#查看Service详细情况</span></span><br><span class="line">kubectl describe services &lt;service-name&gt;</span><br><span class="line">kubectl describe svc &lt;service-name&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">#查看Pods环境变量</span></span><br><span class="line">kubectl <span class="built_in">exec</span> &lt;pod-name&gt; env</span><br><span class="line"></span><br><span class="line"><span class="comment">#在Pod上新建bash终端</span></span><br><span class="line">kubectl <span class="built_in">exec</span> -ti &lt;pod-name&gt; -- bash</span><br><span class="line"></span><br><span class="line"><span class="comment">#根据yaml文件创建资源</span></span><br><span class="line">kubectl create <span class="operator">-f</span> &lt;xxx.yaml&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">#删除资源</span></span><br><span class="line">kubectl delete pods,services <span class="operator">-l</span> name=&lt;labels-name&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment">#删除所有Pods</span></span><br><span class="line">kubectl delete pods --all</span><br><span class="line"></span><br><span class="line"><span class="comment">#停止资源</span></span><br><span class="line">kubectl stop replicationcontroller foo</span><br><span class="line">kubectl stop pods,services <span class="operator">-l</span> name=myLabel</span><br><span class="line">kubectl stop <span class="operator">-f</span> service.json</span><br><span class="line"></span><br><span class="line"><span class="comment">#动态扩展pod</span></span><br><span class="line">kubectl --namespace=kube-system scale deployment kube-dns --replicas=&lt;NUMBER&gt;</span><br></pre></td></tr></table></figure>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/Kubernetes/">Kubernetes</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+
+				
+					<a href="/2017/05/23/kubernetes/" title="Kubernetes理论篇">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
