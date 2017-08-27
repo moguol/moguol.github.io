@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" RabbitMQ | Hexo " />
+	<meta name="twitter:title" content=" RabbitMQ | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" RabbitMQ | Hexo ">
+	<meta property="og:description" content=" RabbitMQ | Hexo " />
+	<meta name="twitter:description" content=" RabbitMQ | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2017/08/23/RabbitMQ/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Bigdata/">Bigdata</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2017-08-23">2017-08-23</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/OPS/">OPS</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2017/08/23/RabbitMQ/" itemprop="url"><span itemprop="name">RabbitMQ</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<h2 id="基础概念"><strong>基础概念</strong></h2><ul>
+<li><p><strong>Exchange</strong></p>
+<p>  producer生产消息发送给RabbitMQ后并非直接到Queue，而是经由Exchange做筛选后再分发给Queue。Exchange又分4中类型(Exchange Type)</p>
+<ol>
+<li><strong>direct</strong>: 将消息转发到指定routing key的Queue中。有个特殊Exchange，若Exchange名为空则为default Exchange</li>
+<li><strong>topic</strong>: 将消息按照规则转发。对routing key进行通配符匹配，将消息转发到匹配的Queue中。<strong><code>*</code></strong>匹配一个词、<strong><code>#</code></strong>匹配一个或多个词，使用<strong><code>.</code></strong>分隔。</li>
+<li><strong>fanout</strong>: 将消息转发到所有绑定的Queue，适用于广播。</li>
+<li><strong>header</strong>: 使用消息头代替routing key作为判断规则。</li>
+</ol>
+</li>
+<li><p><strong>Queue</strong></p>
+<p>  用于存储消息。相同属性的Queue可重复定义。Queue分2种类型：</p>
+<ul>
+<li><strong>Durable</strong>: 持久化，broker重启后Queue还存在</li>
+<li><p><strong>Transient</strong>: 临时队列(自删除)，broker重启后自动删除</p>
+<p><strong>如果消息持久化，则持久化的消息需要在持久化的Queue和Exchange中，即必须保证: exchange(指定 durable=1)、queue(指定 durable=1)和消息(delivery_mode=2)</strong></p>
+<p>Queue属性</p>
+</li>
+<li>持久性：如果启用，队列将会在server重启前都有效</li>
+<li>自动删除：如果启用，那么队列将会在所有的消费者停止使用之后自动删除掉自身</li>
+<li>惰性：如果没有声明队列，那么在执行到使用的时候会导致异常，并不会主动声明</li>
+<li>排他性：如果启用，队列只能被声明它的消费者使用</li>
+</ul>
+</li>
+<li><p><strong>Binding</strong></p>
+<p>  将Exchange和Queue绑定在一起(会指定binding key)，生产者将消息发送到Exchange时会指定routing key。routing key会和Exchange Type及binding key联合使用。</p>
+<ul>
+<li>fanout型无视Binding-key，直接将消息发送到和该Exchange绑定的Queue中。</li>
+<li>direct型则要求binding key和routing key完全匹配，将消息发送到完全匹配的Queue中。</li>
+<li>topic型则要求binding key和routing key正则匹配</li>
+<li>header型则不依赖binding key和routing key，而是根据消息中的header路由消息。</li>
+</ul>
+</li>
+<li><p><strong>Virtual Host</strong></p>
+<p>  Virtual Host拥有一组Exchange、Queue、Binding，根据Virtual Host进行用户权限设置<br>  不同Virtual Host之间完全隔离，一般不能共享Exchange、Queue等</p>
+</li>
+<li><p><strong>Channel</strong><br>  消息通道，一个TCP连接中可建立多个channel，每个channel代表一个会话任务</p>
+</li>
+<li><p><strong>Acknowledgment</strong><br>  RabbitMQ为了保障消息的可靠性，在消费端和生产端都有相应的机制来确保</p>
+<ul>
+<li><strong>消费端</strong><br>  消费者在消费完Queue中的消息后会发送一个ack给RabbitMQ，RabbitMQ收到ack后确认消息被消费后从Queue中将消息移除。若RabbitMQ没有收到ack而消费者断开连接，RabbitMQ会将消息发送给其他消费者。RabbitMQ不会为没ack的消息做超时处理，会一直等待ack，除非消费者断开连接。</li>
+<li><strong>生产端</strong><br>  生产端消息的可靠性主要有两种方式<ul>
+<li><strong>AMQP事务机制</strong><ol>
+<li>生产者调用<code>txSelect()</code>方法将channel设置成transaction模式</li>
+<li>生产者调用<code>txCommit()</code>方法发送消息，<code>txCommit()</code>成功则消息确认到达MQ；失败则调用<code>txRollback()</code>回滚事务。</li>
+</ol>
+</li>
+<li><strong>channel confirm模式</strong><br>  AMQP事务机制对生产端的性能会有影响，所以RabbitMQ提供了另外一种方式以确保可靠性，就是将channel设置成confirm模式。一旦channel进入confirm模式，每条消息会分配一个唯一ID(<code>1</code>开始)，一旦消息到达MQ，MQ会发送携带ID的ack给生产者。为了提高性能RabbitMQ还提供了3中confirm模式：<ol>
+<li><strong>common</strong>: 发送一条消息确认一条</li>
+<li><strong>batch</strong>: 批量发送一批消息，批量确认</li>
+<li><strong>async</strong>: 提供回调方法，消息被确认后生产者调用该回调方法</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="RabbitMQ部署"><strong>RabbitMQ部署</strong></h2><h3 id="安装依赖&amp;hostname设置"><strong>安装依赖&amp;hostname设置</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum -y install unixODBC unixODBC-devel libxslt xmlto ncurses-devel</span><br><span class="line"><span class="built_in">echo</span> <span class="string">'10.201.3.100 sd-3-centos100'</span> &gt;&gt; /etc/hosts</span><br></pre></td></tr></table></figure>
+<h3 id="安装simplejson"><strong>安装simplejson</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget <span class="string">'https://pypi.python.org/packages/source/s/simplejson/simplejson-3.8.1.tar.gz'</span></span><br><span class="line">tar -zxf simplejson-<span class="number">3.8</span>.<span class="number">1</span>.tar.gz &amp;&amp; <span class="built_in">cd</span> simplejson-<span class="number">3.8</span>.<span class="number">1</span></span><br><span class="line">python setup.py build &amp;&amp; python setup.py install</span><br></pre></td></tr></table></figure>
+<h3 id="安装erlang"><strong>安装erlang</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">wget <span class="string">'http://www.erlang.org/download/otp_src_18.1.tar.gz'</span></span><br><span class="line">tar -zxf otp_src_18.<span class="number">1</span>.tar.gz &amp;&amp; otp_src_18.<span class="number">1</span></span><br><span class="line">./configure --without-javac --prefix=/usr/<span class="built_in">local</span>/erlang</span><br><span class="line">make &amp;&amp; make install</span><br><span class="line"><span class="built_in">echo</span> <span class="string">'PATH=/usr/local/rabbitmq/sbin:/usr/local/erlang/bin:$PATH'</span> &gt;&gt; /etc/profile</span><br><span class="line">. /etc/profile</span><br><span class="line">ln <span class="operator">-s</span> /usr/<span class="built_in">local</span>/erlang/bin/escript /usr/sbin/escript</span><br></pre></td></tr></table></figure>
+<h3 id="安装rabbitmq"><strong>安装rabbitmq</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget <span class="string">'http://www.rabbitmq.com/releases/rabbitmq-server/v3.5.6/rabbitmq-server-3.5.6.tar.gz'</span></span><br><span class="line">tar -zxf rabbitmq-server-<span class="number">3.5</span>.<span class="number">6</span>.tar.gz &amp;&amp; <span class="built_in">cd</span> rabbitmq-server-<span class="number">3.5</span>.<span class="number">6</span></span><br><span class="line">make TARGET_DIR=/usr/<span class="built_in">local</span>/rabbitmq SBIN_DIR=/usr/<span class="built_in">local</span>/rabbitmq/sbin MAN_DIR=/usr/<span class="built_in">local</span>/rabbitmq/man DOC_INSTALL_DIR=/usr/<span class="built_in">local</span>/rabbitmq/doc install</span><br></pre></td></tr></table></figure>
+<h3 id="配置rabbitmq"><strong>配置rabbitmq</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /etc/rabbitmq /usr/<span class="built_in">local</span>/rabbitmq/data /usr/<span class="built_in">local</span>/rabbitmq/<span class="built_in">log</span> /usr/<span class="built_in">local</span>/rabbitmq/plugins</span><br><span class="line">cp /usr/<span class="built_in">local</span>/rabbitmq/doc/rabbitmq.config.example /etc/rabbitmq/rabbitmq.config</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /etc/rabbitmq/rabbitmq-env.conf</span></span><br><span class="line">RABBITMQ_MNESIA_BASE=/usr/<span class="built_in">local</span>/rabbitmq/data</span><br><span class="line">RABBITMQ_LOG_BASE=/usr/<span class="built_in">local</span>/rabbitmq/<span class="built_in">log</span></span><br><span class="line">RABBITMQ_PLUGINS_DIR=/usr/<span class="built_in">local</span>/rabbitmq/plugins</span><br><span class="line"><span class="comment">#RABBITMQ_NODE_PORT=5673</span></span><br><span class="line"><span class="comment">#RABBITMQ_NODENAME=rabbitmq-master</span></span><br></pre></td></tr></table></figure>
+<h3 id="启动rabbitmq"><strong>启动rabbitmq</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">. /etc/profile</span><br><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmq-server -detached</span><br><span class="line"><span class="comment">#/usr/local/rabbitmq/sbin/rabbitmq-server &amp;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#停止rabbitqm</span></span><br><span class="line"><span class="comment">#/usr/local/rabbitmq/sbin/rabbitmqctl stop</span></span><br></pre></td></tr></table></figure>
+<h3 id="启用插件"><strong>启用插件</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmq-plugins <span class="built_in">enable</span> rabbitmq_management</span><br><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmq-plugins <span class="built_in">enable</span> rabbitmq_mqtt</span><br></pre></td></tr></table></figure>
+<h4 id="插件相关操作"><strong>插件相关操作</strong></h4><ul>
+<li><p>查询插件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 显示所有插件</span></span><br><span class="line">rabbitmq-plugins list -v</span><br><span class="line"><span class="comment"># 显示已使用插件</span></span><br><span class="line">rabbitmq-plugins list -E</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启用插件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitmq-plugins <span class="built_in">enable</span> rabbitmq_management</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>停用插件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitmq-plugins <span class="built_in">disable</span> rabbitmq_management</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="用户设置"><strong>用户设置</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmqctl add_user &lt;user_name&gt; &lt;user_passwd&gt;</span><br><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmqctl <span class="built_in">set</span>_user_tags &lt;user_name&gt; administrator</span><br><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmqctl delete_user guest</span><br></pre></td></tr></table></figure>
+<h3 id="日志rotate"><strong>日志rotate</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># crontab</span></span><br><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmqctl rotate_logs .<span class="string">"`date '+%Y-%m-%d'`"</span></span><br></pre></td></tr></table></figure>
+<h2 id="RabbitMQ镜像集群"><strong>RabbitMQ镜像集群</strong></h2><p>由于Erlang原因RaggitMQ集群不支持跨网段，若需要跨网段则使用shovel/federation等插件</p>
+<p>安装RabbitMQ后，先停止RabbitMQ。<code>/usr/local/rabbitmq/sbin/rabbitmqctl stop</code></p>
+<h3 id="集群hostname设置"><strong>集群hostname设置</strong></h3><p>集群所有节点拥有所有主机IP+hostname</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /etc/hosts</span></span><br><span class="line"><span class="number">10.201</span>.<span class="number">3.100</span> sd-<span class="number">3</span>-centos100</span><br><span class="line"><span class="number">10.201</span>.<span class="number">3.49</span> sd-<span class="number">3</span>-centos49</span><br></pre></td></tr></table></figure>
+<h3 id="同步Erlang_Cookie"><strong>同步Erlang Cookie</strong></h3><p>将其中一个机器(10.201.3.49)的<code>$HOME/.erlang.cookie</code>同步至所有机器。<code>$HOME/.erlang.cookie</code>权限必须<strong><code>400</code></strong>且<code>ower</code>、<code>group</code>必须为启动用户(此处以<code>root</code>用户启动)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 所有节点执行</span></span><br><span class="line">scp <span class="variable">$HOME</span>/.erlang.cookie <span class="number">10.201</span>.<span class="number">3.100</span>:<span class="variable">$HOME</span></span><br><span class="line">chmod <span class="number">400</span> <span class="variable">$HOME</span>/.erlang.cookie</span><br><span class="line">chown root:root <span class="variable">$HOME</span>/.erlang.cookie</span><br></pre></td></tr></table></figure>
+<h3 id="组成集群"><strong>组成集群</strong></h3><p>在其余所有节点执行加入集群命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 10.201.3.100 执行</span></span><br><span class="line"><span class="comment"># 启动rabbitmq</span></span><br><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmq-server -detached</span><br><span class="line"><span class="comment"># 加入集群</span></span><br><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmqctl stop_app</span><br><span class="line"><span class="comment">#/usr/local/rabbitmq/sbin/rabbitmqctl reset</span></span><br><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmqctl join_cluster rabbit@sd-<span class="number">3</span>-centos49</span><br><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmqctl start_app</span><br></pre></td></tr></table></figure>
+<p>默认使用disk模式加入集群，可使用ram模式加入集群，但集群中必须有一个节点是disk模式。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmqctl join_cluster --ram rabbit@sd-<span class="number">3</span>-centos49</span><br></pre></td></tr></table></figure>
+<h3 id="设置镜像队列策略"><strong>设置镜像队列策略</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将所有队列设置为镜像队列，即队列会被复制到各个节点，各个节点状态保持一直</span></span><br><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmqctl <span class="built_in">set</span>_policy ha-all <span class="string">"^"</span> <span class="string">'&#123;"ha-mode":"all"&#125;'</span></span><br><span class="line"><span class="comment"># 查看集群状态</span></span><br><span class="line">/usr/<span class="built_in">local</span>/rabbitmq/sbin/rabbitmqctl cluster_status</span><br></pre></td></tr></table></figure>
+<h4 id="镜像队列策略"><strong>镜像队列策略</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span>_policy [-p &lt;vhostpath&gt;] [--priority &lt;priority&gt;] [--apply-to &lt;apply-to&gt;] &lt;name&gt; &lt;pattern&gt;  &lt;definition&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>rabbitmqctl set_policy ha-all &quot;^&quot; &#39;{&quot;ha-mode&quot;:&quot;all&quot;}&#39;</code></strong><ul>
+<li><code>ha-all</code>: 策略名(<name>)</name></li>
+<li><code>&quot;^&quot;</code>: 匹配Queue队列名表达式，<code>&quot;^&quot;</code>表示所有Queue</li>
+<li><code>{&quot;ha-mode&quot;:&quot;all&quot;}</code>: 定义HA类型<ul>
+<li><code>all</code>: 镜像队列将应用在整个集群。当一个新的节点加入后，该节点会获得所有数据的一份完全副本</li>
+<li><code>exactly</code>: 镜像队列在集群中复制<code>count</code>份副本。当集群节点数目少于<code>count</code>时，队列会复制到所有节点。 <strong><code>&#39;{&quot;ha-mode&quot;:&quot;exactly&quot;,&quot;ha-params&quot;:2,&quot;ha-sync-mode&quot;:&quot;automatic&quot;}&#39;</code></strong></li>
+<li><code>nodes</code>: 镜像队列会在<code>node name</code>中存在副本。<strong><code>&#39;{&quot;ha-mode&quot;:&quot;nodes&quot;,&quot;ha-params&quot;:[&quot;&lt;node_name&gt;&quot;, &quot;&lt;node_name&gt;&quot;]}&#39;</code></strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong><code>-p &lt;vhostpath&gt;</code></strong>，默认<code>/</code></li>
+<li><strong><code>--priority &lt;priority&gt;</code></strong>，设置优先级，越高越优先</li>
+<li><strong><code>--apply-to &lt;apply-to&gt;</code></strong>，作用对象，queue、exchange、all</li>
+</ul>
+<h2 id="RabbitMQ_常用操作"><strong>RabbitMQ 常用操作</strong></h2><h3 id="用户操作"><strong>用户操作</strong></h3><ul>
+<li><p>查看用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitmqctl list_users</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitmqctl add_user &lt;user_name&gt; &lt;user_password&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitmqctl change_password &lt;user_name&gt; &lt;new_password&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>授权管理员权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitmqctl <span class="built_in">set</span>_user_tags &lt;user_name&gt; administrator</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rabbitmqctl delete_user &lt;user_name&gt;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="修改集群节点类型"><strong>修改集群节点类型</strong></h3><p>将集群节点由<strong>disk</strong>类型改成<strong>ram</strong>类型，在该节点中执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">rabbitmqctl stop_app</span><br><span class="line">rabbitmqctl change_cluster_node_<span class="built_in">type</span> ram</span><br><span class="line">rabbitmqctl start_app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看集群状态，确定节点类型</span></span><br><span class="line">rabbitmqctl cluster_status</span><br></pre></td></tr></table></figure>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/rabbitmq/">rabbitmq</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+
+				
+					<a href="/2017/05/24/kubernetes-practice/" title="Kubernetes实践篇">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
