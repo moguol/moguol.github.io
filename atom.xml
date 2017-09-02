@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2017-08-27T09:21:12.000Z</updated>
+  <updated>2017-09-02T09:58:10.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,343 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[Kafka]]></title>
+    <link href="http://yoursite.com/2017/08/31/Kafka/"/>
+    <id>http://yoursite.com/2017/08/31/Kafka/</id>
+    <published>2017-08-31T04:17:30.000Z</published>
+    <updated>2017-09-02T09:58:10.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="Kafka原理"><strong>Kafka原理</strong></h2><h3 id="基础概念"><strong>基础概念</strong></h3><ul>
+<li><p><strong>producer</strong>: 生产者，将消息发到<code>topic</code>里的为生产者</p>
+</li>
+<li><p><strong>consumer</strong>: 消费者，从<code>topic</code>里读取消息的为消费者。Kafka以<code>group</code>为单位组织<code>consumer</code>，同一个<code>topic</code>可有多个<code>consumer group</code>，一条消息会发到所有<code>consumer group</code>中，一个<code>consumer group</code>可能会有多个<code>consumer</code>，但一条消息只会被<code>consumer group</code>内的一个<code>consumer</code>消费，即一条消息在同一个<code>consumer group</code>内只会被消费一次。</p>
+</li>
+<li><p><strong>broker</strong>: 每个Kafka实例称之为<code>broker</code></p>
+</li>
+<li><p><strong>topic</strong>: Kafka以<code>topic</code>为单位对消息进行分类，相同类型的消息分到同一个<code>topic</code>进行生成消费管理。一个<code>topic</code>由一个或多个<code>partition</code>组成。</p>
+</li>
+<li><p><strong>partition</strong>: Kafka中可将一个<code>topic</code>切分成一个或多个<code>partition</code>，<code>partition</code>是Kafka横向扩展及并行处理的关键。每个<code>partition</code>都是一个顺序、不可变的消息队列。Kafka会将消息持久化到磁盘，但官方建议消息的高可用应由partition replication来保证。可为每个partition设置replicas，每个partition会选举出唯一一个leader partition，所有的读写请求都由leader处理，replicas只负责将消息同步到本地确保高可用。</p>
+<ul>
+<li><strong>Isr</strong>: In-Sync Replica，表示能与leader保持数据同步的replicas。如果replicas同步leader消息的<strong>延迟时间</strong>或<strong>延迟条数</strong>其中一个超出阀值，则会将延迟的replicas剔出Isr。当leader partition挂掉后，<strong>只有在Isr队列里的replicas才可参与leader partition的选举过程</strong>。</li>
+<li><strong>replication-factor</strong>: 复制因子，topic partition的副本数目，默认<code>1</code>，即无副本。若<code>replication-factor=N</code>，则允许<code>N-1</code>台机器宕机以确保消息的高可用。</li>
+</ul>
+</li>
+<li><p><strong>offset</strong>: 每个<code>partition</code>内的消息都有一个序列号，称之为<code>offset</code>。<code>offset</code>在<code>partition</code>内是有序的，不能跨<code>partition</code>使用<code>offset</code>，<code>offset</code>的移动表示<code>partition</code>内消息的消费位置。在Kafka的设计中，<strong>一个<code>partition</code>中消费<code>offset</code>完全是由消费者自己控制的</strong>。假若一个消费者将<code>offset</code>设置成<code>0</code>，则意味着该消费者会从该<code>partition</code>中最开始的消息开始消费。一个消费者的<code>offset</code>操作不会影响到该<code>partition</code>内的其他消费者，因为每个消费者都维护着自己的消费<code>offset</code>。</p>
+<p>关于<code>offset</code>还涉及到以下4个概念</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Last Commit Offset————Current Posision————High Watermark————Log End Offset</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>Last Commit Offset</code></strong>: consumer group最新一次commit的offset位置，<code>Last Commit Offset</code>表示在此之前的所有消息都以消费完并确认。</li>
+<li><strong><code>Current Posision</code></strong>: 当前consumer group消费消息的offset位置。<code>Last Commit Offset</code>与<code>Current Posision</code>之间的消息表示已经被consumer group读取但还在处理中，<strong>没有确认(commit)</strong>。</li>
+<li><strong><code>High Watermark</code></strong>: 表示<code>High Watermark</code>之前的数据都已被同步到所有replicas中，<code>High Watermark</code>offset之前的数据是高可用的(消息有多个副本)。</li>
+<li><strong><code>Log End Offset</code></strong>: 表示producer发送到该partition中最新消息的offset。<code>High Watermark</code>和<code>Log End Offset</code>之间的数据表示消息已写入leader partition但未同步至replicas中，这之间的数据没高可用，是不安全的，<strong>不允许消费</strong></li>
+</ul>
+<p>从<code>0.9</code>版本后的Kafka开始，新版的consumer api是将<code>offset</code>存放在Kafka的<strong><code>__consumer_offsets</code></strong> topic中。该topic默认有<strong><code>50</code></strong>个partition和<strong><code>3</code></strong>个replicas。某个consumer group的offset具体存放在哪个partition是通过<strong><code>abs(GroupId.hashCode()) % NumPartitions</code></strong> 计算出来的(<code>NumPartitions</code>默认<code>50</code>)。旧版本的Kafka默认是将offset存在Zookeeper中。</p>
+</li>
+<li><p><strong>ack</strong>: ack确认机制是producer发送消息给Kafka，确认消息高可用的机制，依赖于producer的<code>request.required.acks</code>设置</p>
+<ul>
+<li><strong><code>0</code></strong>: producer只管发送，不管Kafka是否接收成功</li>
+<li><strong><code>1</code></strong>: Kafka partition的leader写入后即返回成功，replicas异步同步消息。风险在于leader挂了，消息还没同步的话则会丢失数据。</li>
+<li><strong><code>all/-1</code></strong>: 旧版Kafka(<code>0.8</code>)值为<code>-1</code>，新版Kafka值为<code>all</code>。等待所有replicas都同步消息后才返回成功，数据高可用最安全，生产消息性能会受影响。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Zookeeper集群部署"><strong>Zookeeper集群部署</strong></h2><h3 id="安装"><strong>安装</strong></h3><p>JDK安装省略</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget http://www.apache.org/dist/zookeeper/zookeeper-<span class="number">3.4</span>.<span class="number">8</span>/zookeeper-<span class="number">3.4</span>.<span class="number">8</span>.tar.gz</span><br><span class="line">tar -zxvf zookeeper-<span class="number">3.4</span>.<span class="number">8</span>.tar.gz</span><br><span class="line">mv zookeeper-<span class="number">3.4</span>.<span class="number">8</span> /usr/<span class="built_in">local</span>/zookeeper</span><br><span class="line">mkdir /usr/<span class="built_in">local</span>/zookeeper/data /usr/<span class="built_in">local</span>/zookeeper/<span class="built_in">log</span> /usr/<span class="built_in">local</span>/zookeeper/datalog</span><br></pre></td></tr></table></figure>
+<h3 id="集群配置"><strong>集群配置</strong></h3><ul>
+<li><p>zoo.cfg</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">tickTime=<span class="number">2000</span></span><br><span class="line">initLimit=<span class="number">10</span></span><br><span class="line">syncLimit=<span class="number">5</span></span><br><span class="line">dataDir=/usr/<span class="built_in">local</span>/zookeeper/data</span><br><span class="line">dataLogDir=/usr/<span class="built_in">local</span>/zookeeper/datalog</span><br><span class="line">clientPort=<span class="number">2181</span></span><br><span class="line"></span><br><span class="line">server.<span class="number">1</span>=<span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2888</span>:<span class="number">3888</span></span><br><span class="line">server.<span class="number">2</span>=<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2888</span>:<span class="number">3888</span></span><br><span class="line">server.<span class="number">3</span>=<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2888</span>:<span class="number">3888</span></span><br><span class="line"></span><br><span class="line">maxClientCnxns=<span class="number">500</span></span><br><span class="line">minSessionTimeout=<span class="number">30000</span></span><br><span class="line">maxSessionTimeout=<span class="number">60000</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>tickTime</code>: 基本时间单元，以毫秒为单位。它用来控制心跳和超时，默认情况下最小的会话超时时间为两倍的tickTime</li>
+<li><code>initLimit</code>: 允许follower连接并同步到leader的初始化连接时间，以tickTime倍数计算</li>
+<li><code>syncLimit</code>:  Leader与Follower间请求和应答时间长度</li>
+<li><code>dataDir</code>: 快照文件目录</li>
+<li><code>dataLogDir</code>: 事务日志目录(<code>dataDir</code>和<code>dataLogDir</code>目录最好是在两个不同磁盘中，避免IO竞争)</li>
+<li><code>2181</code>: Zookeeper监听端口(客户端连接端口)</li>
+<li><code>2888</code>: leader和follower之间数据同步使用的端口号</li>
+<li><code>3888</code>: leader选举专用的端口号</li>
+<li><code>maxClientCnxns</code>: 客户端并发连接数目</li>
+</ul>
+</li>
+<li><p>ServerID</p>
+<p>集群每个节点都需要配置唯一的<strong>ServerID</strong>，ServerID保持和<code>zoo.cfg</code>中<strong><code>server.X</code></strong>中的<strong><code>X</code></strong>一致</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 10.201.3.222</span></span><br><span class="line"><span class="built_in">echo</span> <span class="number">1</span> &gt; /usr/<span class="built_in">local</span>/zookeeper/data/myid</span><br><span class="line"><span class="comment"># 10.201.3.223</span></span><br><span class="line"><span class="built_in">echo</span> <span class="number">2</span> &gt; /usr/<span class="built_in">local</span>/zookeeper/data/myid</span><br><span class="line"><span class="comment"># 10.201.3.224</span></span><br><span class="line"><span class="built_in">echo</span> <span class="number">3</span> &gt; /usr/<span class="built_in">local</span>/zookeeper/data/myid</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>优化配置——<code>zkEnv.sh</code></p>
+<p>一些额外的优化配置建议写在<code>zkEnv.sh</code>中，如JVM、Log Level等。修改滚动日志选项(size等)则在<code>conf/log4j.properties</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># zkEnv.sh</span></span><br><span class="line">JAVA_HOME=/usr/share/java</span><br><span class="line">ZOO_LOG_DIR=/usr/<span class="built_in">local</span>/zookeeper/<span class="built_in">log</span></span><br><span class="line"><span class="comment"># 设置日志轮转</span></span><br><span class="line">ZOO_LOG4J_PROP=<span class="string">"INFO,ROLLINGFILE"</span></span><br><span class="line">JVMFLAGS=<span class="string">"-Xms1024m -Xmx1024m <span class="variable">$JVMFLAGS</span>"</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="启动Zookeeper集群"><strong>启动Zookeeper集群</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># **所有节点执行，启动Zookeeper集群**</span></span><br><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkServer.sh start</span><br><span class="line"><span class="comment"># **查看集群状态**</span></span><br><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkServer.sh status</span><br></pre></td></tr></table></figure>
+<h3 id="Zookeeper日志维护"><strong>Zookeeper日志维护</strong></h3><p>默认Zookeeper不会定期清除日志，<code>3.4.0</code>开始支持定期清理</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># **zoo.cfg**</span></span><br><span class="line"><span class="comment"># **清理频率，单位小时**</span></span><br><span class="line">autopurge.purgeInterval=<span class="number">24</span></span><br><span class="line"><span class="comment"># **保留文件数目，默认3**</span></span><br><span class="line">autopurge.snapRetainCount=<span class="number">10</span></span><br></pre></td></tr></table></figure>
+<p>但一般采用计划任务选择在空闲时间段定期删除，避免占用大量IO影响Zookeeper。<strong>Zookeeper每次执行事务都会写入事务日志，而且需要过半节点同步</strong>。磁盘IO直接影响事务处理速度！</p>
+<p>有鉴于此，尽量让<code>dataDir</code>和<code>dataLogDir</code>分开在不同的磁盘，避免IO竞争。Zookeeper提供<code>zkCleanup.sh</code>脚本帮助清理。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkCleanup.sh -n &lt;日志保留数目/默认<span class="number">3</span>&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="Zookeeper常用操作"><strong>Zookeeper常用操作</strong></h3><h4 id="命令行连接Zookeeper"><strong>命令行连接Zookeeper</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkCli.sh -server <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure>
+<h4 id="四字命令"><strong>四字命令</strong></h4><p>可通过常用的Zookeeper四字命令监控Zookeeper，一般用法为：<strong><code>echo &lt;四字命令&gt; | nc localhost 2181</code></strong></p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>conf</td>
+<td>3.3.0版本引入的。打印出服务相关配置的详细信息。</td>
+</tr>
+<tr>
+<td>cons</td>
+<td>3.3.0版本引入的。列出所有连接到这台服务器的客户端全部连接/会话详细信息。包括”接受/发送”的包数量、会话id、操作延迟、最后的操作执行等等信息。</td>
+</tr>
+<tr>
+<td>crst</td>
+<td>3.3.0版本引入的。重置所有连接的连接和会话统计信息。</td>
+</tr>
+<tr>
+<td>dump</td>
+<td>列出那些比较重要的会话和临时节点。这个命令只能在leader节点上有用。</td>
+</tr>
+<tr>
+<td>envi</td>
+<td>打印出服务环境的详细信息。</td>
+</tr>
+<tr>
+<td>reqs</td>
+<td>列出未经处理的请求</td>
+</tr>
+<tr>
+<td>ruok</td>
+<td>测试服务是否处于正确状态。如果确实如此，那么服务返回”imok”，否则不做任何相应。</td>
+</tr>
+<tr>
+<td>stat</td>
+<td>输出关于性能和连接的客户端的列表。</td>
+</tr>
+<tr>
+<td>srst</td>
+<td>重置服务器的统计。</td>
+</tr>
+<tr>
+<td>srvr</td>
+<td>3.3.0版本引入的。列出连接服务器的详细信息</td>
+</tr>
+<tr>
+<td>wchs</td>
+<td>3.3.0版本引入的。列出服务器watch的详细信息。</td>
+</tr>
+<tr>
+<td>wchc</td>
+<td>3.3.0版本引入的。通过session列出服务器watch的详细信息，它的输出是一个与watch相关的会话的列表。</td>
+</tr>
+<tr>
+<td>wchp</td>
+<td>3.3.0版本引入的。通过路径列出服务器watch的详细信息。它输出一个与session相关的路径。</td>
+</tr>
+<tr>
+<td>mntr</td>
+<td>3.4.0版本引入的。输出可用于检测集群健康状态的变量列表</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Kafka集群部署"><strong>Kafka集群部署</strong></h2><h3 id="Kafka安装"><strong>Kafka安装</strong></h3><p>JDK安装省略</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget <span class="string">'http://mirror.bit.edu.cn/apache/kafka/0.10.0.0/kafka_2.11-0.10.0.0.tgz'</span></span><br><span class="line">tar -zxf kafka_2.<span class="number">11</span>-<span class="number">0.10</span>.<span class="number">0.0</span>.tgz &amp;&amp; mv kafka_2.<span class="number">11</span>-<span class="number">0.10</span>.<span class="number">0.0</span> /usr/<span class="built_in">local</span>/kafka</span><br><span class="line">mkdir -p /usr/<span class="built_in">local</span>/kafka/&#123;logs,data&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Kafka集群配置"><strong>Kafka集群配置</strong></h3><h4 id="配置文件"><strong>配置文件</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># **config/server.properties**</span></span><br><span class="line">broker.id=<span class="number">1</span></span><br><span class="line">port=<span class="number">9092</span></span><br><span class="line">advertised.host.name=<span class="number">10.201</span>.<span class="number">3.222</span></span><br><span class="line">host.name=<span class="number">10.201</span>.<span class="number">3.222</span></span><br><span class="line">num.network.threads=<span class="number">4</span></span><br><span class="line">num.io.threads=<span class="number">8</span></span><br><span class="line">socket.send.buffer.bytes=<span class="number">1048576</span></span><br><span class="line">socket.receive.buffer.bytes=<span class="number">1048576</span></span><br><span class="line">socket.request.max.bytes=<span class="number">104857600</span></span><br><span class="line">log.dirs=/usr/<span class="built_in">local</span>/kafka/data</span><br><span class="line">num.partitions=<span class="number">5</span></span><br><span class="line">num.recovery.threads.per.data.dir=<span class="number">1</span></span><br><span class="line">log.retention.hours=<span class="number">72</span></span><br><span class="line">log.segment.bytes=<span class="number">1073741824</span></span><br><span class="line">log.retention.check.interval.ms=<span class="number">300000</span></span><br><span class="line">zookeeper.connect=<span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span></span><br><span class="line">zookeeper.connection.timeout.ms=<span class="number">6000</span></span><br><span class="line">delete.topic.enable=<span class="literal">true</span></span><br><span class="line">default.replication.factor=<span class="number">2</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>broker.id</code>: kafka broker唯一标识，集群各节点必须唯一。</li>
+<li><code>num.network.threads</code>: 网络IO线程数(优化配置成CPU核心数目一致)</li>
+<li><code>num.io.threads</code>: 磁盘IO线程数(优化配置成CPU核心数的2倍)</li>
+<li><code>socket.send.buffer.bytes/socket.receive.buffer.bytes</code>: 发送/接收缓冲区大小</li>
+<li><code>socket.request.max.bytes</code>: 最大请求接收大小</li>
+<li><code>log.dirs</code>: kafka数据存放目录，多目录间用<code>,</code>分隔</li>
+<li><code>num.partitions</code>: 默认partition数目</li>
+<li><code>num.recovery.threads.per.data.dir</code>: 每个数据目录kafka启动恢复日志、关闭刷盘的线程数</li>
+<li><code>log.retention.hours</code>: 消息保留时间</li>
+<li><code>log.segment.bytes</code>: 日志段大小。日志文件达到该值则切割</li>
+<li><code>log.retention.check.interval.ms</code>: 检查消息/日志是否达到删除要求的间隔时间</li>
+<li><code>delete.topic.enable</code>: 允许删除topic而非仅标识为<code>delete</code></li>
+<li><code>default.replication.factor</code>: 默认消息备份数目，默认为<code>1</code>不做复制</li>
+</ul>
+<h4 id="Kafka_JVM设置"><strong>Kafka JVM设置</strong></h4><p><strong><code>/usr/local/kafka/bin/kafka-server-start.sh</code></strong>，kafka heap大小最好不要超过<code>4G</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> KAFKA_HEAP_OPTS=<span class="string">"-Xmx3G -Xms3G"</span></span><br></pre></td></tr></table></figure>
+<h4 id="启动Kafka"><strong>启动Kafka</strong></h4><p>尽量使用Supervisor管理启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup /usr/<span class="built_in">local</span>/kafka/bin/kafka-server-start.sh /usr/<span class="built_in">local</span>/kafka/config/server.properties &amp;&gt; /usr/<span class="built_in">local</span>/kafka/logs/kafka.log &amp;</span><br></pre></td></tr></table></figure>
+<h3 id="Kafka常用操作"><strong>Kafka常用操作</strong></h3><h4 id="创建topic"><strong>创建topic</strong></h4><p><code>replication-factor</code>的数目要小于等于<code>broker</code>数目。<code>replication-factor</code>为复制因子，默认值<code>1</code>表示无副本，<code>2</code>表示有一个副本。<code>partitions</code>为partition数目，partition越多并发消费量越大，partition维护成本也越大。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-topics.sh --create --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --replication-factor <span class="number">2</span> --partitions <span class="number">2</span> --topic &lt;topic_name&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="查看topic"><strong>查看topic</strong></h4><ul>
+<li><p>列出所有topic</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-topics.sh --list --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看具体topic</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-topics.sh --describe --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --topic &lt;topic_name&gt;</span><br><span class="line">Topic:<span class="built_in">test</span>	PartitionCount:<span class="number">2</span>	ReplicationFactor:<span class="number">2</span>	Configs:</span><br><span class="line">	Topic: <span class="built_in">test</span>	Partition: <span class="number">0</span>	Leader: <span class="number">3</span>	Replicas: <span class="number">3</span>,<span class="number">1</span>	Isr: <span class="number">3</span>,<span class="number">1</span></span><br><span class="line">	Topic: <span class="built_in">test</span>	Partition: <span class="number">1</span>	Leader: <span class="number">1</span>	Replicas: <span class="number">1</span>,<span class="number">2</span>	Isr: <span class="number">1</span>,<span class="number">2</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="删除topic"><strong>删除topic</strong></h4><p>如果<code>delete.topic.enable=true</code>则topic会被直接删除，否则仅仅只是会被先标记为删除并不会实际删。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-topics.sh --delete --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --topic <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+<h4 id="动态修改topic的数据保留时间"><strong>动态修改topic的数据保留时间</strong></h4><p>topic数据保留时间由配置文件中<code>log.retention.hours</code>指定，运行时可动态修改具体topic保留时间</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># **旧方法**</span></span><br><span class="line"><span class="comment">#/usr/local/kafka/bin/kafka-topics.sh --zookeeper 10.201.3.222:2181,10.201.3.223:2181,10.201.3.224:2181 --alter --topic &lt;topic_name&gt; --config retention.ms=86400000</span></span><br><span class="line"><span class="comment"># **新方法**</span></span><br><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-configs.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --alter --entity-type topics --entity-name &lt;topic_name&gt; --add-config retention.ms=<span class="number">86400000</span></span><br><span class="line"><span class="comment"># **查看修改**</span></span><br><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-configs.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --describe --entity-type topics --entity-name &lt;topic_name&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="生产消费测试"><strong>生产消费测试</strong></h4><ul>
+<li><p>生产消息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-console-producer.sh --broker-list <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">9092</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">9092</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">9092</span> --topic &lt;topic_name&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>消费消息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-console-consumer.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --topic &lt;topic_name&gt; --from-beginning</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="consumer_group_操作"><strong>consumer group 操作</strong></h4><ul>
+<li><p>列出所有消费组</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># old consumer api</span></span><br><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-consumer-groups.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --list</span><br><span class="line"><span class="comment"># new consumer api</span></span><br><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-consumer-groups.sh --new-consumer --bootstrap-server <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">9092</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">9092</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">9092</span> --list</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看具体消费组</p>
+<p>如果是使用logstash作为consumer的话，默认的grout_name为<code>logstash</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># old consumer api</span></span><br><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-consumer-groups.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --describe --group &lt;group_name&gt;</span><br><span class="line"><span class="comment"># new consumer api</span></span><br><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-consumer-groups.sh --new-consumer --bootstrap-server <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">9092</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">9092</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">9092</span> --describe --group &lt;group_name&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除具体消费组</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-consumer-groups.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --delete --group &lt;group-name&gt;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="动态增加partition数量"><strong>动态增加partition数量</strong></h4><p>动态增加partition数目可能会影响消息消费的顺序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-topics.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --alter --topic &lt;topic_name&gt; --partitions <span class="number">8</span></span><br></pre></td></tr></table></figure>
+<h4 id="手动修改Kafka_topic_offset"><strong>手动修改Kafka topic offset</strong></h4><p>先手动导出Kafka topic的offset</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-run-class.sh kafka.tools.ExportZkOffsets --zkconnect <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --group &lt;group_id&gt; --output-file kafka_offset.txt</span><br></pre></td></tr></table></figure>
+<p>手动调整Kafka topic的offset</p>
+<ul>
+<li><p>方法一</p>
+<p>这种方法只能简单的将<code>offset</code>设置成<code>earliest</code>或<code>latest</code></p>
+<ul>
+<li><p>配置文件——<code>manual_offset.properties</code></p>
+<p><strong><code>group.id</code></strong>为consumer group的名称，针对特定的comsumer group来设置，切勿弄错！</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">zookeeper.connect=<span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span></span><br><span class="line">zookeeper.connection.timeout.ms=<span class="number">6000</span></span><br><span class="line"><span class="comment">#consumer group id</span></span><br><span class="line">group.id=logstash</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>执行</p>
+<p>将topic的offset设置成最新，即忽略已经堆积的历史消息。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /usr/local/kafka/bin/kafka-run-class.sh kafka.tools.UpdateOffsetsInZK [earliest|latest] &lt;config_file&gt; &lt;topic_name&gt;</span></span><br><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-run-class.sh kafka.tools.UpdateOffsetsInZK latest manual_offset.properties <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>方法二</p>
+<p>这种方法允许指定<code>offset</code>到具体位置，需要通过Zookeeper修改</p>
+<ul>
+<li><p>进入Zookeeper命令行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkCli.sh -server <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看具体topic partition的offset</p>
+<p>第一行的值就是当前<code>offset</code>值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">get /consumers/logstash/offsets/<span class="built_in">test</span>/<span class="number">0</span></span><br><span class="line">  <span class="number">13652</span></span><br><span class="line">  cZxid = <span class="number">0</span>x300007fe0</span><br><span class="line">  ctime = Tue Nov <span class="number">01</span> <span class="number">16</span>:<span class="number">11</span>:<span class="number">03</span> CST <span class="number">2016</span></span><br><span class="line">  mZxid = <span class="number">0</span>xd000ad433</span><br><span class="line">  mtime = Tue Jun <span class="number">20</span> <span class="number">10</span>:<span class="number">25</span>:<span class="number">37</span> CST <span class="number">2017</span></span><br><span class="line">  pZxid = <span class="number">0</span>x300007fe0</span><br><span class="line">  cversion = <span class="number">0</span></span><br><span class="line">  dataVersion = <span class="number">252</span></span><br><span class="line">  aclVersion = <span class="number">0</span></span><br><span class="line">  ephemeralOwner = <span class="number">0</span>x0</span><br><span class="line">  dataLength = <span class="number">5</span></span><br><span class="line">  numChildren = <span class="number">0</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置具体topic partition的offset</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span> /consumers/logstash/offsets/<span class="built_in">test</span>/<span class="number">0</span> <span class="number">13650</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>命令详解</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Usage: [get|<span class="built_in">set</span>] /consumers/[groupId]/offsets/[topic]/[partitionId]</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>方法三：</p>
+<p>方法一、方法二都适用于旧版的consumer api，新版Kafka使用了新的consumer api不再依赖Zookeeper管理offset，而是直接将offset存放在<code>__consumer_offsets</code>这个内部topic中。最简单的识别方法是，新版api使用<strong><code>--bootstrap-server</code></strong>而非<code>--zookeeper</code>，如果consumer是使用<code>--bootstrap-server</code>则使用的是新api，方法一、二并不适用新版api手动调整offset，需要使用方法三。</p>
+<p>方法三也有个限制，只适用与<code>kafka 0.11.0.0</code>之后的版本，而且consumer group的状态须为<strong>inactive</strong>，即没有消费者正在消费消息。<code>0.11.0.0</code>之前的版本，新版consumer api只能通过编写Java程序手动调用<code>KafkaConsumer seek</code>方法。</p>
+<ul>
+<li><p>新版consumer api查看consumer group情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-consumer-groups.sh --bootstrap-server <span class="number">10.201</span>.<span class="number">5.30</span>:<span class="number">9092</span>,<span class="number">10.201</span>.<span class="number">5.31</span>:<span class="number">9092</span> --describe --group mirror --new-consumer</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>手动调整offset</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#/usr/local/kafka/bin/kafka-consumer-groups.sh  --bootstrap-server 10.201.5.30:9092,10.201.5.31:9092 --execute --group mirror --reset-offsets --all-topics --to-earliest</span></span><br><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-consumer-groups.sh  --bootstrap-server <span class="number">10.201</span>.<span class="number">5.30</span>:<span class="number">9092</span>,<span class="number">10.201</span>.<span class="number">5.31</span>:<span class="number">9092</span> --execute --group mirror --reset-offsets --topic jr_tomcat --to-latest</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="Kafka集群扩容"><strong>Kafka集群扩容</strong></h4><p>Kafka集群扩容，新节点机器加入集群后，原本存在topic的partitions是不会自动迁移到新节点，只有新建的topic会分配到新节点上，这样新节点对于旧有的topic是无用的。为了旧有的topic也能用到新节点，在扩容后需要手动将旧有topic的partition迁移到新节点中。</p>
+<ul>
+<li><p>配置新节点并启动Kafka</p>
+<p>复制现有Kafka集群节点配置，修改<code>broker.id</code>后启动Kafka。通过Zookeeper查看新增<code>broker id</code>，验证Kafka已加入集群</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkCli.sh -server <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span></span><br><span class="line">[zk: <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span>(CONNECTED) <span class="number">0</span>] ls /brokers/ids</span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line"></span><br><span class="line">[zk: <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span>/(CONNECTED) <span class="number">1</span>] ls /brokers/ids</span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br></pre></td></tr></table></figure>
+<p>查看旧有topic partition的Leader、Replicas都是没有<code>broker.id=4</code>的新节点的，只有旧的节点<code>1, 2, 3</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-topics.sh --describe --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --topic jr_tomcat</span><br><span class="line">Topic:jr_tomcat	PartitionCount:<span class="number">5</span>	ReplicationFactor:<span class="number">2</span>	Configs:</span><br><span class="line">	Topic: jr_tomcat	Partition: <span class="number">0</span>	Leader: <span class="number">2</span>	Replicas: <span class="number">2</span>,<span class="number">3</span>	Isr: <span class="number">2</span>,<span class="number">3</span></span><br><span class="line">	Topic: jr_tomcat	Partition: <span class="number">1</span>	Leader: <span class="number">3</span>	Replicas: <span class="number">3</span>,<span class="number">1</span>	Isr: <span class="number">3</span>,<span class="number">1</span></span><br><span class="line">	Topic: jr_tomcat	Partition: <span class="number">2</span>	Leader: <span class="number">1</span>	Replicas: <span class="number">1</span>,<span class="number">2</span>	Isr: <span class="number">1</span>,<span class="number">2</span></span><br><span class="line">	Topic: jr_tomcat	Partition: <span class="number">3</span>	Leader: <span class="number">2</span>	Replicas: <span class="number">2</span>,<span class="number">1</span>	Isr: <span class="number">2</span>,<span class="number">1</span></span><br><span class="line">	Topic: jr_tomcat	Partition: <span class="number">4</span>	Leader: <span class="number">3</span>	Replicas: <span class="number">3</span>,<span class="number">2</span>	Isr: <span class="number">3</span>,<span class="number">2</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成迁移分配规则文件</p>
+<p>假若需要对<code>jr_tomcat</code>这个topic进行重新平衡</p>
+<ul>
+<li><p>创建需要迁移topic的json文件——<code>topic-to-move.json</code></p>
+<p>多个topic写到<code>[]</code>数组里，用<code>,</code>分隔</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># topic-to-move.json</span></span><br><span class="line">&#123;<span class="string">"topics"</span>:</span><br><span class="line">    [&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>&#125;],</span><br><span class="line">    <span class="string">"version"</span>: <span class="number">1</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">#&#123;"topics": [&#123;"topic": "topic_1"&#125;,</span></span><br><span class="line"><span class="comment">#            &#123;"topic": "topic_2"&#125;],</span></span><br><span class="line"><span class="comment"># "version":1</span></span><br><span class="line"><span class="comment">#&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>生成迁移分配规则文件</p>
+<p><code>broker-list</code>为所有集群节点的<code>broker.id</code></p>
+<p><code>Proposed partition reassignment configuration</code>下面内容是新节点加入后的partition分配情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-reassign-partitions.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --topics-to-move-json-file topic-to-move.json --broker-list <span class="string">"1,2,3,4"</span> --generate</span><br><span class="line"></span><br><span class="line">Current partition replica assignment</span><br><span class="line">&#123;<span class="string">"version"</span>:<span class="number">1</span>,<span class="string">"partitions"</span>:[&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">0</span>,<span class="string">"replicas"</span>:[<span class="number">2</span>,<span class="number">3</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">4</span>,<span class="string">"replicas"</span>:[<span class="number">3</span>,<span class="number">2</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">1</span>,<span class="string">"replicas"</span>:[<span class="number">3</span>,<span class="number">1</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">3</span>,<span class="string">"replicas"</span>:[<span class="number">2</span>,<span class="number">1</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">2</span>,<span class="string">"replicas"</span>:[<span class="number">1</span>,<span class="number">2</span>]&#125;]&#125;</span><br><span class="line"></span><br><span class="line">Proposed partition reassignment configuration</span><br><span class="line">&#123;<span class="string">"version"</span>:<span class="number">1</span>,<span class="string">"partitions"</span>:[&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">0</span>,<span class="string">"replicas"</span>:[<span class="number">1</span>,<span class="number">2</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">4</span>,<span class="string">"replicas"</span>:[<span class="number">1</span>,<span class="number">3</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">1</span>,<span class="string">"replicas"</span>:[<span class="number">2</span>,<span class="number">3</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">3</span>,<span class="string">"replicas"</span>:[<span class="number">4</span>,<span class="number">1</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">2</span>,<span class="string">"replicas"</span>:[<span class="number">3</span>,<span class="number">4</span>]&#125;]&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>执行迁移分配</p>
+<p>将上一步得到的新的partition分配情况保存成<code>expand-reassignment.json</code>文件并执行partition迁移分配</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-reassign-partitions.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --reassignment-json-file expand-reassignment.json --execute</span><br><span class="line"></span><br><span class="line">Current partition replica assignment</span><br><span class="line">&#123;<span class="string">"version"</span>:<span class="number">1</span>,<span class="string">"partitions"</span>:[&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">0</span>,<span class="string">"replicas"</span>:[<span class="number">2</span>,<span class="number">3</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">4</span>,<span class="string">"replicas"</span>:[<span class="number">3</span>,<span class="number">2</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">1</span>,<span class="string">"replicas"</span>:[<span class="number">3</span>,<span class="number">1</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">3</span>,<span class="string">"replicas"</span>:[<span class="number">2</span>,<span class="number">1</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">2</span>,<span class="string">"replicas"</span>:[<span class="number">1</span>,<span class="number">2</span>]&#125;]&#125;</span><br><span class="line">Save this to use as the --reassignment-json-file option during rollback</span><br><span class="line"></span><br><span class="line">Successfully started reassignment of partitions &#123;<span class="string">"version"</span>:<span class="number">1</span>,<span class="string">"partitions"</span>:[&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">4</span>,<span class="string">"replicas"</span>:[<span class="number">1</span>,<span class="number">3</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">3</span>,<span class="string">"replicas"</span>:[<span class="number">4</span>,<span class="number">1</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">1</span>,<span class="string">"replicas"</span>:[<span class="number">2</span>,<span class="number">3</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">2</span>,<span class="string">"replicas"</span>:[<span class="number">3</span>,<span class="number">4</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"jr_tomcat"</span>,<span class="string">"partition"</span>:<span class="number">0</span>,<span class="string">"replicas"</span>:[<span class="number">1</span>,<span class="number">2</span>]&#125;]&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>检测执行状态</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-reassign-partitions.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --reassignment-json-file expand-reassignment.json --verify</span><br><span class="line">Status of partition reassignment:</span><br><span class="line">Reassignment of partition [jr_tomcat,<span class="number">4</span>] completed successfully</span><br><span class="line">Reassignment of partition [jr_tomcat,<span class="number">3</span>] completed successfully</span><br><span class="line">Reassignment of partition [jr_tomcat,<span class="number">1</span>] completed successfully</span><br><span class="line">Reassignment of partition [jr_tomcat,<span class="number">2</span>] completed successfully</span><br><span class="line">Reassignment of partition [jr_tomcat,<span class="number">0</span>] completed successfully</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="增加topic的replication数量"><strong>增加topic的replication数量</strong></h4><ul>
+<li><p>查看topic情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-topics.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --describe --topic <span class="built_in">test</span></span><br><span class="line">Topic:<span class="built_in">test</span>	PartitionCount:<span class="number">3</span>	ReplicationFactor:<span class="number">2</span>	Configs:</span><br><span class="line">	Topic: <span class="built_in">test</span>	Partition: <span class="number">0</span>	Leader: <span class="number">3</span>	Replicas: <span class="number">3</span>,<span class="number">2</span>	Isr: <span class="number">3</span>,<span class="number">2</span></span><br><span class="line">	Topic: <span class="built_in">test</span>	Partition: <span class="number">1</span>	Leader: <span class="number">1</span>	Replicas: <span class="number">1</span>,<span class="number">2</span>	Isr: <span class="number">1</span>,<span class="number">2</span></span><br><span class="line">	Topic: <span class="built_in">test</span>	Partition: <span class="number">2</span>	Leader: <span class="number">2</span>	Replicas: <span class="number">2</span>,<span class="number">3</span>	Isr: <span class="number">2</span>,<span class="number">3</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>对单独partition增加replication</p>
+<p>先对<code>partition 0</code>增加replication</p>
+<ul>
+<li><p>准备文件——<code>increase-replication-factor.json</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">"version"</span>:<span class="number">1</span>,<span class="string">"partitions"</span>:[&#123;<span class="string">"topic"</span>:<span class="string">"test"</span>,<span class="string">"partition"</span>:<span class="number">0</span>,<span class="string">"replicas"</span>:[<span class="number">3</span>,<span class="number">2</span>,<span class="number">1</span>]&#125;]&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>执行增加replication操作。执行后会显示旧有配置，提示保存以便回滚。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-reassign-partitions.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --reassignment-json-file increase-replication-factor.json --execute</span><br><span class="line"></span><br><span class="line">Current partition replica assignment</span><br><span class="line">&#123;<span class="string">"version"</span>:<span class="number">1</span>,<span class="string">"partitions"</span>:[&#123;<span class="string">"topic"</span>:<span class="string">"test"</span>,<span class="string">"partition"</span>:<span class="number">1</span>,<span class="string">"replicas"</span>:[<span class="number">1</span>,<span class="number">2</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"test"</span>,<span class="string">"partition"</span>:<span class="number">2</span>,<span class="string">"replicas"</span>:[<span class="number">2</span>,<span class="number">3</span>]&#125;,&#123;<span class="string">"topic"</span>:<span class="string">"test"</span>,<span class="string">"partition"</span>:<span class="number">0</span>,<span class="string">"replicas"</span>:[<span class="number">3</span>,<span class="number">2</span>]&#125;]&#125;</span><br><span class="line">Save this to use as the --reassignment-json-file option during rollback</span><br><span class="line">Successfully started reassignment of partitions &#123;<span class="string">"version"</span>:<span class="number">1</span>,<span class="string">"partitions"</span>:[&#123;<span class="string">"topic"</span>:<span class="string">"test"</span>,<span class="string">"partition"</span>:<span class="number">0</span>,<span class="string">"replicas"</span>:[<span class="number">3</span>,<span class="number">2</span>,<span class="number">1</span>]&#125;]&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>确认执行情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-reassign-partitions.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --reassignment-json-file increase-replication-factor.json --verify</span><br><span class="line"></span><br><span class="line">Status of partition reassignment:</span><br><span class="line">Reassignment of partition [<span class="built_in">test</span>,<span class="number">0</span>] completed successfully</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看partition分区情况</p>
+<p><code>partition 0</code>的replicas已从<code>3,1</code>增加为<code>3,2,1</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-topics.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --describe --topic <span class="built_in">test</span></span><br><span class="line">Topic:<span class="built_in">test</span>	PartitionCount:<span class="number">3</span>	ReplicationFactor:<span class="number">2</span>	Configs:</span><br><span class="line">	Topic: <span class="built_in">test</span>	Partition: <span class="number">0</span>	Leader: <span class="number">3</span>	Replicas: <span class="number">3</span>,<span class="number">2</span>,<span class="number">1</span>	Isr: <span class="number">3</span>,<span class="number">2</span>,<span class="number">1</span></span><br><span class="line">	Topic: <span class="built_in">test</span>	Partition: <span class="number">1</span>	Leader: <span class="number">1</span>	Replicas: <span class="number">1</span>,<span class="number">2</span>	Isr: <span class="number">1</span>,<span class="number">2</span></span><br><span class="line">	Topic: <span class="built_in">test</span>	Partition: <span class="number">2</span>	Leader: <span class="number">2</span>	Replicas: <span class="number">2</span>,<span class="number">3</span>	Isr: <span class="number">2</span>,<span class="number">3</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>批量增加剩余partition的replication</p>
+<p>修改<code>increase-replication-factor.json</code>文件，执行增加命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-reassign-partitions.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --reassignment-json-file increase-replication-factor.json --execute</span><br><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-reassign-partitions.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --reassignment-json-file increase-replication-factor.json --verify</span><br><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-topics.sh --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --describe --topic <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="Kafka集群间数据同步——MirrorMaker"><strong>Kafka集群间数据同步——MirrorMaker</strong></h4><p>KafkaMirrorMaker提供不同Kafka集群之间数据同步，基本就是从Source Kafka Cluster消费消息然后生产到Target Kafka Cluster中。若Target Kafka Cluster中不存在topic，KafkaMirrorMaker会自动在Target Kafka Cluster上创建和Source Kafka Cluster完全相同的topic(topic_name、partition、replication)。从Kafka0.9版本开始引入新的consumer api，默认是使用旧版api，使用<code>--new.consumer</code>参数可指定使用新版api。</p>
+<ul>
+<li><p>mirror_maker_consumer.config</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#新版consumer</span></span><br><span class="line">bootstrap.servers=<span class="number">10.201</span>.<span class="number">5.30</span>:<span class="number">9092</span>,<span class="number">10.201</span>.<span class="number">5.31</span>:<span class="number">9092</span></span><br><span class="line"><span class="comment">#旧版comsumer</span></span><br><span class="line"><span class="comment">#zookeeper.connect=10.201.5.30:2181,10.201.5.31:2181</span></span><br><span class="line"><span class="comment">#default request timeout 40000</span></span><br><span class="line">request.timeout.ms=<span class="number">50000</span></span><br><span class="line"><span class="comment">#default heartbeat interval 3000</span></span><br><span class="line">heartbeat.interval.ms=<span class="number">15000</span></span><br><span class="line"><span class="comment">#default session timeout 30000</span></span><br><span class="line">session.timeout.ms=<span class="number">40000</span></span><br><span class="line"><span class="comment">#consumer group id</span></span><br><span class="line">group.id=mirrormaker</span><br><span class="line">partition.assignment.strategy=org.apache.kafka.clients.consumer.RoundRobinAssignor</span><br><span class="line"><span class="comment">#default max poll records 2147483647</span></span><br><span class="line">max.poll.records=<span class="number">20000</span></span><br><span class="line"><span class="comment">#default receive buffer 64kB, now 512kb</span></span><br><span class="line">receive.buffer.bytes=<span class="number">524288</span></span><br><span class="line"><span class="comment">#default max amount of data per partition to override 1048576</span></span><br><span class="line">max.partition.fetch.bytes=<span class="number">5248576</span></span><br><span class="line"><span class="comment">#consumer timeout</span></span><br><span class="line"><span class="comment">#consumer.timeout.ms=5000</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>mirror_maker_producer.config</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">bootstrap.servers=<span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">9092</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">9092</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">9092</span></span><br><span class="line"><span class="comment">#buffer.memory=134217728</span></span><br><span class="line">batch.size=<span class="number">32768</span></span><br><span class="line">receive.buffer.bytes=<span class="number">327680</span></span><br><span class="line">send.buffer.bytes=<span class="number">262144</span></span><br><span class="line">max.request.size=<span class="number">10485760</span></span><br><span class="line">linger.ms=<span class="number">3000</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动KafkaMirrorMaker</p>
+<p><code>--whitelist</code>支持正则匹配符<code>|</code>，也支持<code>,</code>，比如<code>--whitelist &#39;nginx_log|tomcat_log&#39;</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-mirror-maker.sh --new.consumer --consumer.config mirror_maker_consumer.config --num.streams <span class="number">3</span> --producer.config mirror_maker_producer.config --whitelist=<span class="string">"nginx_log"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看生产消费情况</p>
+<p>在mirror consumer端查看消费情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-consumer-groups.sh --bootstrap-server <span class="number">10.201</span>.<span class="number">5.30</span>:<span class="number">9092</span>,<span class="number">10.201</span>.<span class="number">5.31</span>:<span class="number">9092</span> --describe --group mirrormaker --new-consumer</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="KafkaOffsetMonitor监控部署"><strong>KafkaOffsetMonitor监控部署</strong></h4><p>KafkaOffsetMonitor监控Kafka消费队列堆积情况</p>
+<p>下载<a href="https://github.com/quantifind/KafkaOffsetMonitor/releases/download/v0.2.1/KafkaOffsetMonitor-assembly-0.2.1.jar" target="_blank" rel="external">KafkaOffsetMonitor-assembly-0.2.1.jar</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">java -cp KafkaOffsetMonitor-assembly-<span class="number">0.2</span>.<span class="number">1</span>.jar \</span><br><span class="line">    com.quantifind.kafka.offsetapp.OffsetGetterWeb \</span><br><span class="line">    --zk <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> \</span><br><span class="line">    --port <span class="number">8088</span> \</span><br><span class="line">    --refresh <span class="number">30</span>.seconds \</span><br><span class="line">    --retain <span class="number">7</span>.days</span><br></pre></td></tr></table></figure>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="Kafka原理"><strong>Kafka原理</strong></h2><h3 id="基础概念"><strong>基础概念</strong></h3><ul>
+<li><p><strong>producer</strong>: 生产者，将消息发到<code>]]>
+    </summary>
+    
+      <category term="kafka" scheme="http://yoursite.com/tags/kafka/"/>
+    
+      <category term="OPS" scheme="http://yoursite.com/categories/OPS/"/>
+    
+      <category term="Bigdata" scheme="http://yoursite.com/categories/OPS/Bigdata/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[RabbitMQ]]></title>
@@ -1178,7 +1515,7 @@
     <link href="http://yoursite.com/2016/09/19/cdh-hadoop/"/>
     <id>http://yoursite.com/2016/09/19/cdh-hadoop/</id>
     <published>2016-09-19T12:10:33.000Z</published>
-    <updated>2017-03-15T14:29:09.000Z</updated>
+    <updated>2017-09-02T10:04:08.000Z</updated>
     <content type="html"><![CDATA[<h2 id="基础环境_&amp;_软件包"><strong>基础环境 &amp; 软件包</strong></h2><ul>
 <li>CentOS6.8 64bit</li>
 <li>Cloudera Manager5.7.0</li>
@@ -1190,7 +1527,7 @@
 <li><a href="http://archive.cloudera.com/cdh5/parcels/5.7.0/manifest.json" target="_blank" rel="external">manifest.json</a></li>
 <li><a href="http://dev.mysql.com/downloads/connector/j/" target="_blank" rel="external">mysql-connector-java-5.1.38-bin.jar</a></li>
 </ul>
-<h2 id="系统环境设置"><strong>系统环境设置</strong></h2><h3 id="配置JDK"><strong>配置JDK</strong></h3><p>&emsp;下载jdk，环境变量配置<strong><code>/etc/profile</code></strong>，所有节点均需要配置。<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">JAVA_HOME=/usr/local/java</span><br><span class="line">PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/lib/<span class="tag">dt</span><span class="class">.jar</span>:<span class="variable">$JAVA_HOME</span>/lib/tools<span class="class">.jar</span></span><br><span class="line">export JAVA_HOME</span><br><span class="line">export PATH</span><br><span class="line">export CLASSPATH</span><br></pre></td></tr></table></figure></p>
+<h2 id="系统环境设置"><strong>系统环境设置</strong></h2><h3 id="配置JDK"><strong>配置JDK</strong></h3><p>&emsp;下载jdk，环境变量配置<strong><code>/etc/profile</code></strong>，所有节点均需要配置。<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">JAVA_HOME=/usr/java/jdk1.<span class="number">7</span></span><br><span class="line">PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/lib/<span class="tag">dt</span><span class="class">.jar</span>:<span class="variable">$JAVA_HOME</span>/lib/tools<span class="class">.jar</span></span><br><span class="line">export JAVA_HOME</span><br><span class="line">export PATH</span><br><span class="line">export CLASSPATH</span><br></pre></td></tr></table></figure></p>
 <h3 id="配置hostname"><strong>配置hostname</strong></h3><ul>
 <li><p><strong><code>/etc/sysconfig/network</code></strong></p>
   <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">NETWORKING=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">HOSTNAME=<span class="value">master-node</span></span></span><br></pre></td></tr></table></figure>
@@ -1210,7 +1547,7 @@
 </ul>
 <h4 id="从节点"><strong>从节点</strong></h4><ul>
 <li><p><code>/etc/ntp.conf</code></p>
-  <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">driftfile <span class="regexp">/var/</span>lib<span class="regexp">/ntp/</span>drift</span><br><span class="line">restrict <span class="number">127.0</span>.<span class="number">0.1</span></span><br><span class="line">restrict -<span class="number">6</span> ::<span class="number">1</span></span><br><span class="line">restrict <span class="keyword">default</span> kod nomodify notrap nopeer noquery</span><br><span class="line">restrict -<span class="number">6</span> <span class="keyword">default</span> kod nomodify notrapnopeer noquery</span><br><span class="line">server master-node</span><br><span class="line">includefile <span class="regexp">/etc/</span>ntp<span class="regexp">/crypto/</span>pw</span><br><span class="line">keys <span class="regexp">/etc/</span>ntp<span class="regexp">/keys</span></span><br></pre></td></tr></table></figure>
+  <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">driftfile <span class="regexp">/var/</span>lib<span class="regexp">/ntp/</span>drift</span><br><span class="line">restrict <span class="number">127.0</span>.<span class="number">0.1</span></span><br><span class="line">restrict -<span class="number">6</span> ::<span class="number">1</span></span><br><span class="line">restrict <span class="keyword">default</span> kod nomodify notrap nopeer noquery</span><br><span class="line">   #restrict -<span class="number">6</span> <span class="keyword">default</span> kod nomodify notrapnopeer noquery</span><br><span class="line">server master-node perfer</span><br><span class="line">   server pool.ntp.org</span><br><span class="line">includefile <span class="regexp">/etc/</span>ntp<span class="regexp">/crypto/</span>pw</span><br><span class="line">keys <span class="regexp">/etc/</span>ntp<span class="regexp">/keys</span></span><br></pre></td></tr></table></figure>
 </li>
 <li><p>启动NTP &amp; 同步时间</p>
   <figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> ntpdate -u master-node</span><br><span class="line"><span class="variable">$&gt;</span> /etc/init.d/ntpd start</span><br><span class="line"><span class="variable">$&gt;</span> chkconfig ntpd on</span><br></pre></td></tr></table></figure>
@@ -1239,7 +1576,7 @@
   <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$&gt; tar -zxf cloudera-manager-el6-cm5.<span class="number">7.0</span>_x86_64.tar.gz</span><br><span class="line">$&gt; <span class="keyword">cp</span> -<span class="keyword">a</span> <span class="keyword">cm</span>-<span class="number">5.7</span>.<span class="number">0</span>/ /data</span><br><span class="line">$&gt; <span class="keyword">cp</span> -<span class="keyword">a</span> cloudera /data</span><br><span class="line">$&gt; <span class="keyword">ln</span> -<span class="keyword">s</span> /data/<span class="keyword">cm</span>-<span class="number">5.7</span>.<span class="number">0</span> /<span class="keyword">opt</span>/<span class="keyword">cm</span>-<span class="number">5.7</span>.<span class="number">0</span></span><br><span class="line">$&gt; <span class="keyword">ln</span> -<span class="keyword">s</span> /data/cloudera /<span class="keyword">opt</span>/cloudera</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>初始化Cloudera Manager Server数据库</p>
-  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$&gt; cp mysql-connector-java-<span class="number">5.1</span>.<span class="number">38</span>-bin<span class="class">.jar</span> /opt/cm-<span class="number">5.7</span>.<span class="number">0</span>/share/cmf/lib/mysql-connector-java<span class="class">.jar</span></span><br><span class="line">$&gt; mkdir -<span class="tag">p</span> /usr/share/java/ &amp;&amp; cp mysql-connector-java-<span class="number">5.1</span>.<span class="number">38</span>-bin<span class="class">.jar</span>  /usr/share/java/</span><br><span class="line">$&gt; /opt/cm-<span class="number">5.7</span>.<span class="number">0</span>/share/cmf/schema/scm_prepare_database<span class="class">.sh</span> mysql cm -hmaster-node -uroot -<span class="tag">p</span> --scm-host master-node scm scm scm</span><br></pre></td></tr></table></figure>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$&gt; cp mysql-connector-java-<span class="number">5.1</span>.<span class="number">38</span>-bin<span class="class">.jar</span> /opt/cm-<span class="number">5.7</span>.<span class="number">0</span>/share/cmf/lib/mysql-connector-java<span class="class">.jar</span></span><br><span class="line">$&gt; mkdir -<span class="tag">p</span> /usr/share/java/ &amp;&amp; cp mysql-connector-java-<span class="number">5.1</span>.<span class="number">38</span>-bin<span class="class">.jar</span>  /usr/share/java/mysql-connector-java<span class="class">.jar</span></span><br><span class="line">$&gt; /opt/cm-<span class="number">5.7</span>.<span class="number">0</span>/share/cmf/schema/scm_prepare_database<span class="class">.sh</span> mysql cm -hmaster-node -uroot -<span class="tag">p</span> --scm-host master-node scm scm scm</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>离线Parcels<br>  &emsp;在集群安装过程中需要下载parcels，由于国内网络原因需要先离线下载文件，再将以下文件放到<strong><code>/opt/cloudera/parcel-repo/</code></strong></p>
 <ul>
@@ -3412,38 +3749,6 @@
     <summary type="html">
     <![CDATA[<p>&emsp;当我们使用Django查询数据库时，一般都是使用Django提供的方法。简单的数据库查询还能应付，但一旦要执行复杂查询时变无法满足要求，于是为满足用户的复杂查询需求Django提供了<strong>Q对象</strong>。</p>
 <h3 id="基础环境说明]]>
-    </summary>
-    
-      <category term="Django" scheme="http://yoursite.com/tags/Django/"/>
-    
-      <category term="Python" scheme="http://yoursite.com/categories/Python/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[Django残作记]]></title>
-    <link href="http://yoursite.com/2015/11/16/Django-works/"/>
-    <id>http://yoursite.com/2015/11/16/Django-works/</id>
-    <published>2015-11-16T14:55:53.000Z</published>
-    <updated>2016-03-15T16:15:00.000Z</updated>
-    <content type="html"><![CDATA[<p>&emsp;最近在整理电脑里的资料时发现了这个未完成的作品，虽然半路停了但毕竟是第一次写所以还是决定写篇博文纪念一下那些埋头的日夜。<br>&emsp;话还要从看完<a href="http://djangobook.py3k.cn/2.0/" target="_blank" rel="external">The Django Book</a>说起，当看完The Django Book后寻思要利用Django做些什么。经过考虑后，决定尝试着自己写一个日志分析展示系统。当初的考虑是Fluentd采集日志，然后存入MongoDB专门用于存日志的一种集合，后台运行Python的统计程序将统计结果存到MongoDB中，最后由Django进行数据的可视化展示。<br>&emsp;为了完成这个练习作品，还特意跑去了解前端方面的知识(HTML/CSS/jQuety/Bootstrap)，入门的时候最难毫无头绪而且身边也没有懂前端的人，只能是边Google边学边用，最终勉强能应付。不过就在写着的过程中，突然发现有<strong>ELK</strong>这个日志分析可视化开源方案，粗略了解后发觉功能还是挺完善的。虽然公司有个日志平台，但相比之下过于简陋，于是打算提议引入ELK这个系统，为此我就立马跑去研究起ELK而这个练习作品也就搁置了。目前公司已使用起ELK系统，文档还在整理，待整理完毕后发篇博文记录。<br>&emsp;以下是展示时间，毕竟是第一次写而且前端后端都弄还是挺累人的，就凑合看吧【摊手。。。</p>
-<ul>
-<li><p>登录界面<br>  &emsp;登录页面是根据国外的一个教程网站上的页面改的。</p>
-  <center><br>  <img src="http://7xk64o.com1.z0.glb.clouddn.com/Django_Works_Login.jpeg" alt="Django_Works_Login.jpeg"><br>  </center>
-</li>
-<li><p>用户管理</p>
-  <center><br>  <img src="http://7xk64o.com1.z0.glb.clouddn.com/Django_Works_user1.jpeg" alt="Django_Works_user1.jpeg"><br>  </center>
-</li>
-<li><p>添加用户</p>
-  <center><br>  <img src="http://7xk64o.com1.z0.glb.clouddn.com/Django_Works_user2.jpeg" alt="Django_Works_user2.jpeg"><br>  </center>
-</li>
-<li><p>highcharts<br>  &emsp;为了展示日志数据，还专门去研究了一下highcharts。</p>
-  <center><br>  <img src="http://7xk64o.com1.z0.glb.clouddn.com/Django_Works_highcharts.jpeg" alt="Django_Works_highcharts.jpeg"><br>  </center>
-</li>
-</ul>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>&emsp;最近在整理电脑里的资料时发现了这个未完成的作品，虽然半路停了但毕竟是第一次写所以还是决定写篇博文纪念一下那些埋头的日夜。<br>&emsp;话还要从看完<a href="http://djangobook.py3k.cn/2.0/" target="_blank]]>
     </summary>
     
       <category term="Django" scheme="http://yoursite.com/tags/Django/"/>
