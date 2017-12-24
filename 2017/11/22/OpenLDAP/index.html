@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" OpenLDAP简录 | Hexo " />
+	<meta name="twitter:title" content=" OpenLDAP简录 | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" OpenLDAP简录 | Hexo ">
+	<meta property="og:description" content=" OpenLDAP简录 | Hexo " />
+	<meta name="twitter:description" content=" OpenLDAP简录 | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2017/11/22/OpenLDAP/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Bigdata/">Bigdata</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2017-11-22">2017-11-22</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/OPS/">OPS</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2017/11/22/OpenLDAP/" itemprop="url"><span itemprop="name">OpenLDAP简录</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+					<p>此文只是在配置Hive、Impala、HUE和HDFS时需要用到OpenLDAP，故简要的记录了一下有关OpenLDAP相关的内容而已。</p>
+<h3 id="OpenLDAP_安装"><strong>OpenLDAP 安装</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install openldap openldap-servers openldap-clients openldap-devel compat-openldap</span><br></pre></td></tr></table></figure>
+<h3 id="OpenLDAP_配置"><strong>OpenLDAP 配置</strong></h3><h4 id="基础信息"><strong>基础信息</strong></h4><ul>
+<li><code>/etc/openldap/slapd.conf</code>: OpenLDAP的主配置文件，记录根域信息，管理员名称，密码，日志，权限等</li>
+<li><code>/etc/openldap/slapd.d/</code>: 根据slapd.conf配置信息生成的文件</li>
+<li><code>/etc/openldap/schema/</code>: OpenLDAP的schema存放目录</li>
+<li><code>/var/lib/ldap/</code>: OpenLDAP数据目录</li>
+<li><code>/usr/share/openldap-servers/</code>: OpenLDAP模板文件</li>
+<li><code>389端口</code>: 默认监听端口(明文)</li>
+<li><code>636端口</code>: 密文监听端口</li>
+</ul>
+<h4 id="OpenLDAP配置"><strong>OpenLDAP配置</strong></h4><ul>
+<li><p>复制模板配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 复制模板配置文件</span></span><br><span class="line">cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG</span><br><span class="line">cp /usr/share/openldap-servers/slapd.conf.obsolete /etc/openldap/slapd.conf</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改dc</p>
+<p>将<code>dc</code>中的<code>your_domain</code>修改为自定义的<code>dc</code><br>默认<code>cn</code>为<code>Manager</code>，此处修改成<code>cn=admin</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># slapd.conf</span></span><br><span class="line"><span class="comment"># enable server status monitoring (cn=monitor)</span></span><br><span class="line">database monitor</span><br><span class="line">access to *</span><br><span class="line">        by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> <span class="built_in">read</span></span><br><span class="line">        by dn.exact=<span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="built_in">read</span></span><br><span class="line">        by * none</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># slapd.conf</span></span><br><span class="line">suffix          <span class="string">"dc=your_domain,dc=com"</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># slapd.conf</span></span><br><span class="line">rootdn          <span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改LDAP管理员密码</p>
+<p>使用<strong><code>slappasswd</code></strong>命令生成密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$&gt; slappasswd</span><br><span class="line">New password:</span><br><span class="line">Re-enter new password:</span><br><span class="line">&#123;SSHA&#125;bFTucfZs/ZoWasy4qkZ1JDrggQqt76Oi</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># slapd.conf</span></span><br><span class="line">rootpw  &#123;SSHA&#125;bFTucfZs/ZoWasy4qkZ1JDrggQqt76Oi</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置目录权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chown -R ldap:ldap /var/lib/ldap/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动OpenLDAP</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/slapd start</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>测试配置文件正确性</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 第一次测试需要先启动OpenLDAP</span></span><br><span class="line"><span class="comment"># /etc/init.d/slapd start</span></span><br><span class="line">slaptest <span class="operator">-f</span> /etc/openldap/slapd.conf</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除旧配置、重新生成配置</p>
+<p>修改配置文件<code>slapd.conf</code>后都需要移除旧有配置重新生成新配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 备份移除旧配置文件</span></span><br><span class="line">mv /etc/openldap/slapd.d/* /tmp/</span><br><span class="line"><span class="comment"># 测试配置文件并重新生成配置</span></span><br><span class="line">slaptest <span class="operator">-f</span> /etc/openldap/slapd.conf -F /etc/openldap/slapd.d/ &amp;&amp; chown -R ldap:ldap /etc/openldap/slapd.d/</span><br><span class="line"><span class="comment"># 查看新生成配置</span></span><br><span class="line">egrep <span class="string">'olcSuffix|olcRootDN'</span> /etc/openldap/slapd.d/cn\=config/olcDatabase\=\&#123;<span class="number">2</span>\&#125;bdb.ldif</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启OpenLDAP</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/slapd restart</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="OpenLDAP开启日志"><strong>OpenLDAP开启日志</strong></h4><ul>
+<li><p>OpenLDAP添加配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /etc/openldap/slapd.conf</span></span><br><span class="line">loglevel        <span class="number">4095</span></span><br><span class="line"><span class="comment">#loglevel		256</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置rsyslog</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /etc/rsyslog.conf</span></span><br><span class="line"><span class="built_in">local</span>4.*	/var/<span class="built_in">log</span>/slapd/slapd.log</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建日志目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir /var/<span class="built_in">log</span>/slapd</span><br><span class="line">chown ldap:ldap /var/<span class="built_in">log</span>/slapd/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启OpenLDAP &amp; Rsyslog</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Rsyslog</span></span><br><span class="line">/etc/init.d/rsyslog restart</span><br><span class="line"><span class="comment"># OpenLDAP</span></span><br><span class="line">rm -rf /etc/openldap/slapd.d/*</span><br><span class="line">slaptest <span class="operator">-f</span> /etc/openldap/slapd.conf -F /etc/openldap/slapd.d/ &amp;&amp; chown -R ldap:ldap /etc/openldap/slapd.d/</span><br><span class="line">/etc/init.d/slapd restart</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="导入管理员信息"><strong>导入管理员信息</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># root.ldif</span></span><br><span class="line">dn: dc=your_domain,dc=com</span><br><span class="line">objectclass: dcObject</span><br><span class="line">objectclass: organization</span><br><span class="line">o: your_company,Inc.</span><br><span class="line">dc: your_domain</span><br><span class="line"></span><br><span class="line">dn: cn=admin,dc=your_domain,dc=com</span><br><span class="line">objectclass: organizationalRole</span><br><span class="line">cn: admin</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ldapadd -x -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="operator">-f</span> root.ldif</span><br><span class="line"><span class="comment">#Enter LDAP Password:</span></span><br><span class="line"><span class="comment">#adding new entry "dc=your_domain,dc=com"</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#adding new entry "cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line"><span class="comment">#ldap_add: Server is unwilling to perform (53)</span></span><br><span class="line"><span class="comment">#	additional info: no global superior knowledge</span></span><br></pre></td></tr></table></figure>
+<h4 id="新增组"><strong>新增组</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ou.ldif</span></span><br><span class="line">dn: ou=users,dc=your_domain,dc=com</span><br><span class="line">objectClass: organizationalUnit</span><br><span class="line">ou: users</span><br><span class="line"></span><br><span class="line">dn: ou=groups,dc=your_domain,dc=com</span><br><span class="line">objectClass: organizationalUnit</span><br><span class="line">ou: groups</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapadd -x -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="operator">-f</span> ou.ldif</span><br></pre></td></tr></table></figure>
+<h4 id="新增用户(样例)"><strong>新增用户(样例)</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># user.ldif</span></span><br><span class="line">dn: uid=mogl,ou=users,dc=your_domain,dc=com</span><br><span class="line">objectClass: inetOrgPerson</span><br><span class="line">sn: mogl</span><br><span class="line">cn: mogl</span><br><span class="line">uid: mogl</span><br><span class="line"></span><br><span class="line">dn: cn=mogl,ou=groups,dc=your_domain,dc=com</span><br><span class="line">objectClass: groupOfNames</span><br><span class="line">cn: mogl</span><br><span class="line">member: uid=mogl,ou=users,dc=your_domain,dc=com</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建用户</span></span><br><span class="line">ldapadd -x -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="operator">-f</span> user.ldif</span><br><span class="line"><span class="comment"># 修改密码</span></span><br><span class="line">ldappasswd <span class="operator">-s</span> &lt;password&gt; -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> -x <span class="string">"uid=mogl,ou=users,dc=your_domain,dc=com"</span></span><br></pre></td></tr></table></figure>
+<h3 id="OpenLDAP_常用操作"><strong>OpenLDAP 常用操作</strong></h3><h4 id="ldapsearch_搜索"><strong> ldapsearch 搜索</strong></h4><p>-b: 指定查找的节点<br>-D: bindDN 指定查找的DN<br>-v: 详细输出<br>-x: 使用简单的认证 不使用任何加密算法<br>-W: 在查询时 会提示输入密码 如果不想输入密码 使用-w password<br>-h: 指定LDAP主机<br>-H: LDAP URL<br>-p: 指定OpenLDAP的监听端口 默认389 加密为635<br>-LLL: 禁止输出与过滤条件不匹配的信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 管理员帐号admin</span></span><br><span class="line">ldapsearch -z max -LLL -Wx -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> -b <span class="string">"dc=your_domain,dc=com"</span></span><br></pre></td></tr></table></figure>
+<h4 id="ldapadd_新增"><strong>ldapadd 新增</strong></h4><p>-x: 进行简单认证<br>-D: 用来绑定服务器的DN<br>-h: 目录服务的地址<br>-w: 绑定DN的密码<br>-f: 使用ldif文件进行条目添加的文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapadd -x -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="operator">-f</span> &lt;ldif_file&gt;</span><br></pre></td></tr></table></figure>
+<p>脚本添加用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#! /bin/bash</span><br><span class="line"></span></span><br><span class="line">tmp_ldif=<span class="string">'./tmp_new_user.ldif'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> uid <span class="keyword">in</span> <span class="string">"<span class="variable">$@</span>"</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"dn: uid=<span class="variable">$uid</span>,ou=users,dc=your_domain,dc=com"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"objectClass: inetOrgPerson"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"sn: <span class="variable">$uid</span>\ncn: <span class="variable">$uid</span>\nuid: <span class="variable">$uid</span>\n"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line"></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"dn: cn=<span class="variable">$uid</span>,ou=groups,dc=your_domain,dc=com"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"objectClass: groupOfNames"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"cn: <span class="variable">$uid</span>"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"member: uid=<span class="variable">$uid</span>,ou=users,dc=your_domain,dc=com\n"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line">ldapadd -x -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="operator">-f</span> <span class="variable">$&#123;tmp_ldif&#125;</span></span><br><span class="line"></span><br><span class="line">rm -i <span class="variable">$tmp_ldif</span></span><br></pre></td></tr></table></figure>
+<h4 id="ldapdelete_删除"><strong>ldapdelete 删除</strong></h4><p>-c: 持续操作模式 在操作过程中出现错误 也会进行后续相关操作<br>-D: 指定查找的DN<br>-n: 显示正在进行的相关操作 但不实际修改数据 一般用于测试<br>-x: 使用简单的认证<br>-f: 使用目标文件名作为命令的输入<br>-W: 提示输入密码<br>-w: passwd<br>-y: passwdfile 可以将密码写入文件进行验证<br>-r: 递归删除<br>-h: HOST<br>-H: LDAP-URL<br>-p: port</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ldapdelete -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> -v <span class="string">"uid=mogl,ou=users,dc=your_domain,dc=com"</span></span><br><span class="line">ldapdelete -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> -v <span class="string">"cn=mogl,ou=groups,dc=your_domain,dc=com"</span></span><br></pre></td></tr></table></figure>
+<h3 id="高可用设置"><strong>高可用设置</strong></h3><h4 id="OpenLDAP_主主配置"><strong>OpenLDAP 主主配置</strong></h4><p>主主两台OpenLDAP中<strong><code>serverID</code></strong>必须一致，<strong><code>rid</code></strong>必须不一样</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开启模块</span></span><br><span class="line">moduleload syncprov.la</span><br><span class="line"></span><br><span class="line">index entryCSN,entryUUID eq</span><br><span class="line"><span class="comment"># overlay模式</span></span><br><span class="line">overlay syncprov</span><br><span class="line"><span class="comment"># 修改100个条目或者10分钟的条件时主动以推的方式同步</span></span><br><span class="line">syncprov-checkpoint <span class="number">100</span> <span class="number">10</span></span><br><span class="line"><span class="comment"># 会话日志条目的最大数量</span></span><br><span class="line">syncprov-sessionlog <span class="number">100</span></span><br><span class="line"></span><br><span class="line">serverID  <span class="number">1</span></span><br><span class="line">syncrepl  rid=<span class="number">222</span></span><br><span class="line">          provider=ldap://<span class="number">10.201</span>.<span class="number">7.223</span></span><br><span class="line">          bindmethod=simple</span><br><span class="line">          binddn=<span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line">          credentials=mogl</span><br><span class="line">          searchbase=<span class="string">"dc=your_domain,dc=com"</span></span><br><span class="line">          schemachecking=off</span><br><span class="line">          <span class="built_in">type</span>=refreshAndPersist</span><br><span class="line">          retry=<span class="string">"60 +"</span></span><br><span class="line">mirrormode on</span><br></pre></td></tr></table></figure>
+<h3 id="附录"><strong>附录</strong></h3><h4 id="OpenLDAP配置文件"><strong>OpenLDAP配置文件</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">include		/etc/openldap/schema/corba.schema</span><br><span class="line">include		/etc/openldap/schema/core.schema</span><br><span class="line">include		/etc/openldap/schema/cosine.schema</span><br><span class="line">include		/etc/openldap/schema/duaconf.schema</span><br><span class="line">include		/etc/openldap/schema/dyngroup.schema</span><br><span class="line">include		/etc/openldap/schema/inetorgperson.schema</span><br><span class="line">include		/etc/openldap/schema/java.schema</span><br><span class="line">include		/etc/openldap/schema/misc.schema</span><br><span class="line">include		/etc/openldap/schema/nis.schema</span><br><span class="line">include		/etc/openldap/schema/openldap.schema</span><br><span class="line">include		/etc/openldap/schema/ppolicy.schema</span><br><span class="line">include		/etc/openldap/schema/collective.schema</span><br><span class="line">allow <span class="built_in">bind</span>_v2</span><br><span class="line">pidfile		/var/run/openldap/slapd.pid</span><br><span class="line">argsfile	/var/run/openldap/slapd.args</span><br><span class="line">TLSCACertificatePath /etc/openldap/certs</span><br><span class="line">TLSCertificateFile <span class="string">"\"OpenLDAP Server\""</span></span><br><span class="line">TLSCertificateKeyFile /etc/openldap/certs/password</span><br><span class="line">database config</span><br><span class="line">access to *</span><br><span class="line">	by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> manage</span><br><span class="line">	by * none</span><br><span class="line">database monitor</span><br><span class="line">access to *</span><br><span class="line">	by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> <span class="built_in">read</span></span><br><span class="line">        by dn.exact=<span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="built_in">read</span></span><br><span class="line">        by * none</span><br><span class="line">database	bdb</span><br><span class="line">suffix		<span class="string">"dc=your_domain,dc=com"</span></span><br><span class="line">checkpoint	<span class="number">1024</span> <span class="number">15</span></span><br><span class="line">rootdn		<span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line">rootpw	&#123;SSHA&#125;wQgz54gQ7/F7/u6N/nJuNG/XOJ2mwhBA</span><br><span class="line">directory	/var/lib/ldap</span><br><span class="line">index objectClass                       eq,pres</span><br><span class="line">index ou,cn,mail,surname,givenname      eq,pres,sub</span><br><span class="line">index uidNumber,gidNumber,loginShell    eq,pres</span><br><span class="line">index uid,memberUid                     eq,pres,sub</span><br><span class="line">index nisMapName,nisMapEntry            eq,pres,sub</span><br><span class="line">loglevel        <span class="number">4095</span></span><br></pre></td></tr></table></figure>
+<h4 id="OpenLDAP主主配置文件"><strong>OpenLDAP主主配置文件</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">### **222**</span></span><br><span class="line">include		/etc/openldap/schema/corba.schema</span><br><span class="line">include		/etc/openldap/schema/core.schema</span><br><span class="line">include		/etc/openldap/schema/cosine.schema</span><br><span class="line">include		/etc/openldap/schema/duaconf.schema</span><br><span class="line">include		/etc/openldap/schema/dyngroup.schema</span><br><span class="line">include		/etc/openldap/schema/inetorgperson.schema</span><br><span class="line">include		/etc/openldap/schema/java.schema</span><br><span class="line">include		/etc/openldap/schema/misc.schema</span><br><span class="line">include		/etc/openldap/schema/nis.schema</span><br><span class="line">include		/etc/openldap/schema/openldap.schema</span><br><span class="line">include		/etc/openldap/schema/ppolicy.schema</span><br><span class="line">include		/etc/openldap/schema/collective.schema</span><br><span class="line">allow <span class="built_in">bind</span>_v2</span><br><span class="line">pidfile		/var/run/openldap/slapd.pid</span><br><span class="line">argsfile	/var/run/openldap/slapd.args</span><br><span class="line">moduleload syncprov.la</span><br><span class="line">TLSCACertificatePath /etc/openldap/certs</span><br><span class="line">TLSCertificateFile <span class="string">"\"OpenLDAP Server\""</span></span><br><span class="line">TLSCertificateKeyFile /etc/openldap/certs/password</span><br><span class="line">database config</span><br><span class="line">access to *</span><br><span class="line">	by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> manage</span><br><span class="line">	by * none</span><br><span class="line">database monitor</span><br><span class="line">access to *</span><br><span class="line">	by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> <span class="built_in">read</span></span><br><span class="line">        by dn.exact=<span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="built_in">read</span></span><br><span class="line">        by * none</span><br><span class="line">database	bdb</span><br><span class="line">suffix		<span class="string">"dc=your_domain,dc=com"</span></span><br><span class="line">checkpoint	<span class="number">1024</span> <span class="number">15</span></span><br><span class="line">rootdn		<span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line">rootpw	&#123;SSHA&#125;CG7ijOa8s1Q/t4MAk4xXFC9yYSa0z47D</span><br><span class="line">directory	/var/lib/ldap</span><br><span class="line">index objectClass                       eq,pres</span><br><span class="line">index ou,cn,mail,surname,givenname      eq,pres,sub</span><br><span class="line">index uidNumber,gidNumber,loginShell    eq,pres</span><br><span class="line">index uid,memberUid                     eq,pres,sub</span><br><span class="line">index nisMapName,nisMapEntry            eq,pres,sub</span><br><span class="line">loglevel        <span class="number">256</span></span><br><span class="line"><span class="comment"># 主主配置</span></span><br><span class="line">index entryCSN,entryUUID eq</span><br><span class="line">overlay syncprov</span><br><span class="line">syncprov-checkpoint <span class="number">100</span> <span class="number">10</span></span><br><span class="line">syncprov-sessionlog <span class="number">100</span></span><br><span class="line">serverID  <span class="number">1</span></span><br><span class="line">syncrepl  rid=<span class="number">222</span></span><br><span class="line">          provider=ldap://<span class="number">10.201</span>.<span class="number">7.223</span></span><br><span class="line">          bindmethod=simple</span><br><span class="line">          binddn=<span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line">          credentials=mogl</span><br><span class="line">          searchbase=<span class="string">"dc=your_domain,dc=com"</span></span><br><span class="line">          schemachecking=off</span><br><span class="line">          <span class="built_in">type</span>=refreshAndPersist</span><br><span class="line">          retry=<span class="string">"60 +"</span></span><br><span class="line">mirrormode on</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">### **223**</span></span><br><span class="line">include		/etc/openldap/schema/corba.schema</span><br><span class="line">include		/etc/openldap/schema/core.schema</span><br><span class="line">include		/etc/openldap/schema/cosine.schema</span><br><span class="line">include		/etc/openldap/schema/duaconf.schema</span><br><span class="line">include		/etc/openldap/schema/dyngroup.schema</span><br><span class="line">include		/etc/openldap/schema/inetorgperson.schema</span><br><span class="line">include		/etc/openldap/schema/java.schema</span><br><span class="line">include		/etc/openldap/schema/misc.schema</span><br><span class="line">include		/etc/openldap/schema/nis.schema</span><br><span class="line">include		/etc/openldap/schema/openldap.schema</span><br><span class="line">include		/etc/openldap/schema/ppolicy.schema</span><br><span class="line">include		/etc/openldap/schema/collective.schema</span><br><span class="line">allow <span class="built_in">bind</span>_v2</span><br><span class="line">pidfile		/var/run/openldap/slapd.pid</span><br><span class="line">argsfile	/var/run/openldap/slapd.args</span><br><span class="line">moduleload syncprov.la</span><br><span class="line">TLSCACertificatePath /etc/openldap/certs</span><br><span class="line">TLSCertificateFile <span class="string">"\"OpenLDAP Server\""</span></span><br><span class="line">TLSCertificateKeyFile /etc/openldap/certs/password</span><br><span class="line">database config</span><br><span class="line">access to *</span><br><span class="line">	by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> manage</span><br><span class="line">	by * none</span><br><span class="line">database monitor</span><br><span class="line">access to *</span><br><span class="line">	by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> <span class="built_in">read</span></span><br><span class="line">        by dn.exact=<span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="built_in">read</span></span><br><span class="line">        by * none</span><br><span class="line">database	bdb</span><br><span class="line">suffix		<span class="string">"dc=your_domain,dc=com"</span></span><br><span class="line">checkpoint	<span class="number">1024</span> <span class="number">15</span></span><br><span class="line">rootdn		<span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line">rootpw	&#123;SSHA&#125;CG7ijOa8s1Q/t4MAk4xXFC9yYSa0z47D</span><br><span class="line">directory	/var/lib/ldap</span><br><span class="line">index objectClass                       eq,pres</span><br><span class="line">index ou,cn,mail,surname,givenname      eq,pres,sub</span><br><span class="line">index uidNumber,gidNumber,loginShell    eq,pres</span><br><span class="line">index uid,memberUid                     eq,pres,sub</span><br><span class="line">index nisMapName,nisMapEntry            eq,pres,sub</span><br><span class="line">loglevel        <span class="number">256</span></span><br><span class="line"><span class="comment"># 主主配置</span></span><br><span class="line">index entryCSN,entryUUID eq</span><br><span class="line">overlay syncprov</span><br><span class="line">syncprov-checkpoint <span class="number">100</span> <span class="number">10</span></span><br><span class="line">syncprov-sessionlog <span class="number">100</span></span><br><span class="line">serverID  <span class="number">1</span></span><br><span class="line">syncrepl  rid=<span class="number">223</span></span><br><span class="line">          provider=ldap://<span class="number">10.201</span>.<span class="number">7.222</span></span><br><span class="line">          bindmethod=simple</span><br><span class="line">          binddn=<span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line">          credentials=mogl</span><br><span class="line">          searchbase=<span class="string">"dc=your_domain,dc=com"</span></span><br><span class="line">          schemachecking=off</span><br><span class="line">          <span class="built_in">type</span>=refreshAndPersist</span><br><span class="line">          retry=<span class="string">"60 +"</span></span><br><span class="line">mirrormode on</span><br></pre></td></tr></table></figure>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/OpenLDAP/">OpenLDAP</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+					<a href="/2017/12/05/cdh-ops/" title="CDH集群运维杂记">&larr; Prev</a>
+				
+
+				
+					<a href="/2017/08/31/Kafka/" title="Kafka">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>

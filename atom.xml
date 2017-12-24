@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2017-09-02T10:07:53.000Z</updated>
+  <updated>2017-12-24T14:11:22.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,405 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[CDH集群运维杂记]]></title>
+    <link href="http://yoursite.com/2017/12/05/cdh-ops/"/>
+    <id>http://yoursite.com/2017/12/05/cdh-ops/</id>
+    <published>2017-12-05T07:45:33.000Z</published>
+    <updated>2017-12-24T14:11:22.000Z</updated>
+    <content type="html"><![CDATA[<p>整理笔记时简单汇总了有关日常运维配置CDH集群相关的内容，比较杂乱而且许多地方本应该有截图，但由于在七牛的图床废弃了，导致只能用文字说明。权当总结记录备忘吧。</p>
+<h2 id="CDH集群集成LDAP服务"><strong>CDH集群集成LDAP服务</strong></h2><p>使用的是OpenLDAP，OpenLDAP的安装配置详见：<a href="http://moguol.github.io/2017/11/22/OpenLDAP/" target="_blank" rel="external">OpenLDAP</a></p>
+<h3 id="Hive集成OpenLDAP"><strong>Hive集成OpenLDAP</strong></h3><ol>
+<li>Hive -&gt; 配置 -&gt; 搜索框输入”LDAP”</li>
+<li>勾选<strong>启用 LDAP 身份验证 Hive(服务范围)</strong></li>
+<li>修改配置:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">名称</th>
+<th style="text-align:left">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>LDAP URL</strong><br><code>hive.server2.authentication.ldap.url</code></td>
+<td style="text-align:left"><code>ldap://hadoop222</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>LDAP BaseDN</strong><br><code>hive.server2.authentication.ldap.baseDN</code></td>
+<td style="text-align:left"><code>ou=users,dc=your_domain,dc=com</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="验证Hive_OpenLDAP"><strong>验证Hive OpenLDAP</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 原生Hive</span></span><br><span class="line">beeline -u <span class="string">"jdbc:hive2://hadoop222:10000"</span> -n &lt;user_name&gt; -p &lt;user_password&gt; <span class="operator">-d</span> org.apache.hive.jdbc.HiveDriver</span><br><span class="line"><span class="comment"># Hive结合ZooKeeper</span></span><br><span class="line">beeline -u <span class="string">"jdbc:hive2://hadoop222:2181,hadoop223:2181,hadoop224:2181/;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2"</span> -n &lt;user_name&gt; -p &lt;user_password&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="Impala集成OpenLDAP"><strong>Impala集成OpenLDAP</strong></h3><ol>
+<li>Impala -&gt; 配置 -&gt; 搜索框输入”LDAP”</li>
+<li>勾选<strong>启用 LDAP 身份验证 Impala(服务范围)</strong>(<code>enable_ldap_auth</code>)</li>
+<li>修改配置:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">名称</th>
+<th style="text-align:left">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>LDAP URL</strong><br><code>ldap_uri</code></td>
+<td style="text-align:left"><code>ldap://hadoop222</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>LDAP BaseDN</strong><br><code>ldap_baseDN</code></td>
+<td style="text-align:left"><code>ou=users,dc=your_domain,dc=com</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Impala 命令行参数高级配置代码段（安全阀）</strong></td>
+<td style="text-align:left"><strong><code>--ldap_passwords_in_clear_ok</code></strong></td>
+</tr>
+</tbody>
+</table>
+<p>因为使用的是<code>ldap</code>而非<code>ldaps</code>，所以需要配置<code>--ldap_passwords_in_clear_ok</code>。</p>
+<h4 id="验证Impala_OpenLDAP"><strong>验证Impala OpenLDAP</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">impala-shell <span class="operator">-l</span> -u &lt;user_name&gt; --auth_creds_ok_<span class="keyword">in</span>_clear</span><br></pre></td></tr></table></figure>
+<h3 id="HUE集成OpenLDAP"><strong>HUE集成OpenLDAP</strong></h3><ol>
+<li>HUE -&gt; 配置 -&gt; 搜索框输入”LDAP”</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">名称</th>
+<th style="text-align:left">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>身份验证后端</strong><br><code>backend</code></td>
+<td style="text-align:left"><strong>desktop.auth.backend.LdapBackend</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>LDAP URL</strong><br><code>ldap_uri</code></td>
+<td style="text-align:left"><code>ldap://hadoop222</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>LDAP 用户名模式</strong><br><code>ldap_username_pattern</code></td>
+<td style="text-align:left"><strong><code>uid=&lt;username&gt;,ou=users,dc=your_domain,dc=com</code></strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>hue_safety_valve.ini 的 Hue 服务高级配置代码段（安全阀）</strong></td>
+<td style="text-align:left">[impala]<br>server_host=hadoop222<br>server_interface=hiveserver2<br>server_port=21050<br>query_timeout_s=100<br>impersonation_enabled=True<br>auth_username=hue<br>auth_password=<code>&lt;hue_password&gt;</code><br><br>[beeswax]<br>close_queries=True<br>use_sasl=False<br>auth_username=hue<br>auth_password=<code>&lt;hue_password&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<p>Hue登录时，需要使用一个预设的用户名和密码去连接hive/impala，连接成功之后，当真正执行SQL的时候，还使用登录时的账号来做鉴权，所以需要设置<code>hue_safety_valve.ini</code></p>
+<h3 id="配置LDAP组映射"><strong>配置LDAP组映射</strong></h3><p>HDFS默认是基于系统用户组进行管理，若新增一个组需要在所有集群节点机器上创建用户组，管理起来非常繁琐。配置LDAP组映射，让HDFS使用LDAP组方便管理。</p>
+<ol>
+<li>HDFS -&gt; 配置 -&gt; 范围 -&gt; HDFS(服务范围) -&gt; 类别 -&gt; 安全性 -&gt; 搜索框输入”LDAP”</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">名称</th>
+<th style="text-align:left">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Hadoop 用户组映射实现</strong> <br>(<code>hadoop.security.group.mapping</code>)</td>
+<td style="text-align:left"><strong><code>org.apache.hadoop.security.LdapGroupsMapping</code></strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Hadoop 用户组 进程ping LDAP URL</strong><br>(<code>hadoop.security.group.mapping.ldap.url</code>)</td>
+<td style="text-align:left"><strong><code>ldap://hadoop222</code></strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Hadoop 用户组映射 LDAP 绑定用户可分辨名称</strong><br>(<code>hadoop.security.group.mapping.ldap.bind.user</code>)</td>
+<td style="text-align:left"><strong><code>cn=admin,dc=your_domain,dc=com</code></strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Hadoop 用户组 进程ping LDAP 绑定用户密码</strong><br>(<code>hadoop.security.group.mapping.ldap.bind.password</code>)</td>
+<td style="text-align:left"><code>&lt;admin_password&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Hadoop 用户组 进程ping 搜索基础</strong><br>(<code>hadoop.security.group.mapping.ldap.base</code>)</td>
+<td style="text-align:left"><strong><code>dc=your_domain,dc=com</code></strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Hadoop 用户组 进程ping LDAP 用户搜索筛选器</strong><br>(<code>hadoop.security.group.mapping.ldap.search.filter.user</code>)</td>
+<td style="text-align:left"><strong><code>(&amp;(objectClass=inetOrgPerson)(uid={0}))</code></strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Hadoop 用户组 进程ping LDAP 组搜索筛选器</strong><br>(<code>hadoop.security.group.mapping.ldap.search.filter.group</code>)</td>
+<td style="text-align:left"><strong><code>(objectClass=groupOfNames)</code></strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Hadoop 用户组 进程ping LDAP 组成员身份属性</strong><br>(<code>hadoop.security.group.mapping.ldap.search.attr.member</code>)</td>
+<td style="text-align:left"><strong><code>member</code></strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Hadoop 用户组 进程ping LDAP 组名称属性</strong><br>(<code>hadoop.security.group.mapping.ldap.search.attr.group.name</code>)</td>
+<td style="text-align:left"><strong><code>cn</code></strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="CDH配置Sentry"><strong>CDH配置Sentry</strong></h2><h3 id="Sentry准备工作"><strong>Sentry准备工作</strong></h3><h4 id="设置Hive_warehouse目录权限"><strong>设置Hive warehouse目录权限</strong></h4><p>如果HDFS没有开启Sentry同步服务，则需要执行以下准备工作，否则跳过。Hive warehouse默认设置为<code>/user/hive/warehouse</code>(<code>hive-site.xml</code>/<strong><code>hive.metastore.warehouse.dir</code></strong>)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果开启了Kerberos则需要执行kinit</span></span><br><span class="line"><span class="comment"># sudo -u hdfs kinit -kt &lt;hdfs.keytab&gt; hdfs</span></span><br><span class="line">sudo -u hdfs hdfs dfs -chmod -R <span class="number">771</span> /user/hive/warehouse</span><br><span class="line">sudo -u hdfs hdfs dfs -chown -R hive:hive /user/hive/warehouse</span><br></pre></td></tr></table></figure></p>
+<h4 id="禁止HiveServer2_启用模拟"><strong>禁止HiveServer2 启用模拟</strong></h4><ol>
+<li>Hive -&gt; 配置 -&gt; 范围 -&gt; HiveServer2 -&gt; 类别 -&gt; 主要 -&gt; 取消<strong>HiveServer2 启用模拟</strong>(<code>hive.server2.enable.impersonation, hive.server2.enable.doAs</code>)</li>
+</ol>
+<h4 id="允许Hive用户提交YARN任务"><strong>允许Hive用户提交YARN任务</strong></h4><ol>
+<li>YARN -&gt; 配置 -&gt; 范围 -&gt; NodeManager -&gt; 类别 -&gt; 安全性 -&gt; <strong>允许的系统用户</strong>(<code>allowed.system.users</code>) -&gt; 添加<code>hive</code>、<code>impala</code>用户等用户</li>
+</ol>
+<h4 id="禁止Hive命令行用户访问Hive_metastore"><strong>禁止Hive命令行用户访问Hive metastore</strong></h4><ol>
+<li>Hive -&gt; 配置 -&gt; <strong>Hive Metastore 访问控制和代理用户组覆盖</strong>(<code>hadoop.proxyuser.hive.groups</code>) -&gt; 添加<code>hive</code>、<code>hue</code>用户(允许<code>hive</code>/<code>hue</code>用户访问hive metastore，若使用sqoop，确保<code>sqoop</code>用户也添加)</li>
+<li>Hive/Impala -&gt; <strong>使用政策文件启用 Sentry 授权</strong>(<code>hive.sentry.enabled</code>/<code>impala.sentry.enabled</code>)没有勾选</li>
+</ol>
+<h3 id="Hive配置Sentry"><strong>Hive配置Sentry</strong></h3><ol>
+<li>Hive -&gt; 配置 -&gt; 范围 -&gt; Hive(服务范围) -&gt; 类别 -&gt; 主要 -&gt; <strong>Sentry服务</strong> -&gt; <strong>Sentry</strong></li>
+<li>由于Hive要求使用SSL安全传输，暂时没有配置，需要将<code>sentry.hive.testing.mode</code>设置为<code>true</code><ul>
+<li>Hive -&gt; 配置 -&gt; <strong>sentry-site.xml 的 Hive 服务高级配置代码段（安全阀）</strong><ul>
+<li><strong>sentry.hive.testing.mode</strong></li>
+<li><strong>true</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>重启Hive</li>
+</ol>
+<h4 id="Hive_授权"><strong>Hive 授权</strong></h4><p>Hive在配置了Sentry、OpenLDAP和HDFS LDAP组映射环境下的授权操作</p>
+<ol>
+<li>创建OpenLDAP用户</li>
+<li>Hive用户授权 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create role &lt;ldap_user_name&gt;;</span><br><span class="line">grant role &lt;ldap_user_name&gt; to group &lt;ldap_user_name&gt;;</span><br><span class="line">grant [all|alert|update|create|drop|index|lock|select|show_database] on database &lt;db_name&gt; to role &lt;ldap_user_name&gt;;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="Impala配置Sentry"><strong>Impala配置Sentry</strong></h3><ol>
+<li>需要先执行Hive配置Sentry</li>
+<li>Impala -&gt; 配置 -&gt; 范围 -&gt; Impala(服务范围) -&gt; 类别 -&gt; 主要 -&gt; <strong>Sentry服务</strong> -&gt; <strong>Sentry</strong></li>
+<li>由于Hive要求使用SSL安全传输，暂时没有配置，需要将<code>sentry.hive.testing.mode</code>设置为<code>true</code><ul>
+<li>Hive -&gt; 配置 -&gt; <strong>sentry-site.xml 的 Impala 服务高级配置代码段（安全阀）</strong><ul>
+<li><strong>sentry.hive.testing.mode</strong></li>
+<li><strong>true</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>重启Impala</li>
+</ol>
+<h3 id="HUE配置Sentry"><strong>HUE配置Sentry</strong></h3><ol>
+<li>需要先执行Hive &amp; Impala配置Sentry</li>
+<li>HUE -&gt; 配置 -&gt; 范围 -&gt; HUE(服务范围) -&gt; 类别 -&gt; 主要 -&gt; <strong>Sentry服务</strong> -&gt; <strong>Sentry</strong></li>
+<li>由于Hive要求使用SSL安全传输，暂时没有配置，需要将<code>sentry.hive.testing.mode</code>设置为<code>true</code><ul>
+<li>HUE -&gt; 配置 -&gt; <strong>sentry-site.xml 的 HUE 服务高级配置代码段（安全阀）</strong><ul>
+<li><strong>sentry.hive.testing.mode</strong></li>
+<li><strong>true</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>重启HUE</li>
+</ol>
+<h3 id="将Hive、Impala和HUE组加入到Sentry管理员组"><strong>将Hive、Impala和HUE组加入到Sentry管理员组</strong></h3><ol>
+<li>Sentry -&gt; 配置 -&gt; 范围 -&gt; Sentry(服务范围) -&gt; 类别 -&gt; 主要 -&gt; <strong>管理员组</strong>(<code>sentry.service.admin.group</code>) -&gt; 添加<code>hive</code>、<code>impala</code>和<code>hue</code>组</li>
+</ol>
+<h2 id="HUE配置MySQL数据库"><strong>HUE配置MySQL数据库</strong></h2><p>HUE默认使用<strong>Sqlite3</strong>作为存储<code>/var/lib/hue/desktop.db</code>。<br>如果不需要Sqlite3里面的数据，就不需要进行<code>migration</code>迁移数据，直接创建HUE数据库并指定MySQL做存储，重启即可。<br>若有多个HUE Server，注意多个HUE Server都需要能登录MySQL。</p>
+<h3 id="创建HUE数据库"><strong>创建HUE数据库</strong></h3><p>在配置前需要在MySQL中手动创建HUE数据库。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE DATABASE hue DEFAULT CHARSET utf8 COLLATE utf8_general_ci;</span><br><span class="line">mysql&gt; GRANT all on hue.* to <span class="string">'hue'</span>@<span class="string">'%'</span> identified by <span class="string">'huepassword'</span>;</span><br><span class="line">mysql&gt; GRANT all on hue.* to <span class="string">'hue'</span>@<span class="string">'localhost'</span> identified by <span class="string">'huepassword'</span>;</span><br></pre></td></tr></table></figure></p>
+<h3 id="HUE连接MySQL"><strong>HUE连接MySQL</strong></h3><p>如果还需要Sqlite3的数据则需要<strong><code>migration</code></strong>(以下带有<strong><code>migration only</code></strong>字样)，否则就不需要(<code>2/4/5</code>不需要做)。</p>
+<ol>
+<li>停止HUE服务<br> 在Cloudera Manager中将HUE服务停止</li>
+<li><p>导出现有数据(<strong>migration only</strong>)</p>
+<ul>
+<li>操作 -&gt; 转储数据库 / (HUE -&gt; Actions -&gt; Dump Database.)</li>
+<li>转储数据库(Dump Database.)，数据会导出到HUE服务器的<code>/tmp/hue_database_dump.json</code>中。</li>
+<li>编辑<code>/tmp/hue_database_dump.json</code>，把<strong>所有</strong><code>model</code>中的<code>useradmin.userprofile</code>相关内容删除  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"pk"</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="string">"model"</span>: <span class="string">"useradmin.userprofile"</span>,</span><br><span class="line">    <span class="string">"fields"</span>: &#123;</span><br><span class="line">        <span class="string">"last_activity"</span>: <span class="string">"2016-10-03T10:06:13"</span>,</span><br><span class="line">        <span class="string">"creation_method"</span>: <span class="string">"HUE"</span>,</span><br><span class="line">        <span class="string">"first_login"</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="string">"user"</span>: <span class="number">1</span>,</span><br><span class="line">        <span class="string">"home_directory"</span>: <span class="string">"/user/admin"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>连接MySQL<br> Cloudera Manager中打开HUE -&gt; 配置 -&gt; 类别-数据库</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DB Hostname = IP</span><br><span class="line">DB Port = <span class="number">3306</span></span><br><span class="line">DB Type = MySQL</span><br><span class="line">DB Name = hue</span><br><span class="line">Username = hue</span><br><span class="line">Password = &lt;hue_password&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>同步数据(<strong>migration only</strong>)</p>
+<ul>
+<li>HUE -&gt; 操作 -&gt; 同步数据库 / (HUE -&gt; Actions -&gt; Synchronize Database)</li>
+<li>同步数据库 / (Synchronize Database)</li>
+</ul>
+</li>
+<li><p>导入旧数据(<strong>migration only</strong>)</p>
+<ul>
+<li><p>清除外键 &amp; 删除<code>django_content_type</code></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW CREATE table hue.auth_permission;</span><br><span class="line">mysql&gt; ALTER TABLE hue.auth_permission DROP FOREIGN KEY &lt;content_<span class="built_in">type</span>_id_refs_id_xxxxxx&gt;;</span><br><span class="line">mysql&gt; DELETE FROM hue.django_content_<span class="built_in">type</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Cloudera Manager中加载json文件</p>
+<ul>
+<li>HUE -&gt; 操作 -&gt; 加载数据库 / (HUE -&gt; Actions -&gt; Load Database)</li>
+<li>加载数据库 / (Load Database)</li>
+</ul>
+</li>
+<li>重新创建外键  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; use hue;</span><br><span class="line">mysql&gt; ALTER TABLE hue.auth_permission ADD FOREIGN KEY (content_<span class="built_in">type</span>_id REFERENCES django_content_<span class="built_in">type</span> (id;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>启动HUE</p>
+</li>
+</ol>
+<h2 id="启用HDFS_High_Availability"><strong>启用HDFS High Availability</strong></h2><h3 id="配置HDFS_High_Availability"><strong>配置HDFS High Availability</strong></h3><p>启用HDFS HA，就是不使用存在单点故障的旧版<code>NameNode</code>、<code>Secondary NameNode</code>，采用新的两个<code>NameNode</code>(<code>active NameNode</code>、<code>standby NameNode</code>)的高可用架构。配置前确保部署了ZooKeeper。<br>CDH 5的HDFS HA是使用<strong>Quorum-based storage</strong>实现的，也即是需要使用到<strong>JournalNode</strong>。<br>Cloudera Manager中执行以下操作：</p>
+<ol>
+<li>HDFS -&gt; 操作 -&gt; 启用High Availability</li>
+<li>设置<strong>nameservice</strong>名称，默认为<code>nameservice1</code></li>
+<li>添加一个新<strong>NameNode</strong>(standby namenode)、添加<strong>JournalNode</strong>(至少3个以上奇数个JournalNode)</li>
+<li>启用HDFS High Availability</li>
+</ol>
+<h3 id="更新Hive_Metastore_NameNode_Nameservice名称"><strong>更新Hive Metastore NameNode Nameservice名称</strong></h3><ol>
+<li>停止Hive。Hive -&gt; 操作 -&gt; 停止 (若有HUE或Impala，先停止HUE或Impala再停Hive)</li>
+<li>保险起见可先使用<code>mysqldump</code>备份Hive metastore数据库</li>
+<li>Hive -&gt; 操作 -&gt; 更新Hive Metastore NameNodes</li>
+<li>启动Hive。Hive -&gt; 操作 -&gt; 启动 (若有HUE或Impala则启动)</li>
+</ol>
+<h3 id="启用HUE_High_Availability"><strong>启用HUE High Availability</strong></h3><p>启用HDFS HA后，HUE也可启用HA。</p>
+<h4 id="添加HttpFS角色"><strong>添加HttpFS角色</strong></h4><ol>
+<li>HDFS -&gt; 实例 -&gt; 操作 -&gt; 添加角色实例 -&gt; 选择HttpFS主机并添加角色</li>
+<li>HDFS -&gt; 实例 -&gt; 启动HttpFS</li>
+</ol>
+<h4 id="配置HUE_High_Availability"><strong>配置HUE High Availability</strong></h4><ol>
+<li>HUE -&gt; 配置 -&gt; HDFS Web 界面角色 -&gt; 选择HttpFS</li>
+<li>重启HUE</li>
+</ol>
+<h2 id="启用YARN_High_Availability"><strong>启用YARN High Availability</strong></h2><p>YARN HA其实就是对ResourceManager做HA，增加一个standby ResourceManager。</p>
+<ol>
+<li>YARN -&gt; 操作 -&gt; 启用High Availability</li>
+<li>选择一台主机作为standby ResourceManager。Cloudera Manager会执行停止YARN、添加standby ResourceManager、在ZooKeeper中初始化ResourceManager HA状态、重启YARN等一系列动作。</li>
+</ol>
+<h2 id="启用HBase_High_Availability"><strong>启用HBase High Availability</strong></h2><p>HBase HA直接添加一个backup Master即可，当active Master宕掉后，backup Master会接替其工作。</p>
+<ol>
+<li>HBase -&gt; 添加角色实例 -&gt; Master</li>
+</ol>
+<h2 id="启用Hive_High_Availability"><strong>启用Hive High Availability</strong></h2><p>Sentry<code>1.8.0</code>以下版本，<strong>如果开启了HDFS的Sentry同步则Hive Metastore HA不可用。</strong></p>
+<h3 id="启用Hive_Metastore_High_Availability"><strong>启用Hive Metastore High Availability</strong></h3><ol>
+<li>Hive -&gt; 配置 -&gt; 范围 -&gt; Hive Metastore Server -&gt; 类别 -&gt; 高级</li>
+<li>Hive Metastore 代理令牌存储 -&gt; <strong>org.apache.hadoop.hive.thrift.DBTokenStore</strong></li>
+<li>Hive -&gt; 实例 -&gt; 操作 -&gt; 添加角色实例</li>
+<li>添加<strong>Hive Metastore Server</strong>，使得Hive Metastore Server机器数目至少<strong>3</strong>台。</li>
+<li>Hive -&gt; 实例。启动新增的Hive Metastore Server角色。</li>
+<li>重启Hive服务。(确保所有Hive Metastore Server的服务器都能登录到MySQL)、(Hive Metastore Server需要连接MySQL，会出现红色抑制异常，等待一段时间恢复绿色正常)。</li>
+</ol>
+<h3 id="启用HiveServer2_Load_Balance_&amp;_High_Availability"><strong>启用HiveServer2 Load Balance &amp; High Availability</strong></h3><p>为确保HiveServer2的高可用，Hive结合ZooKeeper提供动态服务发现功能。启用后client(<code>beeline</code>)不直接连接HiveServer2，而是直接连接ZooKeeper然后随机选择一个注册到ZooKeeper中的HiveServer2实例。</p>
+<ol>
+<li>Hive -&gt; 操作 -&gt; 添加角色实例 -&gt; HiveServer2</li>
+<li>新增HiveServer2实例，保证HiveServer2机器数目至少<strong>3</strong>台</li>
+<li>启动新增的HiveServer2实例</li>
+<li>Hive -&gt; 配置 -&gt; 类别 -&gt; 高级 -&gt; <strong>hive-site.xml 的 HiveServer2 高级配置代码段(安全阀)</strong><ul>
+<li>名称: <strong>hive.server2.support.dynamic.service.discovery</strong></li>
+<li>值: <strong>true</strong></li>
+<li>名称: <strong>hive.zookeeper.quorum</strong></li>
+<li>值: <strong>hadoop222:2181,hadoop223:2181,hadoop224:2181</strong></li>
+</ul>
+</li>
+<li>重启Hive</li>
+</ol>
+<p><code>beeline</code>测试使用ZooKeeper连接Hive<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">beeline -u <span class="string">"jdbc:hive2://hadoop222:2181,hadoop223:2181,hadoop224:2181/;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2"</span></span><br></pre></td></tr></table></figure></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>整理笔记时简单汇总了有关日常运维配置CDH集群相关的内容，比较杂乱而且许多地方本应该有截图，但由于在七牛的图床废弃了，导致只能用文字说明。权当总结记录备忘吧。</p>
+<h2 id="CDH集群集成LDAP服务"><strong>CDH集群集成LDAP服务</strong>]]>
+    </summary>
+    
+      <category term="CDH" scheme="http://yoursite.com/tags/CDH/"/>
+    
+      <category term="Bigdata" scheme="http://yoursite.com/categories/Bigdata/"/>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[OpenLDAP简录]]></title>
+    <link href="http://yoursite.com/2017/11/22/OpenLDAP/"/>
+    <id>http://yoursite.com/2017/11/22/OpenLDAP/</id>
+    <published>2017-11-22T06:23:11.000Z</published>
+    <updated>2017-12-04T07:24:34.000Z</updated>
+    <content type="html"><![CDATA[<p>此文只是在配置Hive、Impala、HUE和HDFS时需要用到OpenLDAP，故简要的记录了一下有关OpenLDAP相关的内容而已。</p>
+<h3 id="OpenLDAP_安装"><strong>OpenLDAP 安装</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install openldap openldap-servers openldap-clients openldap-devel compat-openldap</span><br></pre></td></tr></table></figure>
+<h3 id="OpenLDAP_配置"><strong>OpenLDAP 配置</strong></h3><h4 id="基础信息"><strong>基础信息</strong></h4><ul>
+<li><code>/etc/openldap/slapd.conf</code>: OpenLDAP的主配置文件，记录根域信息，管理员名称，密码，日志，权限等</li>
+<li><code>/etc/openldap/slapd.d/</code>: 根据slapd.conf配置信息生成的文件</li>
+<li><code>/etc/openldap/schema/</code>: OpenLDAP的schema存放目录</li>
+<li><code>/var/lib/ldap/</code>: OpenLDAP数据目录</li>
+<li><code>/usr/share/openldap-servers/</code>: OpenLDAP模板文件</li>
+<li><code>389端口</code>: 默认监听端口(明文)</li>
+<li><code>636端口</code>: 密文监听端口</li>
+</ul>
+<h4 id="OpenLDAP配置"><strong>OpenLDAP配置</strong></h4><ul>
+<li><p>复制模板配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 复制模板配置文件</span></span><br><span class="line">cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG</span><br><span class="line">cp /usr/share/openldap-servers/slapd.conf.obsolete /etc/openldap/slapd.conf</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改dc</p>
+<p>将<code>dc</code>中的<code>your_domain</code>修改为自定义的<code>dc</code><br>默认<code>cn</code>为<code>Manager</code>，此处修改成<code>cn=admin</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># slapd.conf</span></span><br><span class="line"><span class="comment"># enable server status monitoring (cn=monitor)</span></span><br><span class="line">database monitor</span><br><span class="line">access to *</span><br><span class="line">        by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> <span class="built_in">read</span></span><br><span class="line">        by dn.exact=<span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="built_in">read</span></span><br><span class="line">        by * none</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># slapd.conf</span></span><br><span class="line">suffix          <span class="string">"dc=your_domain,dc=com"</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># slapd.conf</span></span><br><span class="line">rootdn          <span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改LDAP管理员密码</p>
+<p>使用<strong><code>slappasswd</code></strong>命令生成密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$&gt; slappasswd</span><br><span class="line">New password:</span><br><span class="line">Re-enter new password:</span><br><span class="line">&#123;SSHA&#125;bFTucfZs/ZoWasy4qkZ1JDrggQqt76Oi</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># slapd.conf</span></span><br><span class="line">rootpw  &#123;SSHA&#125;bFTucfZs/ZoWasy4qkZ1JDrggQqt76Oi</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置目录权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chown -R ldap:ldap /var/lib/ldap/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动OpenLDAP</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/slapd start</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>测试配置文件正确性</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 第一次测试需要先启动OpenLDAP</span></span><br><span class="line"><span class="comment"># /etc/init.d/slapd start</span></span><br><span class="line">slaptest <span class="operator">-f</span> /etc/openldap/slapd.conf</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除旧配置、重新生成配置</p>
+<p>修改配置文件<code>slapd.conf</code>后都需要移除旧有配置重新生成新配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 备份移除旧配置文件</span></span><br><span class="line">mv /etc/openldap/slapd.d/* /tmp/</span><br><span class="line"><span class="comment"># 测试配置文件并重新生成配置</span></span><br><span class="line">slaptest <span class="operator">-f</span> /etc/openldap/slapd.conf -F /etc/openldap/slapd.d/ &amp;&amp; chown -R ldap:ldap /etc/openldap/slapd.d/</span><br><span class="line"><span class="comment"># 查看新生成配置</span></span><br><span class="line">egrep <span class="string">'olcSuffix|olcRootDN'</span> /etc/openldap/slapd.d/cn\=config/olcDatabase\=\&#123;<span class="number">2</span>\&#125;bdb.ldif</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启OpenLDAP</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/slapd restart</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="OpenLDAP开启日志"><strong>OpenLDAP开启日志</strong></h4><ul>
+<li><p>OpenLDAP添加配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /etc/openldap/slapd.conf</span></span><br><span class="line">loglevel        <span class="number">4095</span></span><br><span class="line"><span class="comment">#loglevel		256</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置rsyslog</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /etc/rsyslog.conf</span></span><br><span class="line"><span class="built_in">local</span>4.*	/var/<span class="built_in">log</span>/slapd/slapd.log</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建日志目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir /var/<span class="built_in">log</span>/slapd</span><br><span class="line">chown ldap:ldap /var/<span class="built_in">log</span>/slapd/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启OpenLDAP &amp; Rsyslog</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Rsyslog</span></span><br><span class="line">/etc/init.d/rsyslog restart</span><br><span class="line"><span class="comment"># OpenLDAP</span></span><br><span class="line">rm -rf /etc/openldap/slapd.d/*</span><br><span class="line">slaptest <span class="operator">-f</span> /etc/openldap/slapd.conf -F /etc/openldap/slapd.d/ &amp;&amp; chown -R ldap:ldap /etc/openldap/slapd.d/</span><br><span class="line">/etc/init.d/slapd restart</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="导入管理员信息"><strong>导入管理员信息</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># root.ldif</span></span><br><span class="line">dn: dc=your_domain,dc=com</span><br><span class="line">objectclass: dcObject</span><br><span class="line">objectclass: organization</span><br><span class="line">o: your_company,Inc.</span><br><span class="line">dc: your_domain</span><br><span class="line"></span><br><span class="line">dn: cn=admin,dc=your_domain,dc=com</span><br><span class="line">objectclass: organizationalRole</span><br><span class="line">cn: admin</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ldapadd -x -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="operator">-f</span> root.ldif</span><br><span class="line"><span class="comment">#Enter LDAP Password:</span></span><br><span class="line"><span class="comment">#adding new entry "dc=your_domain,dc=com"</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#adding new entry "cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line"><span class="comment">#ldap_add: Server is unwilling to perform (53)</span></span><br><span class="line"><span class="comment">#	additional info: no global superior knowledge</span></span><br></pre></td></tr></table></figure>
+<h4 id="新增组"><strong>新增组</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ou.ldif</span></span><br><span class="line">dn: ou=users,dc=your_domain,dc=com</span><br><span class="line">objectClass: organizationalUnit</span><br><span class="line">ou: users</span><br><span class="line"></span><br><span class="line">dn: ou=groups,dc=your_domain,dc=com</span><br><span class="line">objectClass: organizationalUnit</span><br><span class="line">ou: groups</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapadd -x -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="operator">-f</span> ou.ldif</span><br></pre></td></tr></table></figure>
+<h4 id="新增用户(样例)"><strong>新增用户(样例)</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># user.ldif</span></span><br><span class="line">dn: uid=mogl,ou=users,dc=your_domain,dc=com</span><br><span class="line">objectClass: inetOrgPerson</span><br><span class="line">sn: mogl</span><br><span class="line">cn: mogl</span><br><span class="line">uid: mogl</span><br><span class="line"></span><br><span class="line">dn: cn=mogl,ou=groups,dc=your_domain,dc=com</span><br><span class="line">objectClass: groupOfNames</span><br><span class="line">cn: mogl</span><br><span class="line">member: uid=mogl,ou=users,dc=your_domain,dc=com</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建用户</span></span><br><span class="line">ldapadd -x -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="operator">-f</span> user.ldif</span><br><span class="line"><span class="comment"># 修改密码</span></span><br><span class="line">ldappasswd <span class="operator">-s</span> &lt;password&gt; -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> -x <span class="string">"uid=mogl,ou=users,dc=your_domain,dc=com"</span></span><br></pre></td></tr></table></figure>
+<h3 id="OpenLDAP_常用操作"><strong>OpenLDAP 常用操作</strong></h3><h4 id="ldapsearch_搜索"><strong> ldapsearch 搜索</strong></h4><p>-b: 指定查找的节点<br>-D: bindDN 指定查找的DN<br>-v: 详细输出<br>-x: 使用简单的认证 不使用任何加密算法<br>-W: 在查询时 会提示输入密码 如果不想输入密码 使用-w password<br>-h: 指定LDAP主机<br>-H: LDAP URL<br>-p: 指定OpenLDAP的监听端口 默认389 加密为635<br>-LLL: 禁止输出与过滤条件不匹配的信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 管理员帐号admin</span></span><br><span class="line">ldapsearch -z max -LLL -Wx -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> -b <span class="string">"dc=your_domain,dc=com"</span></span><br></pre></td></tr></table></figure>
+<h4 id="ldapadd_新增"><strong>ldapadd 新增</strong></h4><p>-x: 进行简单认证<br>-D: 用来绑定服务器的DN<br>-h: 目录服务的地址<br>-w: 绑定DN的密码<br>-f: 使用ldif文件进行条目添加的文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapadd -x -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="operator">-f</span> &lt;ldif_file&gt;</span><br></pre></td></tr></table></figure>
+<p>脚本添加用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#! /bin/bash</span><br><span class="line"></span></span><br><span class="line">tmp_ldif=<span class="string">'./tmp_new_user.ldif'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> uid <span class="keyword">in</span> <span class="string">"<span class="variable">$@</span>"</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"dn: uid=<span class="variable">$uid</span>,ou=users,dc=your_domain,dc=com"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"objectClass: inetOrgPerson"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"sn: <span class="variable">$uid</span>\ncn: <span class="variable">$uid</span>\nuid: <span class="variable">$uid</span>\n"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line"></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"dn: cn=<span class="variable">$uid</span>,ou=groups,dc=your_domain,dc=com"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"objectClass: groupOfNames"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"cn: <span class="variable">$uid</span>"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="operator">-e</span> <span class="string">"member: uid=<span class="variable">$uid</span>,ou=users,dc=your_domain,dc=com\n"</span> &gt;&gt; <span class="variable">$tmp_ldif</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line">ldapadd -x -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="operator">-f</span> <span class="variable">$&#123;tmp_ldif&#125;</span></span><br><span class="line"></span><br><span class="line">rm -i <span class="variable">$tmp_ldif</span></span><br></pre></td></tr></table></figure>
+<h4 id="ldapdelete_删除"><strong>ldapdelete 删除</strong></h4><p>-c: 持续操作模式 在操作过程中出现错误 也会进行后续相关操作<br>-D: 指定查找的DN<br>-n: 显示正在进行的相关操作 但不实际修改数据 一般用于测试<br>-x: 使用简单的认证<br>-f: 使用目标文件名作为命令的输入<br>-W: 提示输入密码<br>-w: passwd<br>-y: passwdfile 可以将密码写入文件进行验证<br>-r: 递归删除<br>-h: HOST<br>-H: LDAP-URL<br>-p: port</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ldapdelete -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> -v <span class="string">"uid=mogl,ou=users,dc=your_domain,dc=com"</span></span><br><span class="line">ldapdelete -W -D <span class="string">"cn=admin,dc=your_domain,dc=com"</span> -v <span class="string">"cn=mogl,ou=groups,dc=your_domain,dc=com"</span></span><br></pre></td></tr></table></figure>
+<h3 id="高可用设置"><strong>高可用设置</strong></h3><h4 id="OpenLDAP_主主配置"><strong>OpenLDAP 主主配置</strong></h4><p>主主两台OpenLDAP中<strong><code>serverID</code></strong>必须一致，<strong><code>rid</code></strong>必须不一样</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开启模块</span></span><br><span class="line">moduleload syncprov.la</span><br><span class="line"></span><br><span class="line">index entryCSN,entryUUID eq</span><br><span class="line"><span class="comment"># overlay模式</span></span><br><span class="line">overlay syncprov</span><br><span class="line"><span class="comment"># 修改100个条目或者10分钟的条件时主动以推的方式同步</span></span><br><span class="line">syncprov-checkpoint <span class="number">100</span> <span class="number">10</span></span><br><span class="line"><span class="comment"># 会话日志条目的最大数量</span></span><br><span class="line">syncprov-sessionlog <span class="number">100</span></span><br><span class="line"></span><br><span class="line">serverID  <span class="number">1</span></span><br><span class="line">syncrepl  rid=<span class="number">222</span></span><br><span class="line">          provider=ldap://<span class="number">10.201</span>.<span class="number">7.223</span></span><br><span class="line">          bindmethod=simple</span><br><span class="line">          binddn=<span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line">          credentials=mogl</span><br><span class="line">          searchbase=<span class="string">"dc=your_domain,dc=com"</span></span><br><span class="line">          schemachecking=off</span><br><span class="line">          <span class="built_in">type</span>=refreshAndPersist</span><br><span class="line">          retry=<span class="string">"60 +"</span></span><br><span class="line">mirrormode on</span><br></pre></td></tr></table></figure>
+<h3 id="附录"><strong>附录</strong></h3><h4 id="OpenLDAP配置文件"><strong>OpenLDAP配置文件</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">include		/etc/openldap/schema/corba.schema</span><br><span class="line">include		/etc/openldap/schema/core.schema</span><br><span class="line">include		/etc/openldap/schema/cosine.schema</span><br><span class="line">include		/etc/openldap/schema/duaconf.schema</span><br><span class="line">include		/etc/openldap/schema/dyngroup.schema</span><br><span class="line">include		/etc/openldap/schema/inetorgperson.schema</span><br><span class="line">include		/etc/openldap/schema/java.schema</span><br><span class="line">include		/etc/openldap/schema/misc.schema</span><br><span class="line">include		/etc/openldap/schema/nis.schema</span><br><span class="line">include		/etc/openldap/schema/openldap.schema</span><br><span class="line">include		/etc/openldap/schema/ppolicy.schema</span><br><span class="line">include		/etc/openldap/schema/collective.schema</span><br><span class="line">allow <span class="built_in">bind</span>_v2</span><br><span class="line">pidfile		/var/run/openldap/slapd.pid</span><br><span class="line">argsfile	/var/run/openldap/slapd.args</span><br><span class="line">TLSCACertificatePath /etc/openldap/certs</span><br><span class="line">TLSCertificateFile <span class="string">"\"OpenLDAP Server\""</span></span><br><span class="line">TLSCertificateKeyFile /etc/openldap/certs/password</span><br><span class="line">database config</span><br><span class="line">access to *</span><br><span class="line">	by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> manage</span><br><span class="line">	by * none</span><br><span class="line">database monitor</span><br><span class="line">access to *</span><br><span class="line">	by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> <span class="built_in">read</span></span><br><span class="line">        by dn.exact=<span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="built_in">read</span></span><br><span class="line">        by * none</span><br><span class="line">database	bdb</span><br><span class="line">suffix		<span class="string">"dc=your_domain,dc=com"</span></span><br><span class="line">checkpoint	<span class="number">1024</span> <span class="number">15</span></span><br><span class="line">rootdn		<span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line">rootpw	&#123;SSHA&#125;wQgz54gQ7/F7/u6N/nJuNG/XOJ2mwhBA</span><br><span class="line">directory	/var/lib/ldap</span><br><span class="line">index objectClass                       eq,pres</span><br><span class="line">index ou,cn,mail,surname,givenname      eq,pres,sub</span><br><span class="line">index uidNumber,gidNumber,loginShell    eq,pres</span><br><span class="line">index uid,memberUid                     eq,pres,sub</span><br><span class="line">index nisMapName,nisMapEntry            eq,pres,sub</span><br><span class="line">loglevel        <span class="number">4095</span></span><br></pre></td></tr></table></figure>
+<h4 id="OpenLDAP主主配置文件"><strong>OpenLDAP主主配置文件</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">### **222**</span></span><br><span class="line">include		/etc/openldap/schema/corba.schema</span><br><span class="line">include		/etc/openldap/schema/core.schema</span><br><span class="line">include		/etc/openldap/schema/cosine.schema</span><br><span class="line">include		/etc/openldap/schema/duaconf.schema</span><br><span class="line">include		/etc/openldap/schema/dyngroup.schema</span><br><span class="line">include		/etc/openldap/schema/inetorgperson.schema</span><br><span class="line">include		/etc/openldap/schema/java.schema</span><br><span class="line">include		/etc/openldap/schema/misc.schema</span><br><span class="line">include		/etc/openldap/schema/nis.schema</span><br><span class="line">include		/etc/openldap/schema/openldap.schema</span><br><span class="line">include		/etc/openldap/schema/ppolicy.schema</span><br><span class="line">include		/etc/openldap/schema/collective.schema</span><br><span class="line">allow <span class="built_in">bind</span>_v2</span><br><span class="line">pidfile		/var/run/openldap/slapd.pid</span><br><span class="line">argsfile	/var/run/openldap/slapd.args</span><br><span class="line">moduleload syncprov.la</span><br><span class="line">TLSCACertificatePath /etc/openldap/certs</span><br><span class="line">TLSCertificateFile <span class="string">"\"OpenLDAP Server\""</span></span><br><span class="line">TLSCertificateKeyFile /etc/openldap/certs/password</span><br><span class="line">database config</span><br><span class="line">access to *</span><br><span class="line">	by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> manage</span><br><span class="line">	by * none</span><br><span class="line">database monitor</span><br><span class="line">access to *</span><br><span class="line">	by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> <span class="built_in">read</span></span><br><span class="line">        by dn.exact=<span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="built_in">read</span></span><br><span class="line">        by * none</span><br><span class="line">database	bdb</span><br><span class="line">suffix		<span class="string">"dc=your_domain,dc=com"</span></span><br><span class="line">checkpoint	<span class="number">1024</span> <span class="number">15</span></span><br><span class="line">rootdn		<span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line">rootpw	&#123;SSHA&#125;CG7ijOa8s1Q/t4MAk4xXFC9yYSa0z47D</span><br><span class="line">directory	/var/lib/ldap</span><br><span class="line">index objectClass                       eq,pres</span><br><span class="line">index ou,cn,mail,surname,givenname      eq,pres,sub</span><br><span class="line">index uidNumber,gidNumber,loginShell    eq,pres</span><br><span class="line">index uid,memberUid                     eq,pres,sub</span><br><span class="line">index nisMapName,nisMapEntry            eq,pres,sub</span><br><span class="line">loglevel        <span class="number">256</span></span><br><span class="line"><span class="comment"># 主主配置</span></span><br><span class="line">index entryCSN,entryUUID eq</span><br><span class="line">overlay syncprov</span><br><span class="line">syncprov-checkpoint <span class="number">100</span> <span class="number">10</span></span><br><span class="line">syncprov-sessionlog <span class="number">100</span></span><br><span class="line">serverID  <span class="number">1</span></span><br><span class="line">syncrepl  rid=<span class="number">222</span></span><br><span class="line">          provider=ldap://<span class="number">10.201</span>.<span class="number">7.223</span></span><br><span class="line">          bindmethod=simple</span><br><span class="line">          binddn=<span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line">          credentials=mogl</span><br><span class="line">          searchbase=<span class="string">"dc=your_domain,dc=com"</span></span><br><span class="line">          schemachecking=off</span><br><span class="line">          <span class="built_in">type</span>=refreshAndPersist</span><br><span class="line">          retry=<span class="string">"60 +"</span></span><br><span class="line">mirrormode on</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">### **223**</span></span><br><span class="line">include		/etc/openldap/schema/corba.schema</span><br><span class="line">include		/etc/openldap/schema/core.schema</span><br><span class="line">include		/etc/openldap/schema/cosine.schema</span><br><span class="line">include		/etc/openldap/schema/duaconf.schema</span><br><span class="line">include		/etc/openldap/schema/dyngroup.schema</span><br><span class="line">include		/etc/openldap/schema/inetorgperson.schema</span><br><span class="line">include		/etc/openldap/schema/java.schema</span><br><span class="line">include		/etc/openldap/schema/misc.schema</span><br><span class="line">include		/etc/openldap/schema/nis.schema</span><br><span class="line">include		/etc/openldap/schema/openldap.schema</span><br><span class="line">include		/etc/openldap/schema/ppolicy.schema</span><br><span class="line">include		/etc/openldap/schema/collective.schema</span><br><span class="line">allow <span class="built_in">bind</span>_v2</span><br><span class="line">pidfile		/var/run/openldap/slapd.pid</span><br><span class="line">argsfile	/var/run/openldap/slapd.args</span><br><span class="line">moduleload syncprov.la</span><br><span class="line">TLSCACertificatePath /etc/openldap/certs</span><br><span class="line">TLSCertificateFile <span class="string">"\"OpenLDAP Server\""</span></span><br><span class="line">TLSCertificateKeyFile /etc/openldap/certs/password</span><br><span class="line">database config</span><br><span class="line">access to *</span><br><span class="line">	by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> manage</span><br><span class="line">	by * none</span><br><span class="line">database monitor</span><br><span class="line">access to *</span><br><span class="line">	by dn.exact=<span class="string">"gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"</span> <span class="built_in">read</span></span><br><span class="line">        by dn.exact=<span class="string">"cn=admin,dc=your_domain,dc=com"</span> <span class="built_in">read</span></span><br><span class="line">        by * none</span><br><span class="line">database	bdb</span><br><span class="line">suffix		<span class="string">"dc=your_domain,dc=com"</span></span><br><span class="line">checkpoint	<span class="number">1024</span> <span class="number">15</span></span><br><span class="line">rootdn		<span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line">rootpw	&#123;SSHA&#125;CG7ijOa8s1Q/t4MAk4xXFC9yYSa0z47D</span><br><span class="line">directory	/var/lib/ldap</span><br><span class="line">index objectClass                       eq,pres</span><br><span class="line">index ou,cn,mail,surname,givenname      eq,pres,sub</span><br><span class="line">index uidNumber,gidNumber,loginShell    eq,pres</span><br><span class="line">index uid,memberUid                     eq,pres,sub</span><br><span class="line">index nisMapName,nisMapEntry            eq,pres,sub</span><br><span class="line">loglevel        <span class="number">256</span></span><br><span class="line"><span class="comment"># 主主配置</span></span><br><span class="line">index entryCSN,entryUUID eq</span><br><span class="line">overlay syncprov</span><br><span class="line">syncprov-checkpoint <span class="number">100</span> <span class="number">10</span></span><br><span class="line">syncprov-sessionlog <span class="number">100</span></span><br><span class="line">serverID  <span class="number">1</span></span><br><span class="line">syncrepl  rid=<span class="number">223</span></span><br><span class="line">          provider=ldap://<span class="number">10.201</span>.<span class="number">7.222</span></span><br><span class="line">          bindmethod=simple</span><br><span class="line">          binddn=<span class="string">"cn=admin,dc=your_domain,dc=com"</span></span><br><span class="line">          credentials=mogl</span><br><span class="line">          searchbase=<span class="string">"dc=your_domain,dc=com"</span></span><br><span class="line">          schemachecking=off</span><br><span class="line">          <span class="built_in">type</span>=refreshAndPersist</span><br><span class="line">          retry=<span class="string">"60 +"</span></span><br><span class="line">mirrormode on</span><br></pre></td></tr></table></figure>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>此文只是在配置Hive、Impala、HUE和HDFS时需要用到OpenLDAP，故简要的记录了一下有关OpenLDAP相关的内容而已。</p>
+<h3 id="OpenLDAP_安装"><strong>OpenLDAP 安装</strong></h3><figure cl]]>
+    </summary>
+    
+      <category term="OpenLDAP" scheme="http://yoursite.com/tags/OpenLDAP/"/>
+    
+      <category term="OPS" scheme="http://yoursite.com/categories/OPS/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[Kafka]]></title>
@@ -3475,283 +3874,6 @@
       <category term="fluentd" scheme="http://yoursite.com/tags/fluentd/"/>
     
       <category term="OPS" scheme="http://yoursite.com/categories/OPS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[SaltStack实录]]></title>
-    <link href="http://yoursite.com/2015/12/12/saltstack/"/>
-    <id>http://yoursite.com/2015/12/12/saltstack/</id>
-    <published>2015-12-12T04:22:24.000Z</published>
-    <updated>2016-02-29T02:14:07.000Z</updated>
-    <content type="html"><![CDATA[<h2 id="SaltStack安装"><strong>SaltStack安装</strong></h2><p>&emsp;各Linux版本安装详见<a href="https://docs.saltstack.com/en/latest/topics/installation/" target="_blank" rel="external">官方安装文档</a>。<br>&emsp;以下都是在<strong><code>CentOS 6.4 64bit</code></strong>系统上进行。</p>
-<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$&gt;</span> rpm --import <span class="symbol">https:</span>/<span class="regexp">/repo.saltstack.com/yum</span><span class="regexp">/redhat/</span><span class="number">6</span>/x86_64/latest/<span class="constant">SALTSTACK-GPG-KEY.</span>pub</span><br><span class="line"></span><br><span class="line">/etc/yum.repos.d/saltstack.repo</span><br><span class="line">[saltstack-repo]</span><br><span class="line">name=<span class="constant">SaltStack </span>repo <span class="keyword">for</span> <span class="constant">RHEL/CentOS </span><span class="variable">$releasever</span></span><br><span class="line">baseurl=<span class="symbol">https:</span>/<span class="regexp">/repo.saltstack.com/yum</span><span class="regexp">/redhat/</span><span class="variable">$releasever</span>/<span class="variable">$basearch</span>/latest</span><br><span class="line">enabled=<span class="number">1</span></span><br><span class="line">gpgcheck=<span class="number">1</span></span><br><span class="line">gpgkey=<span class="symbol">https:</span>/<span class="regexp">/repo.saltstack.com/yum</span><span class="regexp">/redhat/</span><span class="variable">$releasever</span>/<span class="variable">$basearch</span>/latest/<span class="constant">SALTSTACK-GPG-KEY.</span>pub</span><br><span class="line"></span><br><span class="line"><span class="comment">#选择需要的安装</span></span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-master</span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-minion</span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-ssh</span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-syndic</span><br><span class="line"><span class="variable">$&gt;</span> yum install salt-cloud</span><br></pre></td></tr></table></figure>
-<h4 id="安装问题集"><strong>安装问题集</strong></h4><ol>
-<li><p>缺少psutil模块<br> AttributeError: ‘module’ object has no attribute ‘get_sysinfo’</p>
- <figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$&gt; pip <span class="keyword">install</span> psutil</span><br><span class="line"><span class="comment">#若提示python版本过低则</span></span><br><span class="line">   $&gt; pip <span class="keyword">install</span> psutil --upgrade</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>IPV6地址不可达导致无法安装<br> 关闭IPv6</p>
-<ul>
-<li><p>永久关闭<br>  修改<strong><code>/etc/sysctl.conf</code></strong>配置文件，加入如下内容</p>
-  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="id">#shutdown</span> IPv6</span><br><span class="line">net<span class="class">.ipv6</span><span class="class">.conf</span><span class="class">.all</span><span class="class">.disable_ipv6</span> = <span class="number">1</span></span><br><span class="line">net<span class="class">.ipv6</span><span class="class">.conf</span><span class="class">.default</span><span class="class">.disable_ipv6</span> = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">#生效配置</span><br><span class="line">$&gt; sysctl -p</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>临时关闭</p>
-  <figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo <span class="number">1</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv6/conf/all/disable_ipv6</span><br><span class="line">echo <span class="number">1</span> &gt; /<span class="keyword">proc</span>/sys/net/ipv6/conf/default/disable_ipv6</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-</ol>
-<h2 id="SaltStack配置"><strong>SaltStack配置</strong></h2><h4 id="salt-master_配置"><strong>salt-master 配置</strong></h4><p>&emsp;salt-master监听端口：</p>
-<ul>
-<li><strong><code>4505</code></strong>(publish_port)<br>  &emsp;salt的消息发布系统</li>
-<li><strong><code>4506</code></strong>(ret_port)<br>  &emsp;salt客户端与服务端通信的端口</li>
-</ul>
-<p>&emsp;默认配置文件：<strong>/etc/salt/master</strong><br>&emsp;<strong>nodegroups</strong>定义规则：</p>
-<ul>
-<li>G — Grains glob匹配，例如：G@os:Ubuntu</li>
-<li>E — minion 正则表达式匹配，例如：E@web\d+.(dev|qa|prod).loc</li>
-<li>P — Grains PCRE 正则表达式匹配，例如：P@os:(RedHat|Fedora|CentOS)</li>
-<li>L — minion 列表匹配，例如：L@minion1.example.com,minion3.domain.com or bl*.domain.com</li>
-<li>I — Pillar glob单个匹配，例如：I@pdata:foobar</li>
-<li>S — 子网/IP 匹配，例如：S@192.168.1.0/24 or S@192.168.1.100</li>
-<li>R — Range cluster客户端范围匹配，例如： R@%foo.bar</li>
-<li>D — minion data匹配，例如：D@key:value</li>
-</ul>
-<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span>: <span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span></span><br><span class="line"><span class="comment">#自动通过salt-minion认证</span></span><br><span class="line">auto_accept: <span class="constant">True</span></span><br><span class="line">log_file: /var/wwwlog/saltstack/master.log</span><br><span class="line">key_logfile: /etc/<span class="literal">salt</span>/key</span><br><span class="line">nodegroups:</span><br><span class="line">  centos7: <span class="string">'L@centos7.10.0.2.222'</span></span><br><span class="line">  tool: <span class="string">'L@tserver.10.0.6.5,tclient.10.0.6.6'</span></span><br><span class="line">  all: <span class="string">'N@tool or N@centos7'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#启动salt-master</span></span><br><span class="line">$&gt; /etc/init.d/<span class="literal">salt</span>-master <span class="literal">start</span></span><br></pre></td></tr></table></figure>
-<p>&emsp;按照nodegroups分组批量管理(新增nodegroups定义后<strong>不需要重启</strong>salt-master)<br><figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$&gt; salt –<span class="keyword">N</span> tool test.ping</span><br><span class="line"></span><br><span class="line">tclient<span class="number">.10</span><span class="number">.0</span><span class="number">.6</span><span class="number">.6</span>:</span><br><span class="line">    <span class="keyword">True</span></span><br><span class="line">tserver<span class="number">.10</span><span class="number">.0</span><span class="number">.6</span><span class="number">.5</span>:</span><br><span class="line">    <span class="keyword">True</span></span><br></pre></td></tr></table></figure></p>
-<h4 id="salt-minion_配置"><strong>salt-minion　配置</strong></h4><p>&emsp;默认配置文件：<strong>/etc/salt/minion</strong><br>&emsp;salt-minion的<strong><code>id</code></strong>比较重要，可用于salt-master指定nodegroups分组等用途。<br><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">master</span>: <span class="string">10.0.2.233</span></span><br><span class="line"><span class="attribute">id</span>: <span class="string">tserver.10.0.6.5</span></span><br><span class="line"><span class="attribute">log_file</span>: <span class="string">/var/wwwlog/saltstack/minion.log</span></span><br><span class="line"><span class="attribute">key_logfile</span>: <span class="string">/etc/salt/key</span></span><br><span class="line"></span><br><span class="line"><span class="puppet">$&gt; /etc/init.d/<span class="literal">salt</span>-minion <span class="literal">start</span></span></span><br></pre></td></tr></table></figure></p>
-<h2 id="SaltStack_认证"><strong>SaltStack 认证</strong></h2><p>&emsp;皆在salt-master端</p>
-<ul>
-<li><p>查看</p>
-  <figure class="highlight processing"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt-<span class="variable">key</span> –L</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>接受</p>
-  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt-key –<span class="tag">a</span> minion_id</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>接受所有</p>
-  <figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt-key –<span class="literal">A</span></span><br></pre></td></tr></table></figure>
-<p>  master设置自动接受所有：/etc/salt/master——<code>auto_accept: True</code></p>
-</li>
-</ul>
-<ul>
-<li><p>测试连通</p>
-  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">salt <span class="string">'*'</span> test<span class="class">.ping</span></span><br><span class="line">salt <span class="string">'*'</span> test<span class="class">.ping</span> –t <span class="number">15</span>   (-t 设置超时时间)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>Debug</p>
-  <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -<span class="keyword">N</span> tool <span class="keyword">test</span>.ping -v -<span class="keyword">l</span> all</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>删除minion</p>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt-key <span class="operator">-d</span> minion_id</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>认证过程</p>
-<ol>
-<li>minion在第一次启动时，会在/etc/salt/pki/minion/（该路径在/etc/salt/minion里面设置）下自动生成minion.pem(privatekey)和minion.pub(publickey)，然后将minion.pub发送给master。</li>
-<li>master在接收到minion的publickey后，通过salt-key命令acceptminionpublickey，这样在master的/etc/salt/pki/master/minions下的将会存放以minionid命名的publickey,然后master就能对minion发送指令了。</li>
-</ol>
-</li>
-</ul>
-<h2 id="SaltStack_批量管理"><strong>SaltStack 批量管理</strong></h2><ul>
-<li><p>远程执行命令</p>
-  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt <span class="string">'*'</span> cmd<span class="class">.run</span> <span class="string">'bash --version'</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>远程执行指定语言的命令</p>
-  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="id">#salt</span> ‘目标’ 执行语言 对应语言的代码</span><br><span class="line">salt <span class="string">'centos7.10.0.2.222'</span> cmd<span class="class">.exec_code</span> python <span class="string">'print "test"'</span></span><br><span class="line">salt <span class="string">'centos7.10.0.2.222'</span> cmd<span class="class">.exec_code</span> bash <span class="string">'echo "test"'</span></span><br><span class="line"></span><br><span class="line">centos7.<span class="number">10.0</span>.<span class="number">2.222</span>:</span><br><span class="line">   	test</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>从master批量复制文件到minion<br>  &emsp;源文件目录可在master配置文件中指定，默认路径为<strong><code>/srv/salt/</code></strong>： </p>
-  <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">file_roots:</span></span><br><span class="line"><span class="label">  base:</span></span><br><span class="line">    - <span class="regexp">/srv/</span>salt/</span><br></pre></td></tr></table></figure>
-  <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#必须指定到文件</span></span><br><span class="line"><span class="title">salt</span> <span class="string">'*'</span> cp.get_file <span class="url">salt://vimrc</span> /etc/vimrc</span><br></pre></td></tr></table></figure>
-<p>  &emsp;或者直接用<strong><code>salt-cp</code></strong>命令</p>
-  <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt-<span class="keyword">cp</span> -<span class="keyword">N</span> tool <span class="keyword">sh</span>/*.<span class="keyword">sh</span> /tmp/</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>minion远程下载master脚本并执行<br>  &emsp;master端脚本存放路径：<strong>/srv/salt/scripts</strong>(<code>/srv/salt</code>同上的<code>file_roots</code>设置)<br>  &emsp;minion默认脚本存放路径：<strong>/var/cache/salt/minion/files/base/scripts/</strong></p>
-  <figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt \* cmd.script <span class="keyword">sal</span><span class="variable">t:</span>//scripts/test.<span class="keyword">sh</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="SaltStack_配置管理"><strong>SaltStack 配置管理</strong></h2><h3 id="top-sls"><strong>top.sls</strong></h3><p>&emsp;<strong><code>top.sls</code></strong>是配置管理的入口文件，若使用<strong><code>state.highstate</code></strong>则会根据<code>top.sls</code>的内容将<code>statefile</code>推送到salt-minion并执行；若是直接指定<code>statefile</code>则可不根据<code>top.sls</code>。在salt-master主机上，默认存放在<strong><code>/srv/salt/top.sls</code></strong>。 <code>(/etc/salt/master——file_roots)</code><br>&emsp;<strong><code>top.sls</code></strong>文件结构：</p>
-<ul>
-<li><code>base</code>：<code>top.sls</code>默认从<strong><code>base</code></strong>标签开始解析执行。</li>
-<li><code>操作目标</code>：需要执行操作的salt-minion目标。可以通过<strong>正则</strong>、<strong>grain模块</strong>、<strong>分组名</strong>来进行匹配。</li>
-<li><code>statefile</code>：需要执行的state文件。指定statefile不需要包含扩展名(<code>.sls</code>)，详见下节内容。</li>
-</ul>
-<p>&emsp;top.sls文件样例<br><figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">base:</span><br><span class="line">  tool:         					#nodegroup分组名指定目标</span><br><span class="line">    -<span class="ruby"> <span class="symbol">match:</span> nodegroup              <span class="comment">#指定匹配类型为nodegroup</span></span><br><span class="line"></span>    -<span class="ruby"> statefile.apache            	<span class="comment">#state文件：/srv/salt/statefile/apache.sls</span></span><br><span class="line"></span></span><br><span class="line">  'centos7.10.0.2.222':				#直接指定minion_id目标</span><br><span class="line">    -<span class="ruby"> statefile.nginx</span><br><span class="line"></span></span><br><span class="line">  'os:CentOS':						#通过grain指定目标</span><br><span class="line">    -<span class="ruby"> <span class="symbol">match:</span> grain					<span class="comment">#指定匹配类型为grain</span></span><br><span class="line"></span>    -<span class="ruby"> statefile.git</span><br><span class="line"></span></span><br><span class="line">  '*':								#目标为所有minion</span><br><span class="line">    -<span class="ruby"> statefile.all</span></span><br></pre></td></tr></table></figure></p>
-<h3 id="SLS文件——statefile"><strong>SLS文件——statefile</strong></h3><h4 id="SLS文件规则"><strong>SLS文件规则</strong></h4><ul>
-<li>SLS文件的扩展名<code>.sls</code>被省略。 (例如：nginx.sls 变成 nginx)                                              </li>
-<li>若有子目录，子目录都由一个点来表示.(例如 statefile/nginx.sls写成 statefile.nginx)</li>
-<li>若子目录下存在<strong><code>init.sls</code></strong>文件，引用的时候仅指定该目录即可. (例如 statefile/init.sls 可以简称为 statefile）</li>
-<li>若一个目录下同时存在<code>statefile.sls</code>和<code>statefile/init.sls</code>，那么 statefile/init.sls 将被忽略，SLS文件引用的statefile将只引用statefile.sls</li>
-<li>缩进严格按照python标准，且不要用tab做缩进而应用空格！</li>
-</ul>
-<h4 id="实例分析"><strong>实例分析</strong></h4><p>&emsp;通过具体实例分析<strong>statefile</strong>(hexo会对markdown显示有些影响)</p>
-<ol>
-<li><p><strong>cmd.script</strong></p>
- <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">cmdscript:</span></span><br><span class="line">  cmd.<span class="string">script:</span></span><br><span class="line">	- <span class="string">source:</span> <span class="string">salt:</span><span class="comment">//scripts/test.sh</span></span><br><span class="line">	- <span class="string">user:</span> root</span><br><span class="line">	- <span class="string">shell:</span> <span class="regexp">/bin/</span>bash</span><br></pre></td></tr></table></figure>
-<ul>
-<li><code>cmdscript</code>：ID标签定义</li>
-<li><code>cmd.script</code>：使用saltstack的<code>cmd.script</code>模块<ul>
-<li><code>source</code>： 指定master端脚本存放路径，minion从master上下载并执行。master上物理存放路径：<code>/srv/salt/scripts/test.sh</code></li>
-<li><code>user</code>：指定执行脚本的用户</li>
-<li><code>shell</code>：指定执行脚本的shell</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>cmd.run</strong></p>
- <figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">cmdrun:</span><br><span class="line">  cmd.run:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">cwd:</span> /tmp</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">name:</span> pwd;uptime</span><br><span class="line"></span></span><br><span class="line">cmdrun2:</span><br><span class="line">  cmd.run:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">cwd:</span> /tmp</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">names:</span></span><br><span class="line"></span>	  -<span class="ruby"> pwd</span><br><span class="line"></span>	  -<span class="ruby"> uptime</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>cmd.wait</strong></p>
- <figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">cmdwait:</span></span><br><span class="line">  cmd.<span class="string">wait:</span></span><br><span class="line">	- <span class="string">names:</span></span><br><span class="line">	  - <span class="regexp">/usr/</span>local<span class="regexp">/nginx/</span>sbin<span class="regexp">/nginx -t &amp;&amp; /</span>usr<span class="regexp">/local/</span>nginx<span class="regexp">/sbin/</span>nginx -s reload</span><br><span class="line">	- <span class="string">watch:</span></span><br><span class="line">	  - <span class="string">file:</span> <span class="regexp">/usr/</span>local<span class="regexp">/nginx/</span>conf<span class="regexp">/vhosts/</span>cmdwait.conf</span><br><span class="line"></span><br><span class="line"><span class="regexp">/usr/</span>local<span class="regexp">/nginx/</span>conf<span class="regexp">/vhosts/</span>cmdwait.<span class="string">conf:</span></span><br><span class="line">  file.<span class="string">managed:</span></span><br><span class="line">	- <span class="string">source:</span> <span class="string">salt:</span><span class="comment">//configfile/cmdwait.conf</span></span><br><span class="line">	- <span class="string">backup:</span> minion</span><br></pre></td></tr></table></figure>
-<ul>
-<li><code>cmd.wait</code>：条件执行命令，满足条件后才执行<code>names</code>中的命令。</li>
-<li><code>watch</code>：文件监控(监控文件是否存在或变化)，此处监控salt-minion上<code>file</code>指定的文件且作为<code>cmd.wait</code>的条件。</li>
-<li><code>file.managed</code>：文件管理<ul>
-<li><code>/usr/local/nginx/conf/vhosts/cmdwait.conf</code>：salt-minion上文件路径，同步来自salt-master上指定的文件。</li>
-<li><code>source</code>：salt-master上的文件，如果此文件有变化推送SLS配置管理时会立即同步到salt-minion上。</li>
-<li><code>backup</code>：指定salt-minion在同步文件前先备份原有文件，默认备份路径<strong><code>/var/cache/salt/minion/file_backup</code></strong></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>Apache配置管理实例</strong><br> &emsp;若要使用<code>service</code>则需要有<code>/etc/init.d/httpd</code>脚本</p>
- <figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">apache:</span><br><span class="line">  pkg:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">name:</span> httpd</span><br><span class="line"></span>	-<span class="ruby"> installed</span><br><span class="line"></span></span><br><span class="line">  service:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">name:</span> httpd</span><br><span class="line"></span>	-<span class="ruby"> running</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">enable:</span> <span class="constant">True</span></span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">reload:</span> <span class="constant">True</span></span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">watch:</span></span><br><span class="line"></span>	  -<span class="ruby"> <span class="symbol">file:</span> /etc/httpd/conf/httpd.conf</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">require:</span></span><br><span class="line"></span>	  -<span class="ruby"> <span class="symbol">pkg:</span> httpd</span><br><span class="line"></span><span class="comment"></span><br><span class="line">/etc/httpd/conf/httpd.conf:</span></span><br><span class="line">  file.managed:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">source:</span> <span class="symbol">salt:</span>/<span class="regexp">/configfile/httpd</span>.conf</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">backup:</span> minion</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>unless &amp; onlyif</strong><br> &emsp;unless——当命令执行返回’False’时，执行name里的命令；onlyif相反</p>
- <figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">apacheStart:</span><br><span class="line">  cmd.run:</span><br><span class="line">	- name: service httpd start</span><br><span class="line">	- <span class="keyword">unless</span>: ps aux|<span class="keyword">grep</span> httpd|<span class="keyword">grep</span> -v <span class="keyword">grep</span>|<span class="keyword">grep</span> -v <span class="string">'bash -c'</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>使用saltstack批量配置vim</strong><br> &emsp;statefile：<code>/srv/salt/statefile/vimConfig.sls</code><br> &emsp;推送执行<code>vimConfig.sls</code>：<strong><code>salt -G os:CentOS state.sls statefile.vimConfig</code></strong></p>
- <figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">vimInstall:</span><br><span class="line">  pkg.installed:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">names:</span></span><br><span class="line"></span>	  -<span class="ruby"> vim-enhanced</span><br><span class="line"></span>	  -<span class="ruby"> unzip</span><br><span class="line"></span></span><br><span class="line">vimDownload:</span><br><span class="line">  file.managed:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">name:</span> /home/work/software/<span class="constant">AutoConfigVim</span>.zip</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">source:</span> <span class="symbol">salt:</span>/<span class="regexp">/software/</span><span class="constant">AutoConfigVim</span>.zip</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">unless:</span> test -e /home/work/software/<span class="constant">AutoConfigVim</span>.zip</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">require:</span></span><br><span class="line"></span>	  -<span class="ruby"> <span class="symbol">pkg:</span> vimInstall</span><br><span class="line"></span></span><br><span class="line">vimUnzip:</span><br><span class="line">  cmd.run:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">cwd:</span> /home/work/software</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">name:</span> unzip -q <span class="constant">AutoConfigVim</span>.zip</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">unless:</span> test -e /home/work/software/<span class="constant">AutoConfigVim</span></span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">require:</span></span><br><span class="line"></span>	  -<span class="ruby"> <span class="symbol">file:</span> vimDownload</span><br><span class="line"></span></span><br><span class="line">vimScript:</span><br><span class="line">  cmd.run:</span><br><span class="line">	-<span class="ruby"> <span class="symbol">cwd:</span> /home/work/software/<span class="constant">AutoConfigVim</span></span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">name:</span> bash <span class="constant">AutoConfigVim</span>.sh</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">onlyif:</span> test -e /home/work/software/<span class="constant">AutoConfigVim</span>/<span class="constant">AutoConfigVim</span>.sh</span><br><span class="line"></span>	-<span class="ruby"> <span class="symbol">require:</span></span><br><span class="line"></span>	  -<span class="ruby"> <span class="symbol">cmd:</span> vimUnzip</span></span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h4 id="推送执行SLS配置管理"><strong>推送执行SLS配置管理</strong></h4><ol>
-<li><p>根据top.sls的内容，将<strong>全部</strong>statefile文件推送到指定minion并执行</p>
- <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt –<span class="keyword">N</span> tool state.highstate</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>不根据top.sls，只将特定的statefile(<code>statefile/cmdscript.sls</code>)推送到指定minion并执行(<code>-v</code> 查看执行反馈)</p>
- <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -N tool state<span class="class">.sls</span> statefile<span class="class">.cmdscript</span> –v</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="获取minion信息——grains_&amp;_pillar"><strong>获取minion信息——grains &amp; pillar</strong></h2><p>&emsp;<strong>grains</strong> 和 <strong>pillar</strong>都可用于获取minion的信息，但两者有很多不同的地方需要注意。</p>
-<ul>
-<li><p><strong>grains</strong></p>
-<ol>
-<li>minion每次启动时采集minion信息并向master汇报</li>
-<li><strong>grains</strong>用于存储静态、不常变化的信息数据</li>
-<li><strong>grains</strong>存储在minion本地</li>
-<li>minion可对<strong>grains</strong>进行操作(新增、删除等)</li>
-</ol>
-</li>
-<li><p><strong>pillar</strong></p>
-<ol>
-<li><strong>pillar</strong>用于存储敏感或常变化的信息数据</li>
-<li><strong>pillar</strong>存储在master本地</li>
-<li>minion只能对自己的<strong>pillar</strong>进行查询的权限，无法修改。</li>
-</ol>
-</li>
-</ul>
-<h4 id="grains"><strong>grains</strong></h4><ul>
-<li><p>查看minion所有信息</p>
-  <figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -N tool grains.<span class="keyword">items</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>列出所有查看项目</p>
-  <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -<span class="keyword">N</span> tool grains.<span class="keyword">ls</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>查看特定项目</p>
-  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -N tool grains<span class="class">.item</span> ipv4</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>自定义信息项<br>  &emsp;<code>mkdir -p /srv/salt/_grains</code>目录下编写脚本，返回时必须为<strong>字典</strong>。<br>  &emsp;salt-master端：<strong><code>/srv/salt/_grains/getNginxVer.py</code></strong></p>
-  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> commands</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getNginxVer</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="string">"""get minion nginx version"""</span></span><br><span class="line">	ngxver = &#123;&#125;</span><br><span class="line">	ngxV = commands.getoutput(<span class="string">'/usr/local/nginx/sbin/nginx -V'</span>)</span><br><span class="line">	ngxver[<span class="string">'nginxversion'</span>] = ngxV.split(<span class="string">'\n'</span>)[<span class="number">0</span>].split(<span class="string">'/'</span>)[-<span class="number">1</span>]</span><br><span class="line">	<span class="keyword">return</span> ngxver</span><br></pre></td></tr></table></figure>
-<p>  &emsp;自定义grains脚本同步到minion：会将_grains目录下的文件全部同步到minion</p>
-  <figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt ‘<span class="keyword">*</span>’ saltutil.sync_grains</span><br></pre></td></tr></table></figure>
-<p>  获取自定义grains信息项：</p>
-  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt ‘*’ grains<span class="class">.item</span> nginxversion</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h4 id="pillar"><strong>pillar</strong></h4><ul>
-<li><p>查看默认pillar</p>
-  <figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">salt</span> -<span class="type">N</span> tool pillar.<span class="typedef"><span class="keyword">data</span></span></span><br></pre></td></tr></table></figure>
-<p>  &emsp;默认pillar路径(pillar_roots)：<strong><code>/srv/pillar</code></strong><br>  &emsp;组织pillar文件、pillar入口文件：<strong><code>/srv/pillar/top.sls</code></strong><br>  &emsp;pillar和SLS一样拥有自己的<code>top.sls</code>文件，通过top.sls文件作为入口，组织其它的pillar文件。<br>  &emsp;自定义pillar待了解。</p>
-</li>
-</ul>
-<h2 id="SaltStack_模块"><strong>SaltStack 模块</strong></h2><h4 id="系统模块"><strong>系统模块</strong></h4><p>&emsp;最新在线系统模块查询：<a href="http://docs.saltstack.com/en/latest/ref/modules/all/index.html" target="_blank" rel="external">saltstack系统模块</a><br>&emsp;命令查询在线doc：<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt \<span class="keyword">*</span> sys.doc disk</span><br></pre></td></tr></table></figure></p>
-<p>&emsp;系统模块如：<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">salt ‘<span class="keyword">*</span>’ test.ping</span><br><span class="line">salt ‘<span class="keyword">*</span>’ disk.usage</span><br></pre></td></tr></table></figure></p>
-<h4 id="自定义模块"><strong>自定义模块</strong></h4><ul>
-<li><p>默认模块存放路径<br>  <strong><code>/srv/salt/_modules</code></strong></p>
-</li>
-<li><p>自定义模块样例——<strong><code>/srv/salt/_modules/custom.py</code></strong></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">  <span class="keyword">return</span> <span class="string">'This is saltstack custom module test.'</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>同步自定义模块到minion<br>  &emsp;此操作会将master上<code>/srv/salt/_modules</code>目录下的所有目录及文件同步到minion上的<strong><code>/var/cache/salt/minion/files/base/_modules</code></strong>目录下。(包括隐藏文件)</p>
-  <figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt \<span class="keyword">*</span> saltutil.sync_modules</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>执行自定义模块</p>
-  <figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt \<span class="keyword">*</span> custom.test</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h4 id="自定义returners"><strong>自定义returners</strong></h4><ul>
-<li><p>默认模块存放路径<br>  <strong><code>/srv/salt/_returners</code></strong></p>
-</li>
-<li><p>自定义returner样例——<strong><code>/srv/salt/_returners/writefile.py</code></strong></p>
-  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python2.7</span></span><br><span class="line"><span class="comment">#coding: utf-8</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">__virtual__</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="string">"""调用时用的名字"""</span></span><br><span class="line">	<span class="keyword">return</span> <span class="string">"writefile"</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">returner</span><span class="params">(result)</span>:</span></span><br><span class="line">	<span class="string">"""将minion的return写入到文件"""</span></span><br><span class="line">	fd = open(<span class="string">'/tmp/saltReturn.txt'</span>, <span class="string">'a+'</span>)</span><br><span class="line">	fd.write(str(result))</span><br><span class="line">	fd.close()</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>同步自定义returner</p>
-  <figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt \<span class="keyword">*</span> saltutil.sync_returners</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>调用自定义returner：</p>
-  <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">salt -<span class="keyword">N</span> centos7 cmd.<span class="keyword">run</span> 'uptime' --<span class="keyword">return</span> writefile</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="计划任务"><strong>计划任务</strong></h2><p>&emsp;默认情况下，时间参数都是<code>*</code>，执行用户是”root”，当修改一个当前存在的cron job，这个名字的声明<strong>必须是全局唯一的</strong>，否则会自动新增crontab job！<br>&emsp;如果cron的命令(name)被修改，只会新增cron job不会更新！！</p>
-<p>定时任务样例——crontab.sls<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">cronScriptFile:</span></span><br><span class="line">  file.<span class="string">managed:</span></span><br><span class="line">    - <span class="string">name:</span> <span class="regexp">/home/</span>work<span class="regexp">/script/</span>cron.sh</span><br><span class="line">    - <span class="string">source:</span> <span class="string">salt:</span><span class="comment">//scripts/cron.sh</span></span><br><span class="line"><span class="label"></span><br><span class="line">crontab20141020:</span></span><br><span class="line">  cron.<span class="string">present:</span></span><br><span class="line">    - <span class="string">name:</span> bash <span class="regexp">/home/</span>work<span class="regexp">/script/</span>cron.sh &gt;&gt; <span class="regexp">/dev/</span><span class="literal">null</span> <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br><span class="line">    - <span class="string">user:</span> root</span><br><span class="line">    - <span class="string">minute:</span> random</span><br><span class="line">    - <span class="string">hour:</span> <span class="string">'*/2'</span></span><br><span class="line">    - <span class="string">require:</span></span><br><span class="line">      - <span class="string">file:</span> cronScriptFile</span><br></pre></td></tr></table></figure></p>
-<h2 id="关于saltstack无返回信息的问题"><strong>关于saltstack无返回信息的问题</strong></h2><p>&emsp;saltstack用一段时间后发现一个非常严重的问题。当salt-master执行命令时，部分salt-minion并没有返回任何信息，无论是成功还是失败信息都没有。这导致无法确定salt-minion是否执行了命令还是返回信息丢失，这样的不可控性对Ops来说是个非常严重的问题。<br>&emsp;为解决此问题根据<strong>jid</strong>查看salt-minion的执行情况。当salt-master执行命令时加上<strong><code>-v</code></strong>参数，让其返回任务的<code>jid</code>。若有salt-minion没有返回信息则根据此<code>jid</code>查询任务结果<br><figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$&gt; salt -v \* cmd.run <span class="emphasis">'echo "jid test"'</span></span><br><span class="line"><span class="header">Executing job with jid 20160225103117255324</span><br><span class="line">-------------------------------------------</span></span><br><span class="line">centos7.10.0.2.222:</span><br><span class="line"><span class="code">    jid test</span></span><br><span class="line">tserver.10.0.6.5:</span><br><span class="line"><span class="code">    jid test</span></span><br><span class="line">tclient.10.0.6.6:</span><br><span class="line"><span class="code">    jid test</span></span><br><span class="line"></span><br><span class="line">$&gt; salt-run jobs.lookup<span class="emphasis">_jid 20160225103117255324</span><br><span class="line">centos7.10.0.2.222:</span><br><span class="line">    jid test</span><br><span class="line">tclient.10.0.6.6:</span><br><span class="line">    jid test</span><br><span class="line">tserver.10.0.6.5:</span><br><span class="line">    jid test</span></span><br></pre></td></tr></table></figure></p>
-<p>&emsp;假若管理的salt-minion达到一定数量，可使用<strong><code>--async</code></strong>参数<strong>异步</strong>执行命令，然后根据<code>jid</code>查询执行结果。<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">$&gt; salt --async \* cmd.<span class="keyword">run</span> 'echo <span class="string">"jid test"</span>'</span><br><span class="line">Executed command with job ID: 20160225104129665398</span><br><span class="line"></span><br><span class="line">$&gt; salt-<span class="keyword">run</span> jobs.lookup_jid 20160225104129665398</span><br><span class="line">centos7.10.0.2.222:</span><br><span class="line">    jid <span class="keyword">test</span></span><br><span class="line">tclient.10.0.6.6:</span><br><span class="line">    jid <span class="keyword">test</span></span><br><span class="line">tserver.10.0.6.5:</span><br><span class="line">    jid <span class="keyword">test</span></span><br></pre></td></tr></table></figure></p>
-<h3 id="关于jid"><strong>关于jid</strong></h3><p>&emsp;salt-master每执行一次salt命令就会产生一个Job，每个Job会有一个唯一的<code>jid</code>。<br>&emsp;<strong><code>jid</code></strong>: job id, 格式为<code>%Y%m%d%H%M%S%f</code><br>&emsp;salt-master在下发指令消息时, 会附带上产⽣的jid. salt-minion接收到指令开始执⾏时, 会在本地cachedir(默认是<code>/var/cache/salt/minion/proc</code>)下以该jid命名产生⽂件,⽤于在执⾏过程中master查看当前任务的执⾏情况. 指令执⾏完毕将结果传送给master后并删除该临时⽂件⽂件。<br>&emsp;salt-master将salt-minion的执⾏结果存放在本地<strong><code>/var/cache/salt/master/jobs</code></strong>目录下, 默认缓存24⼩时(可通过修改master配置⽂件<strong><code>keep_jobs</code></strong>选项调整)</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<h2 id="SaltStack安装"><strong>SaltStack安装</strong></h2><p>&emsp;各Linux版本安装详见<a href="https://docs.saltstack.com/en/latest/topics/installation]]>
-    </summary>
-    
-      <category term="saltstack" scheme="http://yoursite.com/tags/saltstack/"/>
-    
-      <category term="OPS" scheme="http://yoursite.com/categories/OPS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[Django Q对象]]></title>
-    <link href="http://yoursite.com/2015/11/17/Django-Q-Object/"/>
-    <id>http://yoursite.com/2015/11/17/Django-Q-Object/</id>
-    <published>2015-11-17T08:13:06.000Z</published>
-    <updated>2016-03-16T10:21:17.000Z</updated>
-    <content type="html"><![CDATA[<p>&emsp;当我们使用Django查询数据库时，一般都是使用Django提供的方法。简单的数据库查询还能应付，但一旦要执行复杂查询时变无法满足要求，于是为满足用户的复杂查询需求Django提供了<strong>Q对象</strong>。</p>
-<h3 id="基础环境说明"><strong>基础环境说明</strong></h3><p>&emsp;为了更方便的学习Q对象，使用Django Shell进行交互并事先创建了Model及插入了一些数据。</p>
-<ul>
-<li><p>Model——<strong><code>pc/models.py</code></strong></p>
-  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">class <span class="function"><span class="title">pcInfo</span><span class="params">(models.Model)</span></span>:</span><br><span class="line">       <span class="string">""</span><span class="string">"Q对象练习"</span><span class="string">""</span></span><br><span class="line">       mac = models.<span class="function"><span class="title">CharField</span><span class="params">(max_length=<span class="number">30</span>)</span></span></span><br><span class="line">       port = models.<span class="function"><span class="title">IntegerField</span><span class="params">()</span></span></span><br><span class="line">       city = models.<span class="function"><span class="title">CharField</span><span class="params">(max_length=<span class="number">255</span>)</span></span></span><br><span class="line">       isp = models.<span class="function"><span class="title">CharField</span><span class="params">(max_length=<span class="number">255</span>)</span></span></span><br><span class="line">       ip = models.<span class="function"><span class="title">IPAddressField</span><span class="params">()</span></span></span><br><span class="line">       comment = models.<span class="function"><span class="title">CharField</span><span class="params">(max_length=<span class="number">255</span>, null=True)</span></span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>数据</p>
-  <figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">mysql pc&gt; SE<span class="class">LECT  * FROM pc_pcInfo;</span></span><br><span class="line">+------+-------------------+--------+-----------------+-------------------+-------------+--------------------+</span><br><span class="line">|   id | mac               |   port | city            | isp               | ip          | comment            |</span><br><span class="line">|------+-------------------+--------+-----------------+-------------------+-------------+--------------------|</span><br><span class="line">|    1 | 00-E0-4C-68-6C-82 |  50000 | 美国-夏威夷     | Hawaiian telcom   | 192.168.1.1 | 测试               |</span><br><span class="line">|    2 | 00-E0-4C-68-41-D6 |  30006 | 澳洲-悉尼       | 大马电信          | 192.168.1.2 | modifyMinipc<span class="instruction"> check </span>|</span><br><span class="line">|    3 | 00-E0-4C-68-6C-A1 |  50002 | 马来西亚-吉隆坡 | Optus             | 192.168.1.3 | modifyMinipc<span class="instruction"> check </span>|</span><br><span class="line">|    4 | 00-E0-4C-68-5A-F2 |  30008 | 英国-伯明翰     | Virgin Media      | 192.168.1.4 |                    |</span><br><span class="line">|    5 | 00-E0-4C-68-5A-FE |  30005 | 澳洲-墨尔本     | TPG Internet      | 192.168.1.5 |                    |</span><br><span class="line">|    6 | 00-E0-4C-68-41-D4 |  30002 | 美国-拉斯维加斯 | Cox Communication | 192.168.1.6 |<span class="instruction"> check </span>             |</span><br><span class="line">|    7 | 00-E0-4C-68-6C-A4 |  40001 | 匈牙利          | UPC Hungary       | 192.168.1.7 | test               |</span><br><span class="line">|    8 | 00-E0-4C-68-6C-A7 |  40004 | 澳洲-帕斯       | TPG Internet      | 192.168.1.8 | modifyMinipc       |</span><br><span class="line">+------+-------------------+--------+-----------------+-------------------+-------------+--------------------+</span><br><span class="line">8 rows in set</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>Django Shell</p>
-  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$&gt; python manage<span class="class">.py</span> shell</span><br><span class="line">&gt;&gt;&gt; from pc<span class="class">.models</span> import pcInfo</span><br><span class="line">&gt;&gt;&gt; from django<span class="class">.db</span><span class="class">.models</span> import Q</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="基本查询"><strong>基本查询</strong></h3><p>&emsp;Q对象也能进行普通的查询<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#使用普通Django objects.filter()方法</span></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>result=pcInfo.objects.filter(ip__contains=<span class="string">'192.168.1.1'</span>)</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> result[<span class="number">0</span>].__dict__</span><br><span class="line">&#123;<span class="string">'comment'</span>: <span class="string">u' \u6d4b\u8bd5'</span>, <span class="string">'city'</span>: <span class="string">u'\u7f8e\u56fd-\u590f\u5a01\u5937'</span>, <span class="string">'ip'</span>: <span class="string">u'192.168.1.1'</span>, <span class="string">'isp'</span>: <span class="string">u'Hawaiian telcom'</span>, <span class="string">'_state'</span>: &lt;django.db.models.base.ModelState object at <span class="number">0xb532380c</span>&gt;, <span class="string">'port'</span>: <span class="number">50000L</span>, <span class="string">'mac'</span>: <span class="string">u'00-E0-4C-68-6C-82'</span>, <span class="string">'id'</span>: <span class="number">1L</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#使用Q对象</span></span><br><span class="line"></span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span>result=pcInfo.objects.filter(Q(ip__contains=<span class="string">'192.168.1.1'</span>))</span><br><span class="line"><span class="prompt">&gt;&gt;&gt; </span><span class="keyword">print</span> result[<span class="number">0</span>].__dict__</span><br><span class="line">&#123;<span class="string">'comment'</span>: <span class="string">u' \u6d4b\u8bd5'</span>, <span class="string">'city'</span>: <span class="string">u'\u7f8e\u56fd-\u590f\u5a01\u5937'</span>, <span class="string">'ip'</span>: <span class="string">u'192.168.1.1'</span>, <span class="string">'isp'</span>: <span class="string">u'Hawaiian telcom'</span>, <span class="string">'_state'</span>: &lt;django.db.models.base.ModelState object at <span class="number">0xb533296c</span>&gt;, <span class="string">'port'</span>: <span class="number">50000L</span>, <span class="string">'mac'</span>: <span class="string">u'00-E0-4C-68-6C-82'</span>, <span class="string">'id'</span>: <span class="number">1L</span>&#125;</span><br></pre></td></tr></table></figure></p>
-<h4 id="AND查询"><strong>AND查询</strong></h4><p>&emsp;<strong>AND查询</strong>有两种写法：1. <code>Q(...) &amp; Q(...)</code>；2. <code>Q(...), Q(...)</code><br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; pcInfo<span class="class">.objects</span><span class="class">.filter</span>(<span class="function"><span class="title">Q</span><span class="params">(ip=<span class="string">'192.168.1.1'</span>)</span></span> &amp; <span class="function"><span class="title">Q</span><span class="params">(port=<span class="number">50001</span>)</span></span>)</span><br><span class="line">&gt;&gt;&gt; []</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; pcInfo<span class="class">.objects</span><span class="class">.filter</span>(<span class="function"><span class="title">Q</span><span class="params">(ip=<span class="string">'192.168.1.1'</span>)</span></span>, <span class="function"><span class="title">Q</span><span class="params">(port=<span class="number">50001</span>)</span></span>)</span><br><span class="line">&gt;&gt;&gt; []</span><br></pre></td></tr></table></figure></p>
-<h4 id="OR查询"><strong>OR查询</strong></h4><p>&emsp;<strong>OR查询</strong>使用<strong><code>|</code></strong><br><figure class="highlight fsharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; pcInfo.objects.filter(Q(ip='<span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span>') | Q(port=<span class="number">40004</span>))</span><br><span class="line">&gt;&gt;&gt; <span class="annotation">[&lt;pcInfo: pcInfo object&gt;, &lt;pcInfo: pcInfo object&gt;]</span></span><br></pre></td></tr></table></figure></p>
-<h4 id="AND_OR_复杂查询"><strong>AND OR 复杂查询</strong></h4><p>&emsp;实现<strong><code>(A OR B) AND C</code></strong><br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;</span>&gt; pcInfo.objects.filter( (<span class="constant">Q</span>(ip=<span class="string">'192.168.1.5'</span>) | <span class="constant">Q</span>(port=<span class="number">30002</span>)) &amp; <span class="constant">Q</span>(port__contains=<span class="number">300</span>) )</span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; [&lt;<span class="symbol">pcInfo:</span> pcInfo object&gt;, &lt;<span class="symbol">pcInfo:</span> pcInfo object&gt;]</span><br><span class="line"></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; result=pcInfo.objects.filter( (<span class="constant">Q</span>(ip=<span class="string">'192.168.1.5'</span>) | <span class="constant">Q</span>(port=<span class="number">30002</span>)) &amp; <span class="constant">Q</span>(port__contains=<span class="number">300</span>) )</span><br><span class="line"></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; print result[<span class="number">0</span>].__dict_<span class="number">_</span></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt;t<span class="string">': u'</span><span class="string">', '</span>city<span class="string">': u'</span>\u6fb3\u6d32-\u58a8\u5c14\u672c<span class="string">', '</span>ip<span class="string">': u'</span><span class="number">192.168</span>.<span class="number">1.5</span><span class="string">', '</span>isp<span class="string">': u'</span><span class="constant">TPG</span> <span class="constant">Internet</span><span class="string">', '</span>_state<span class="string">': &lt;django.db.models.base.ModelState object at 0xb5323a4c&gt;, '</span>port<span class="string">': 30005L, '</span>mac<span class="string">': u'</span><span class="number">00</span>-<span class="constant">E0</span>-<span class="number">4</span>C-<span class="number">68</span>-<span class="number">5</span>A-<span class="constant">FE</span><span class="string">', '</span>id<span class="string">': 5L&#125;</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; print result[1].__dict__</span><br><span class="line">&#123;'</span>comment<span class="string">': u'</span>check<span class="string">', '</span>city<span class="string">': u'</span>\u7f8e\u56fd-\u62c9\u65af\u7ef4\u52a<span class="number">0</span>\u65af<span class="string">', '</span>ip<span class="string">': u'</span><span class="number">192.168</span>.<span class="number">1.6</span><span class="string">', '</span>isp<span class="string">': u'</span><span class="constant">Cox</span> <span class="constant">Communication</span><span class="string">', '</span>_state<span class="string">': &lt;django.db.models.base.ModelState object at 0xb5339f2c&gt;, '</span>port<span class="string">': 30002L, '</span>mac<span class="string">': u'</span><span class="number">00</span>-<span class="constant">E0</span>-<span class="number">4</span>C-<span class="number">68</span>-<span class="number">41</span>-<span class="constant">D4</span><span class="string">', '</span>id<span class="string">': 6L&#125;</span></span><br></pre></td></tr></table></figure></p>
-<h4 id="NOT查询"><strong>NOT查询</strong></h4><p>&emsp;<strong>NOT查询</strong>使用<strong><code>~Q()</code></strong>实现<br><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="prompt">&gt;&gt;</span>&gt; pcInfo.objects.filter(~(<span class="constant">Q</span>(port__contains=<span class="number">3000</span>) | <span class="constant">Q</span>(port__contains=<span class="number">4000</span>)))</span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; [&lt;<span class="symbol">pcInfo:</span> pcInfo object&gt;, &lt;<span class="symbol">pcInfo:</span> pcInfo object&gt;]</span><br><span class="line"></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; result=pcInfo.objects.filter(~(<span class="constant">Q</span>(port__contains=<span class="number">3000</span>) | <span class="constant">Q</span>(port__contains=<span class="number">4000</span>)))</span><br><span class="line"></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; print result[<span class="number">0</span>].__dict_<span class="number">_</span></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt;t<span class="string">': u'</span> \u6d4b\u8bd5<span class="string">', '</span>city<span class="string">': u'</span>\u7f8e\u56fd-\u590f\u5a01\u5937<span class="string">', '</span>ip<span class="string">': u'</span><span class="number">192.168</span>.<span class="number">1.1</span><span class="string">', '</span>isp<span class="string">': u'</span><span class="constant">Hawaiian</span> telcom<span class="string">', '</span>_state<span class="string">': &lt;django.db.models.base.ModelState object at 0xb5338aac&gt;, '</span>port<span class="string">': 50000L, '</span>mac<span class="string">': u'</span><span class="number">00</span>-<span class="constant">E0</span>-<span class="number">4</span>C-<span class="number">68</span>-<span class="number">6</span>C-<span class="number">82</span><span class="string">', '</span>id<span class="string">': 1L&#125;</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; print result[1].__dict__</span><br><span class="line">&#123;'</span>comment<span class="string">': u'</span>modifyMinipc check<span class="string">', '</span>city<span class="string">': u'</span>\u9a6c\u6765\u897f\u4e9a-\u5409\u9686\u5761<span class="string">', '</span>ip<span class="string">': u'</span><span class="number">192.168</span>.<span class="number">1.3</span><span class="string">', '</span>isp<span class="string">': u'</span><span class="constant">Optus</span><span class="string">', '</span>_state<span class="string">': &lt;django.db.models.base.ModelState object at 0xb5338c4c&gt;, '</span>port<span class="string">': 50002L, '</span>mac<span class="string">': u'</span><span class="number">00</span>-<span class="constant">E0</span>-<span class="number">4</span>C-<span class="number">68</span>-<span class="number">6</span>C-<span class="constant">A1</span><span class="string">', '</span>id<span class="string">': 3L&#125;</span></span><br></pre></td></tr></table></figure></p>
-<h3 id="动态构建查询条件"><strong>动态构建查询条件</strong></h3><p>&emsp;若查询条件是动态构建的，则需要先创建<strong>Q对象列表</strong>，然后使用<strong><code>operator</code></strong>和<strong><code>reduce</code></strong>将<strong>Q对象列表</strong>组合起来。</p>
-<h4 id="基本使用"><strong>基本使用</strong></h4><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; import operator</span><br><span class="line"></span><br><span class="line">#创建Q对象列表</span><br><span class="line">&gt;&gt;&gt; q_list = [<span class="function"><span class="title">Q</span><span class="params">(ip=<span class="string">'192.168.1.1'</span>)</span></span>, <span class="function"><span class="title">Q</span><span class="params">(port=<span class="number">40004</span>)</span></span>]</span><br><span class="line"></span><br><span class="line">#AND查询</span><br><span class="line">&gt;&gt;&gt; pcInfo<span class="class">.objects</span><span class="class">.filter</span>(<span class="function"><span class="title">reduce</span><span class="params">(operator.and_, q_list)</span></span>)</span><br><span class="line">&gt;&gt;&gt; []</span><br><span class="line"></span><br><span class="line">#OR查询</span><br><span class="line">&gt;&gt;&gt; pcInfo<span class="class">.objects</span><span class="class">.filter</span>(<span class="function"><span class="title">reduce</span><span class="params">(operator.or_, q_list)</span></span>)</span><br><span class="line">&gt;&gt;&gt; [&lt;pcInfo: pcInfo object&gt;, &lt;pcInfo: pcInfo object&gt;]</span><br></pre></td></tr></table></figure>
-<h4 id="动态添加查询条件"><strong>动态添加查询条件</strong></h4><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; query = []</span><br><span class="line"></span><br><span class="line"><span class="comment">#添加查询条件</span></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; query.append((<span class="string">'ip'</span>, <span class="string">'192.168.1.1'</span>))</span><br><span class="line"></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; query.append((<span class="string">'port'</span>, <span class="number">40004</span>))</span><br><span class="line"></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; query.append((<span class="string">'port'</span>, <span class="number">30002</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">#构建Q对象列表</span></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; q_list = [<span class="constant">Q</span>(x) for x in query]</span><br><span class="line"></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; print q_list[<span class="number">0</span>]</span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt;ip<span class="string">', '</span><span class="number">192.168</span>.<span class="number">1.1</span><span class="string">'))</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; print q_list[1]</span><br><span class="line">&gt;&gt;&gt;port'</span>, <span class="number">40004</span>))</span><br><span class="line"></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; print q_list[<span class="number">2</span>]</span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt;port<span class="string">', 30002))</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; pcInfo.objects.filter(reduce(operator.or_, q_list))</span><br><span class="line">&gt;&gt;&gt; [&lt;pcInfo: pcInfo object&gt;, &lt;pcInfo: pcInfo object&gt;, &lt;pcInfo: pcInfo object&gt;]</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; result=pcInfo.objects.filter(reduce(operator.or_, q_list))</span><br><span class="line">&gt;&gt;&gt; print result[0].__dict__</span><br><span class="line">&gt;&gt;&gt;t'</span><span class="symbol">:</span> u<span class="string">' \u6d4b\u8bd5'</span>, <span class="string">'city'</span><span class="symbol">:</span> u<span class="string">'\u7f8e\u56fd-\u590f\u5a01\u5937'</span>, <span class="string">'ip'</span><span class="symbol">:</span> u<span class="string">'192.168.1.1'</span>, <span class="string">'isp'</span><span class="symbol">:</span> u<span class="string">'Hawaiian telcom'</span>, <span class="string">'_state'</span><span class="symbol">:</span> &lt;django.db.models.base.<span class="constant">ModelState</span> object at <span class="number">0xb533ab6c</span>&gt;, <span class="string">'port'</span><span class="symbol">:</span> <span class="number">50000</span>L, <span class="string">'mac'</span><span class="symbol">:</span> u<span class="string">'00-E0-4C-68-6C-82'</span>, <span class="string">'id'</span><span class="symbol">:</span> <span class="number">1</span>L&#125;</span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt; print result[<span class="number">1</span>].__dict_<span class="number">_</span></span><br><span class="line"><span class="prompt">&gt;&gt;</span>&gt;t<span class="string">': u'</span>check<span class="string">', '</span>city<span class="string">': u'</span>\u7f8e\u56fd-\u62c9\u65af\u7ef4\u52a<span class="number">0</span>\u65af<span class="string">', '</span>ip<span class="string">': u'</span><span class="number">192.168</span>.<span class="number">1.6</span><span class="string">', '</span>isp<span class="string">': u'</span><span class="constant">Cox</span> <span class="constant">Communication</span><span class="string">', '</span>_state<span class="string">': &lt;django.db.models.base.ModelState object at 0xb533a18c&gt;, '</span>port<span class="string">': 30002L, '</span>mac<span class="string">': u'</span><span class="number">00</span>-<span class="constant">E0</span>-<span class="number">4</span>C-<span class="number">68</span>-<span class="number">41</span>-<span class="constant">D4</span><span class="string">', '</span>id<span class="string">': 6L&#125;</span><br><span class="line">&gt;&gt;&gt; print result[2].__dict__</span><br><span class="line">&#123;'</span>comment<span class="string">': u'</span>modifyMinipc<span class="string">', '</span>city<span class="string">': u'</span>\u6fb3\u6d32-\u5e15\u65af<span class="string">', '</span>ip<span class="string">': u'</span><span class="number">192.168</span>.<span class="number">1.8</span><span class="string">', '</span>isp<span class="string">': u'</span><span class="constant">TPG</span> <span class="constant">Internet</span><span class="string">', '</span>_state<span class="string">': &lt;django.db.models.base.ModelState object at 0xb533a6ec&gt;, '</span>port<span class="string">': 40004L, '</span>mac<span class="string">': u'</span><span class="number">00</span>-<span class="constant">E0</span>-<span class="number">4</span>C-<span class="number">68</span>-<span class="number">6</span>C-<span class="constant">A7</span><span class="string">', '</span>id<span class="string">': 8L&#125;</span></span><br></pre></td></tr></table></figure>
-<h2 id="参考文章"><strong>参考文章</strong></h2><p><a href="http://www.michelepasin.org/blog/2010/07/20/the-power-of-djangos-q-objects/" target="_blank" rel="external">The power of django’s Q objects</a></p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>&emsp;当我们使用Django查询数据库时，一般都是使用Django提供的方法。简单的数据库查询还能应付，但一旦要执行复杂查询时变无法满足要求，于是为满足用户的复杂查询需求Django提供了<strong>Q对象</strong>。</p>
-<h3 id="基础环境说明]]>
-    </summary>
-    
-      <category term="Django" scheme="http://yoursite.com/tags/Django/"/>
-    
-      <category term="Python" scheme="http://yoursite.com/categories/Python/"/>
     
   </entry>
   
