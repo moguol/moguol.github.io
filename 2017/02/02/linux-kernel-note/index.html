@@ -129,14 +129,14 @@
 
 
 				<div class="content" itemprop="articleBody">
-					<h2 id="目录"><strong>目录</strong></h2><ul>
+					<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a><strong>目录</strong></h2><ul>
 <li><a href="#introduction">绪论</a></li>
 <li><a href="#memory_addressing">内存寻址</a></li>
 <li><a href="#memory_management">内存管理</a></li>
 </ul>
 <p><span id="introduction"></span></p>
-<h2 id="绪论"><strong>绪论</strong></h2><h3 id="Unix文件系统概述"><strong>Unix文件系统概述</strong></h3><h4 id="文件"><strong>文件</strong></h4><p>&emsp;&emsp;Unix文件是以字节序列组成的信息载体，文件被组织在一个<strong>树结构</strong>的命名空间中。除叶节点外，树的所有节点表示目录名。<strong>目录节点包含其下的文件及目录的所有信息。</strong><br>&emsp;&emsp;Unix的进程都有一个当前目录，当前目录属于进程<strong>执行上下文(execution context)</strong>，标识进程所在的当前目录。进程使用<strong>路径名(pathname)</strong>标识某个特定文件，路径名由斜杠及一系列指向文件的目录名交替组成。若路径名的第一个字符为’/‘，则此路径为<strong>绝对路径</strong>；若第一项为目录名或文件名，则此路径为<strong>相对路径</strong>，<strong><code>.</code></strong>标识当前目录、<strong><code>..</code></strong>标识父目录。</p>
-<h4 id="软链接_&amp;_硬链接"><strong>软链接 &amp; 硬链接</strong></h4><p>&emsp;&emsp;使用<strong><code>ln</code></strong>命令为由路径<code>P1</code>标识的文件创建一个名为<code>P2</code>的硬链接<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; ln P1 P2</span><br></pre></td></tr></table></figure></p>
+<h2 id="绪论"><a href="#绪论" class="headerlink" title="绪论"></a><strong>绪论</strong></h2><h3 id="Unix文件系统概述"><a href="#Unix文件系统概述" class="headerlink" title="Unix文件系统概述"></a><strong>Unix文件系统概述</strong></h3><h4 id="文件"><a href="#文件" class="headerlink" title="文件"></a><strong>文件</strong></h4><p>&emsp;&emsp;Unix文件是以字节序列组成的信息载体，文件被组织在一个<strong>树结构</strong>的命名空间中。除叶节点外，树的所有节点表示目录名。<strong>目录节点包含其下的文件及目录的所有信息。</strong><br>&emsp;&emsp;Unix的进程都有一个当前目录，当前目录属于进程<strong>执行上下文(execution context)</strong>，标识进程所在的当前目录。进程使用<strong>路径名(pathname)</strong>标识某个特定文件，路径名由斜杠及一系列指向文件的目录名交替组成。若路径名的第一个字符为’/‘，则此路径为<strong>绝对路径</strong>；若第一项为目录名或文件名，则此路径为<strong>相对路径</strong>，<strong><code>.</code></strong>标识当前目录、<strong><code>..</code></strong>标识父目录。</p>
+<h4 id="软链接-amp-硬链接"><a href="#软链接-amp-硬链接" class="headerlink" title="软链接 &amp; 硬链接"></a><strong>软链接 &amp; 硬链接</strong></h4><p>&emsp;&emsp;使用<strong><code>ln</code></strong>命令为由路径<code>P1</code>标识的文件创建一个名为<code>P2</code>的硬链接<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; ln P1 P2</span><br></pre></td></tr></table></figure></p>
 <p>&emsp;&emsp;硬链接有2个限制：</p>
 <ol>
 <li>不能为目录创建硬链接</li>
@@ -144,7 +144,7 @@
 </ol>
 <p>&emsp;&emsp;软链接又可称之为符号链接。路径名可指向位于任意文件系统的任意文件或目录，甚至<strong>可指向一个不存在的文件</strong>(硬链接只能对已存在的文件进行创建)。同样使用<strong><code>ln</code></strong>命令创建软链接<br>&emsp;&emsp;创建一个名为<code>P2</code>的软链接并指向路径名<code>P1</code>，任何对<code>P2</code>的操作都会自动转换到<code>P1</code><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&gt; ln <span class="operator">-s</span> P1 P2</span><br></pre></td></tr></table></figure></p>
 <p>&emsp;&emsp;硬链接是有着与原文件<strong>相同inode号</strong>仅文件名不同的文件，而软链接是拥有属于自己的inode号的，软链接的数据块内容存放着指向原文件的路径。</p>
-<h4 id="文件类型"><strong>文件类型</strong></h4><p>&emsp;&emsp;Unix文件类型包括如下：</p>
+<h4 id="文件类型"><a href="#文件类型" class="headerlink" title="文件类型"></a><strong>文件类型</strong></h4><p>&emsp;&emsp;Unix文件类型包括如下：</p>
 <ul>
 <li>普通文件</li>
 <li>目录</li>
@@ -154,7 +154,7 @@
 <li>管道、命名管道</li>
 <li>套接字(socket)</li>
 </ul>
-<h4 id="文件描述符(fd)_&amp;_索引节点(inode)"><strong>文件描述符(fd) &amp; 索引节点(inode)</strong></h4><p>&emsp;&emsp;除设备文件和特殊文件系统文件外，Unix文件都由字符序列组成。Unix对文件的内容和描述文件的信息加以区分，文件内容不包含控制信息(文件长度、文件结束符等)。<br>&emsp;&emsp;文件系统处理文件所需的控制信息都包含在<strong>索引节点</strong>(<strong>inode</strong>)中。每个文件都有自己的索引节点，文件系统用索引节点标识文件。<br>&emsp;&emsp;索引节点(inode)包含如下属性：</p>
+<h4 id="文件描述符-fd-amp-索引节点-inode"><a href="#文件描述符-fd-amp-索引节点-inode" class="headerlink" title="文件描述符(fd) &amp; 索引节点(inode)"></a><strong>文件描述符(fd) &amp; 索引节点(inode)</strong></h4><p>&emsp;&emsp;除设备文件和特殊文件系统文件外，Unix文件都由字符序列组成。Unix对文件的内容和描述文件的信息加以区分，文件内容不包含控制信息(文件长度、文件结束符等)。<br>&emsp;&emsp;文件系统处理文件所需的控制信息都包含在<strong>索引节点</strong>(<strong>inode</strong>)中。每个文件都有自己的索引节点，文件系统用索引节点标识文件。<br>&emsp;&emsp;索引节点(inode)包含如下属性：</p>
 <ul>
 <li>文件类型</li>
 <li>与文件相关的硬链接个数</li>
@@ -166,7 +166,7 @@
 <li>时间戳(改变时间、最后访问时间、最后修改时间)</li>
 <li>访问权限及文件模式</li>
 </ul>
-<h4 id="访问权限"><strong>访问权限</strong></h4><p>&emsp;&emsp;文件的潜在用户分三类：</p>
+<h4 id="访问权限"><a href="#访问权限" class="headerlink" title="访问权限"></a><strong>访问权限</strong></h4><p>&emsp;&emsp;文件的潜在用户分三类：</p>
 <ul>
 <li>文件拥有者(<strong><code>u</code></strong>ser)</li>
 <li>同组用户，不包括拥有者(<strong><code>g</code></strong>roup)</li>
@@ -178,13 +178,13 @@
 <li><code>sgid</code>：进程执行文件时保持用户组的GID。</li>
 <li><code>sticky</code>：向内核发出请求，当程序结束后依然将其保存在内存中(此标志已过时)。</li>
 </ul>
-<h3 id="Unix内核概述"><strong>Unix内核概述</strong></h3><h4 id="进程/内核模式"><strong>进程/内核模式</strong></h4><p>&emsp;&emsp;CPU可运行在用户态下，也可运行在内核态下。尽管CPU会拥有不同的执行状态，但标准的Unix内核仅用到<strong>用户态</strong>和<strong>内核态</strong>。<br>&emsp;&emsp;一个程序在执行时，大部分时间处于用户态下，只有需要内核所提供的服务时才切换到内核态，程序在用户态下不能直接访问内核数据结构和内核程序。当内核满足用户程序请求后，内核会让程序重新回到用户态。<br>&emsp;&emsp;请求内核服务的进程使用<strong>系统调用(system call)</strong>的特殊编程机制完成从用户态到内核态的转换(系统调用只是其中的一种方式)。每个系统调用都设置一组识别进程请求的参数，进程调用后执行与硬件相关的CPU指令。<br>&emsp;&emsp;除用户进程外，Unix系统还有几个<strong>内核线程(kernel thread)</strong>的<strong>特权进程</strong>，特权进程有如下特点：</p>
+<h3 id="Unix内核概述"><a href="#Unix内核概述" class="headerlink" title="Unix内核概述"></a><strong>Unix内核概述</strong></h3><h4 id="进程-内核模式"><a href="#进程-内核模式" class="headerlink" title="进程/内核模式"></a><strong>进程/内核模式</strong></h4><p>&emsp;&emsp;CPU可运行在用户态下，也可运行在内核态下。尽管CPU会拥有不同的执行状态，但标准的Unix内核仅用到<strong>用户态</strong>和<strong>内核态</strong>。<br>&emsp;&emsp;一个程序在执行时，大部分时间处于用户态下，只有需要内核所提供的服务时才切换到内核态，程序在用户态下不能直接访问内核数据结构和内核程序。当内核满足用户程序请求后，内核会让程序重新回到用户态。<br>&emsp;&emsp;请求内核服务的进程使用<strong>系统调用(system call)</strong>的特殊编程机制完成从用户态到内核态的转换(系统调用只是其中的一种方式)。每个系统调用都设置一组识别进程请求的参数，进程调用后执行与硬件相关的CPU指令。<br>&emsp;&emsp;除用户进程外，Unix系统还有几个<strong>内核线程(kernel thread)</strong>的<strong>特权进程</strong>，特权进程有如下特点：</p>
 <ul>
 <li>以内核态运行在内核地址空间中</li>
 <li>不与用户直接交互、不需要终端设备</li>
 <li>在系统启动时创建，一直处于活跃状态直到系统关闭</li>
 </ul>
-<h4 id="进程实现"><strong>进程实现</strong></h4><p>&emsp;&emsp;为了内核能管理进程，每个进程由<strong>进程描述符(process descriptor)</strong>表示，进程描述符包含有关进程当前状态的信息。<br>&emsp;&emsp;当内核需要暂停一个正在执行中的进程时，会把相关处理器寄存器的内容保存到进程描述符中，这些寄存器包括：</p>
+<h4 id="进程实现"><a href="#进程实现" class="headerlink" title="进程实现"></a><strong>进程实现</strong></h4><p>&emsp;&emsp;为了内核能管理进程，每个进程由<strong>进程描述符(process descriptor)</strong>表示，进程描述符包含有关进程当前状态的信息。<br>&emsp;&emsp;当内核需要暂停一个正在执行中的进程时，会把相关处理器寄存器的内容保存到进程描述符中，这些寄存器包括：</p>
 <ul>
 <li>程序计数器(PC)和栈指针(SP)寄存器</li>
 <li>通用寄存器</li>
@@ -193,15 +193,15 @@
 <li>用来跟踪进程对RAM访问的内存管理寄存器</li>
 </ul>
 <p>&emsp;&emsp;当内核需要恢复一个进程时，会用进程描述符中合适的字段来装载寄存器。<br>&emsp;&emsp;当进程不在CPU上执行时，那正在等待事件。内核可区分多种等待状态，这些等待状态由进程描述符队列实现，每个队列对应一组正在等待某事件的进程。</p>
-<h4 id="可重入内核"><strong>可重入内核</strong></h4><p>&emsp;&emsp;所有Unix内核都是<strong>可重入的(reentrant)</strong>，可重入意味着多个进程可同时在内核态下执行。<br>&emsp;&emsp;提供可重入的其中一种方式是编写可重入函数，可重入函数只能修改局部变量而不能修改全局变量。对于非重入函数，可利用锁机制保证一次只有一个进程执行一个非重入函数。<br>&emsp;&emsp;进程即使处于内核态，当一个硬件中断产生时，可重入内核也能将正在执行的进程挂起。产生硬件中断的设备控制器能快速的收到内核的应答，设备控制器在CPU处理中断时能执行其他任务，这样能提高设备控制器的吞吐量。<br>&emsp;&emsp;为了说明可重入性对内核组织的影响。引入<strong>内核控制路径(kernel control path)</strong>概念，内核控制路径表示内核处理系统调用、异常或中断所执行的指令序列。<br>&emsp;&emsp;最简单的情况下，CPU从第一条指令到最后一条指令顺序执行内核控制路径。但当以下事件之一发生时，CPU交错执行内核控制路径：</p>
+<h4 id="可重入内核"><a href="#可重入内核" class="headerlink" title="可重入内核"></a><strong>可重入内核</strong></h4><p>&emsp;&emsp;所有Unix内核都是<strong>可重入的(reentrant)</strong>，可重入意味着多个进程可同时在内核态下执行。<br>&emsp;&emsp;提供可重入的其中一种方式是编写可重入函数，可重入函数只能修改局部变量而不能修改全局变量。对于非重入函数，可利用锁机制保证一次只有一个进程执行一个非重入函数。<br>&emsp;&emsp;进程即使处于内核态，当一个硬件中断产生时，可重入内核也能将正在执行的进程挂起。产生硬件中断的设备控制器能快速的收到内核的应答，设备控制器在CPU处理中断时能执行其他任务，这样能提高设备控制器的吞吐量。<br>&emsp;&emsp;为了说明可重入性对内核组织的影响。引入<strong>内核控制路径(kernel control path)</strong>概念，内核控制路径表示内核处理系统调用、异常或中断所执行的指令序列。<br>&emsp;&emsp;最简单的情况下，CPU从第一条指令到最后一条指令顺序执行内核控制路径。但当以下事件之一发生时，CPU交错执行内核控制路径：</p>
 <ul>
 <li>用户态下的进程调用一个系统调用，相应的内核控制路径确定这个请求无法立即满足。于是，内核控制路径调用调度程序选择一个新的进程执行。因此发生进程切换。第一个内核控制路径没完成，CPU便开始执行其他的内核控制路径。此情况下，两条控制路径代表两个不同的进程在执行。</li>
 <li>当正在执行一个内核控制路径时，CPU检测到一个异常，第一个控制路径被挂起而CPU开始执行合适的过程。</li>
 <li>当CPU正在运行一个启用了中断的内核控制路径时，一个硬件中断产生。第一个内核控制路径还未执行完，CPU开始执行另一个内核控制路径来处理中断，中断处理完后第一个内核控制路径恢复。</li>
 <li>在支持抢占式调度的内核中，若一个更高优先级的进程进入调度队列，则CPU会中断第一个执行控制路径，优先响应更高优先级的进程。</li>
 </ul>
-<h4 id="进程地址空间"><strong>进程地址空间</strong></h4><p>&emsp;&emsp;每个进程都运行在属于自己的私有地址空间中，地址空间的最大长度和物理内存无关，所以称之为<strong>虚拟地址空间</strong>。Linux将地址空间根据用户态和内核态不同分为<strong>用户空间</strong>和<strong>内核空间</strong>。用户态下进程的地址空间在用户空间中，涉及<strong>私有栈</strong>、<strong>数据区</strong>和<strong>代码区</strong>，但进入内核态则使用内核空间的数据区和代码区。<br>&emsp;&emsp;虽说进程访问的是私有地址空间，但进程间也能共享部分地址空间，比如在实现进程间通信时，其中一种方式称为<strong>共享内存</strong>，是通过共享部分地址空间从而实现进程间通信的。<br>&emsp;&emsp;Linux的<strong><code>mmap()</code></strong>系统调用允许<strong>块设备</strong>的文件映射到进程的地址空间中，若一个文件由多个进程共享，那么这些进程的地址空间都包含该文件的内存映射。</p>
-<h4 id="进程间通信"><strong>进程间通信</strong></h4><p>&emsp;&emsp;目前Linux系统中进程间通信主要的方式有以下几种：</p>
+<h4 id="进程地址空间"><a href="#进程地址空间" class="headerlink" title="进程地址空间"></a><strong>进程地址空间</strong></h4><p>&emsp;&emsp;每个进程都运行在属于自己的私有地址空间中，地址空间的最大长度和物理内存无关，所以称之为<strong>虚拟地址空间</strong>。Linux将地址空间根据用户态和内核态不同分为<strong>用户空间</strong>和<strong>内核空间</strong>。用户态下进程的地址空间在用户空间中，涉及<strong>私有栈</strong>、<strong>数据区</strong>和<strong>代码区</strong>，但进入内核态则使用内核空间的数据区和代码区。<br>&emsp;&emsp;虽说进程访问的是私有地址空间，但进程间也能共享部分地址空间，比如在实现进程间通信时，其中一种方式称为<strong>共享内存</strong>，是通过共享部分地址空间从而实现进程间通信的。<br>&emsp;&emsp;Linux的<strong><code>mmap()</code></strong>系统调用允许<strong>块设备</strong>的文件映射到进程的地址空间中，若一个文件由多个进程共享，那么这些进程的地址空间都包含该文件的内存映射。</p>
+<h4 id="进程间通信"><a href="#进程间通信" class="headerlink" title="进程间通信"></a><strong>进程间通信</strong></h4><p>&emsp;&emsp;目前Linux系统中进程间通信主要的方式有以下几种：</p>
 <ul>
 <li>管道(pipe)和命名管道(FIFO)</li>
 <li>信号(signal)</li>
@@ -209,7 +209,7 @@
 <li>共享内存</li>
 <li>套接字(socket)</li>
 </ul>
-<h4 id="进程管理"><strong>进程管理</strong></h4><p>&emsp;&emsp;Linux系统是通过调用<strong><code>fork()</code></strong>创建新进程的。<strong><code>fork()</code></strong>会创建一个与父进程<strong>完全相同</strong>的子进程，子进程被创建后继续执行<code>fork()</code>后面的代码。为了效率考虑Linux系统使用<strong>Copy-On-Write</strong>机制，简单的说就是<code>fork()</code>后的父子进程都使用相同的物理内存区域，子进程的代码区、数据区和堆栈区等都指向父进程(父子进程的虚拟地址空间是不同的)，只有当父或子进程需要进行写入时才为子进程分配数据区、堆栈区(代码区(<code>exec()</code>))并复制父进程的内容给子进程。</p>
+<h4 id="进程管理"><a href="#进程管理" class="headerlink" title="进程管理"></a><strong>进程管理</strong></h4><p>&emsp;&emsp;Linux系统是通过调用<strong><code>fork()</code></strong>创建新进程的。<strong><code>fork()</code></strong>会创建一个与父进程<strong>完全相同</strong>的子进程，子进程被创建后继续执行<code>fork()</code>后面的代码。为了效率考虑Linux系统使用<strong>Copy-On-Write</strong>机制，简单的说就是<code>fork()</code>后的父子进程都使用相同的物理内存区域，子进程的代码区、数据区和堆栈区等都指向父进程(父子进程的虚拟地址空间是不同的)，只有当父或子进程需要进行写入时才为子进程分配数据区、堆栈区(代码区(<code>exec()</code>))并复制父进程的内容给子进程。</p>
 <ul>
 <li><strong>僵尸进程(zombie process)</strong><br>  &emsp;&emsp;Linux中是通过父进程调用<code>fork()</code>创建出新的子进程，当子进程执行完毕调用<code>exit()</code>结束自己释放绝大多数资源后，子进程并非立即就在系统中消失而是会留下部分信息(<code>PID</code>、<code>退出状态</code>、<code>CPU使用时间</code>等)并在进程列表中保留位置(即占用一个PID)，直到父进程调用<code>wait()/waitpid()</code>收集完子进程残留的信息后才会使子进程彻底从系统中消失。子进程调用<code>exit()</code>到父进程调用<code>wait()/waitpid()</code>之间所处于的状态称其为<strong>僵尸进程</strong>。<br>  &emsp;&emsp;僵尸进程是不能通过<code>kill</code>命令让其消失的，因为僵尸进程已经<code>exit()</code>退出了只是还残留信息等待被父进程收集而已。假若父进程中没有写<code>wait()/waitpid()</code>操作或父进程忙于执行其他任务无法执行<code>wait()/waitpid()</code>，那么系统中可能会出现很多僵尸进程(僵尸进程占用PID，系统PID资源也是有限的)。其中一个办法是之间杀死父进程，让子进程变成<strong>孤儿进程</strong>由<strong><code>init进程</code></strong>接管并收集残留信息使僵尸进程消失。</li>
 <li><strong>进程组(process group) &amp; 登录会话(login session)</strong><ul>
@@ -218,7 +218,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="内存管理"><strong>内存管理</strong></h4><ul>
+<h4 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a><strong>内存管理</strong></h4><ul>
 <li><p><strong>虚拟内存</strong><br>  &emsp;&emsp;在内存管理上，Linux系统引入<strong>虚拟内存(virtual memory)</strong>这个抽象的逻辑层。虚拟内存(virtual memory)是处于<em>应用程序内存申请</em>和<em>硬件内存管理单元(Memory Management Unit, <code>MMU</code>)</em>之间。<br>  &emsp;&emsp;虚拟内存(virtual memory)的用途和优点：</p>
 <ul>
 <li>支持多进程并行执行</li>
@@ -263,8 +263,8 @@
 </li>
 </ul>
 <p><span id="memory_addressing"></span></p>
-<h2 id="内存寻址"><strong>内存寻址</strong></h2><p>&emsp;&emsp;《深入理解Linux内核》内存寻址这章节是以<strong><code>80x86</code>微处理器</strong>为主来讲解芯片级别的内存寻址的。</p>
-<h3 id="内存地址"><strong>内存地址</strong></h3><p>&emsp;&emsp;<code>80x86</code>微处理器将内存区分为三种不同的地址：</p>
+<h2 id="内存寻址"><a href="#内存寻址" class="headerlink" title="内存寻址"></a><strong>内存寻址</strong></h2><p>&emsp;&emsp;《深入理解Linux内核》内存寻址这章节是以<strong><code>80x86</code>微处理器</strong>为主来讲解芯片级别的内存寻址的。</p>
+<h3 id="内存地址"><a href="#内存地址" class="headerlink" title="内存地址"></a><strong>内存地址</strong></h3><p>&emsp;&emsp;<code>80x86</code>微处理器将内存区分为三种不同的地址：</p>
 <ul>
 <li><strong>逻辑地址(logical address)</strong><ul>
 <li>包含在机器语言指令中用来指定一个操作数或一条指令的地址。</li>
@@ -284,12 +284,12 @@
 </li>
 </ul>
 <p>&emsp;&emsp;<strong>内存控制单元(MMU)</strong>通过<strong>分段单元(segmentation unit)</strong>硬件电路将逻辑地址(logical address)转换成虚拟地址(virtual address)，再通过<strong>分页单元(paging unit)</strong>硬件电路将虚拟地址(virtual address)转换物理地址(physical address)。<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">逻辑地址<span class="comment">(logical address)</span>——&gt;[分段单元<span class="comment">(segmentation unit)</span>]——&gt;虚拟地址<span class="comment">(virtual address)</span>——&gt;[分页单元<span class="comment">(paging unit)</span>]——&gt;物理地址<span class="comment">(physical address)</span></span><br></pre></td></tr></table></figure></p>
-<h3 id="分段"><strong>分段</strong></h3><p>&emsp;&emsp;从<code>80286</code>模型开始，Intel微处理器以<code>2</code>种不同方式执行地址转换：</p>
+<h3 id="分段"><a href="#分段" class="headerlink" title="分段"></a><strong>分段</strong></h3><p>&emsp;&emsp;从<code>80286</code>模型开始，Intel微处理器以<code>2</code>种不同方式执行地址转换：</p>
 <ul>
 <li><strong>实模式(real mode)</strong>：之所以存在<em>实模式</em>是为了维持处理器与早期模型兼容并让操作系统自举</li>
 <li><strong>保护模式(protected mode)</strong>：目前主要的地址转换模式，接下来主要讨论的内容</li>
 </ul>
-<h4 id="段选择符_&amp;_段寄存器"><strong>段选择符 &amp; 段寄存器</strong></h4><p>&emsp;&emsp;<strong>逻辑地址</strong> = <strong>段标识符</strong> + <strong>段内偏移量</strong></p>
+<h4 id="段选择符-amp-段寄存器"><a href="#段选择符-amp-段寄存器" class="headerlink" title="段选择符 &amp; 段寄存器"></a><strong>段选择符 &amp; 段寄存器</strong></h4><p>&emsp;&emsp;<strong>逻辑地址</strong> = <strong>段标识符</strong> + <strong>段内偏移量</strong></p>
 <ul>
 <li><strong>段标识符</strong>：<strong><code>16</code></strong>位长的字段，称<strong>段选择符(Segment Selector)</strong>，这<code>16</code>位长的<strong>段选择符</strong>结构如下<ul>
 <li><code>15</code>~<code>3</code>：索引号</li>
@@ -305,7 +305,7 @@
 <li><strong>ss</strong>：栈段寄存器，指向包含程序栈的段</li>
 <li><strong>ds</strong>：数据段寄存器，指向包含静态数据或全局数据段</li>
 </ul>
-<h4 id="段描述符"><strong>段描述符</strong></h4><p>&emsp;&emsp;<strong>段描述符(Segment Descriptor)</strong>是用于描述段的特征的。<br>&emsp;&emsp;每个段都由一个<strong><code>8</code>字节</strong>的<strong>段描述符(Segment Descriptor)</strong>表示，<strong>段描述符(Segment Descriptor)</strong>存放在<strong>全局描述符表(Global Descriptor Table，GDT)</strong>或<strong>局部描述符表(Local Descriptor Table，LDT)</strong>中。<br>&emsp;&emsp;通常只定义一个GDT，若进程除存放在GDT中的段外仍需要新段，则创建属于自己的LDT来存放。<br>&emsp;&emsp;GDT在主存中的地址和大小存在<strong>gdtr控制寄存器</strong>中，当前正被使用的LDT地址和大小放在<strong>ldtr控制寄存器</strong>中。</p>
+<h4 id="段描述符"><a href="#段描述符" class="headerlink" title="段描述符"></a><strong>段描述符</strong></h4><p>&emsp;&emsp;<strong>段描述符(Segment Descriptor)</strong>是用于描述段的特征的。<br>&emsp;&emsp;每个段都由一个<strong><code>8</code>字节</strong>的<strong>段描述符(Segment Descriptor)</strong>表示，<strong>段描述符(Segment Descriptor)</strong>存放在<strong>全局描述符表(Global Descriptor Table，GDT)</strong>或<strong>局部描述符表(Local Descriptor Table，LDT)</strong>中。<br>&emsp;&emsp;通常只定义一个GDT，若进程除存放在GDT中的段外仍需要新段，则创建属于自己的LDT来存放。<br>&emsp;&emsp;GDT在主存中的地址和大小存在<strong>gdtr控制寄存器</strong>中，当前正被使用的LDT地址和大小放在<strong>ldtr控制寄存器</strong>中。</p>
 
 				</div>
 

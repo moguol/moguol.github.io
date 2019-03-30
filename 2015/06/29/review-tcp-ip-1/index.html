@@ -129,33 +129,33 @@
 
 
 				<div class="content" itemprop="articleBody">
-					<h2 id="链路层主要目的"><strong>链路层主要目的</strong></h2><p>&emsp;TCP/IP支持多种链路层协议，不同的网络硬件设备使用不同链路层协议，如：以太网协议、令牌环、FDDI和PPP等。链路层主要有三个目的：</p>
+					<p>##<strong>链路层主要目的</strong><br>&emsp;TCP/IP支持多种链路层协议，不同的网络硬件设备使用不同链路层协议，如：以太网协议、令牌环、FDDI和PPP等。链路层主要有三个目的：</p>
 <ul>
 <li>为IP模块发送和接受IP数据报</li>
 <li>为ARP模块发送ARP请求和接受ARP应答</li>
 <li>为RARP模块发送RARP请求和接受RARP应答</li>
 </ul>
-<h2 id="以太网"><strong>以太网</strong></h2><p>&emsp;以太网是目前TCP/IP在局域网中最主要的技术，采用CSMA/CD(带冲突检测的载波侦听多路接入)接入方法，地址为48bit(既MAC地址)。然而以太网是几家公司联合发布的一个技术标准，后来IEEE发布802标准(802.3针对CSMA/CD网络)。但实际上目前局域网中绝大多数都是以太网包，802.3的包有使用但极少。<strong>以太网帧结构和802.3帧结构是完全不同的</strong>，以下我主要记录以太网包相关的内容。</p>
-<h3 id="以太网帧结构"><strong>以太网帧结构</strong></h3><p>&emsp;以太网规定以太网帧中的<code>数据</code>长度在<strong><code>46~1500</code></strong>字节之间。最小不少于46字节，<strong>不足46字节的必须加入填充(PAD)字节</strong>；最大不得超过1500字节(1500既MTU)。所以一个正常的以太网帧长度应该在<strong>64~1518</strong>字节之间，由<code>帧头部+数据+帧尾校验</code>组成<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">| 目的地址<span class="comment">(6)</span> | 源地址<span class="comment">(6)</span> | 类型<span class="comment">(2)</span> | 数据<span class="comment">(46~1500)</span> | CRC<span class="comment">(4)</span> |</span><br></pre></td></tr></table></figure></p>
-<h3 id="以太网帧中的类型字段"><strong>以太网帧中的类型字段</strong></h3><p>&emsp;在以太网帧结构中有2字节的<code>类型</code>字段，其主要目的是为了标识上层协议类型。常见的有以下三种类型，更详细的类型参见<a href="https://en.wikipedia.org/wiki/EtherType#Examples" target="_blank" rel="external">这里</a></p>
+<p>##<strong>以太网</strong><br>&emsp;以太网是目前TCP/IP在局域网中最主要的技术，采用CSMA/CD(带冲突检测的载波侦听多路接入)接入方法，地址为48bit(既MAC地址)。然而以太网是几家公司联合发布的一个技术标准，后来IEEE发布802标准(802.3针对CSMA/CD网络)。但实际上目前局域网中绝大多数都是以太网包，802.3的包有使用但极少。<strong>以太网帧结构和802.3帧结构是完全不同的</strong>，以下我主要记录以太网包相关的内容。</p>
+<p>###<strong>以太网帧结构</strong><br>&emsp;以太网规定以太网帧中的<code>数据</code>长度在<strong><code>46~1500</code></strong>字节之间。最小不少于46字节，<strong>不足46字节的必须加入填充(PAD)字节</strong>；最大不得超过1500字节(1500既MTU)。所以一个正常的以太网帧长度应该在<strong>64~1518</strong>字节之间，由<code>帧头部+数据+帧尾校验</code>组成<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">| 目的地址(<span class="number">6</span>) | 源地址(<span class="number">6</span>) | 类型(<span class="number">2</span>) | 数据(<span class="number">46</span>~<span class="number">1500</span>) | CRC(<span class="number">4</span>) |</span><br></pre></td></tr></table></figure></p>
+<p>###<strong>以太网帧中的类型字段</strong><br>&emsp;在以太网帧结构中有2字节的<code>类型</code>字段，其主要目的是为了标识上层协议类型。常见的有以下三种类型，更详细的类型参见<a href="https://en.wikipedia.org/wiki/EtherType#Examples" target="_blank" rel="external">这里</a></p>
 <ul>
 <li><p>IP协议——0x0800<br>  IP数据报在以太网帧中的类型字段以<code>0x0800</code>表示，数据部分大小依旧是<code>46~1500</code>字节</p>
-  <figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">| 目的地址<span class="comment">(6)</span> | 源地址<span class="comment">(6)</span> | <span class="number">0</span>x<span class="number">0800</span> | 数据<span class="comment">(46~1500)</span> | CRC<span class="comment">(4)</span> |</span><br></pre></td></tr></table></figure>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">| 目的地址(<span class="number">6</span>) | 源地址(<span class="number">6</span>) | <span class="number">0x0800</span> | 数据(<span class="number">46</span>~<span class="number">1500</span>) | CRC(<span class="number">4</span>) |</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>ARP协议——0x0806<br>  ARP的请求或应答包在以太网帧中的类型字段以<code>0x0806</code>表示，但数据部分ARP包只有<strong>28</strong>字节，不满足以太网规定的最小<strong>46</strong>字节，所以ARP包的数据部分会有<strong>18</strong>字节的PAD填充字节</p>
-  <figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">| 目的地址<span class="comment">(6)</span> | 源地址<span class="comment">(6)</span> | <span class="number">0</span>x<span class="number">0806</span> | ARP请求/应答数据<span class="comment">(28)</span> + PAD填充字节<span class="comment">(18)</span> | CRC<span class="comment">(4)</span> |</span><br></pre></td></tr></table></figure>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">| 目的地址(<span class="number">6</span>) | 源地址(<span class="number">6</span>) | <span class="number">0x0806</span> | ARP请求/应答数据(<span class="number">28</span>) + PAD填充字节(<span class="number">18</span>) | CRC(<span class="number">4</span>) |</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>RARP协议——0x0835<br>  RARP和ARP差不多，数据部分也只有28字节，需要填充18字节</p>
 </li>
 </ul>
-<h2 id="环回接口(loopback)"><strong>环回接口(loopback)</strong></h2><p>&emsp;通常我们会把<code>127.0.0.1</code>分配给环回接口并命名为<code>localhost</code>，<strong>传给环回接口的IP包不能出现在任何网络上</strong>。环回接口是个比较特殊的接口，此接口会有些有趣或特殊的应用，比如LVS的DR模式中会将VIP配置在RealServer的<em>lo:0</em>环回设备上。<br>&emsp;以下三种情况环回接口处理数据包时，数据包直接经过环回接口驱动程序传入上层，数据包并没有经过网卡输出到以太网后再返回。所以当我们ping 127.0.0.1或本机IP地址时，数据包是直接通过环回驱动程序再回到上层。</p>
+<p>##<strong>环回接口(loopback)</strong><br>&emsp;通常我们会把<code>127.0.0.1</code>分配给环回接口并命名为<code>localhost</code>，<strong>传给环回接口的IP包不能出现在任何网络上</strong>。环回接口是个比较特殊的接口，此接口会有些有趣或特殊的应用，比如LVS的DR模式中会将VIP配置在RealServer的<em>lo:0</em>环回设备上。<br>&emsp;以下三种情况环回接口处理数据包时，数据包直接经过环回接口驱动程序传入上层，数据包并没有经过网卡输出到以太网后再返回。所以当我们ping 127.0.0.1或本机IP地址时，数据包是直接通过环回驱动程序再回到上层。</p>
 <ul>
 <li>目的IP为环回接口地址。IP输出函数——&gt;环回驱动程序——&gt;IP输入函数</li>
 <li>目的IP为广播或多播地址。</li>
 <li>目的IP为本机接口IP地址。</li>
 </ul>
 <p>除以上三种情况外的目的IP数据包会通过ARP协议找到目的IP的MAC地址后进行发送到以太网</p>
-<h2 id="最大传输单元MTU、路径MTU"><strong>最大传输单元MTU、路径MTU</strong></h2><p>&emsp;数据帧中可容最大数据长度称为MTU，在不同帧结构中MTU是不同的，以太网的MTU是<code>1500字节</code>。我们可以通过<code>netstat -in</code>命令查看MTU信息<br>&emsp;当网络上两台主机通信时，会经过路由选路确定一条路径，在这条路径上可能会有不同的网络或设备的MTU。所谓的<strong>路径MTU</strong>则是在这条路径中<strong>最小</strong>的MTU。两台主机间的路径MTU并不一定是固定的，因为路径MTU取决于所选路径。<br>&emsp;由于链路层有MTU限制，所以当IP层要传的数据包大于MTU时，网络层则需要进行IP分片，而且由于路径上的MTU可能会不同，所以数据包可能会被进行多次分片。有关IP分片的详细内容会在网络层做详细介绍。<br>&emsp;大于MTU的包会有两种处理方式：</p>
+<p>##<strong>最大传输单元MTU、路径MTU</strong><br>&emsp;数据帧中可容最大数据长度称为MTU，在不同帧结构中MTU是不同的，以太网的MTU是<code>1500字节</code>。我们可以通过<code>netstat -in</code>命令查看MTU信息<br>&emsp;当网络上两台主机通信时，会经过路由选路确定一条路径，在这条路径上可能会有不同的网络或设备的MTU。所谓的<strong>路径MTU</strong>则是在这条路径中<strong>最小</strong>的MTU。两台主机间的路径MTU并不一定是固定的，因为路径MTU取决于所选路径。<br>&emsp;由于链路层有MTU限制，所以当IP层要传的数据包大于MTU时，网络层则需要进行IP分片，而且由于路径上的MTU可能会不同，所以数据包可能会被进行多次分片。有关IP分片的详细内容会在网络层做详细介绍。<br>&emsp;大于MTU的包会有两种处理方式：</p>
 <ul>
 <li>直接丢弃。丢弃后会发送ICMP报文告诉源端包太大并通告自身的MTU</li>
 <li>重新分块后再发送</li>

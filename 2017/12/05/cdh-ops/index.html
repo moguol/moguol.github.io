@@ -130,8 +130,8 @@
 
 				<div class="content" itemprop="articleBody">
 					<p>整理笔记时简单汇总了有关日常运维配置CDH集群相关的内容，比较杂乱而且许多地方本应该有截图，但由于在七牛的图床废弃了，导致只能用文字说明。权当总结记录备忘吧。</p>
-<h2 id="CDH集群集成LDAP服务"><strong>CDH集群集成LDAP服务</strong></h2><p>使用的是OpenLDAP，OpenLDAP的安装配置详见：<a href="http://moguol.github.io/2017/11/22/OpenLDAP/" target="_blank" rel="external">OpenLDAP</a></p>
-<h3 id="Hive集成OpenLDAP"><strong>Hive集成OpenLDAP</strong></h3><ol>
+<h2 id="CDH集群集成LDAP服务"><a href="#CDH集群集成LDAP服务" class="headerlink" title="CDH集群集成LDAP服务"></a><strong>CDH集群集成LDAP服务</strong></h2><p>使用的是OpenLDAP，OpenLDAP的安装配置详见：<a href="http://moguol.github.io/2017/11/22/OpenLDAP/" target="_blank" rel="external">OpenLDAP</a></p>
+<h3 id="Hive集成OpenLDAP"><a href="#Hive集成OpenLDAP" class="headerlink" title="Hive集成OpenLDAP"></a><strong>Hive集成OpenLDAP</strong></h3><ol>
 <li>Hive -&gt; 配置 -&gt; 搜索框输入”LDAP”</li>
 <li>勾选<strong>启用 LDAP 身份验证 Hive(服务范围)</strong></li>
 <li>修改配置:</li>
@@ -154,8 +154,8 @@
 </tr>
 </tbody>
 </table>
-<h4 id="验证Hive_OpenLDAP"><strong>验证Hive OpenLDAP</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 原生Hive</span></span><br><span class="line">beeline -u <span class="string">"jdbc:hive2://hadoop222:10000"</span> -n &lt;user_name&gt; -p &lt;user_password&gt; <span class="operator">-d</span> org.apache.hive.jdbc.HiveDriver</span><br><span class="line"><span class="comment"># Hive结合ZooKeeper</span></span><br><span class="line">beeline -u <span class="string">"jdbc:hive2://hadoop222:2181,hadoop223:2181,hadoop224:2181/;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2"</span> -n &lt;user_name&gt; -p &lt;user_password&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="Impala集成OpenLDAP"><strong>Impala集成OpenLDAP</strong></h3><ol>
+<h4 id="验证Hive-OpenLDAP"><a href="#验证Hive-OpenLDAP" class="headerlink" title="验证Hive OpenLDAP"></a><strong>验证Hive OpenLDAP</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 原生Hive</span></span><br><span class="line">beeline -u <span class="string">"jdbc:hive2://hadoop222:10000"</span> -n &lt;user_name&gt; -p &lt;user_password&gt; <span class="operator">-d</span> org.apache.hive.jdbc.HiveDriver</span><br><span class="line"><span class="comment"># Hive结合ZooKeeper</span></span><br><span class="line">beeline -u <span class="string">"jdbc:hive2://hadoop222:2181,hadoop223:2181,hadoop224:2181/;serviceDiscoveryMode=zooKeeper;zooKeeperNamespace=hiveserver2"</span> -n &lt;user_name&gt; -p &lt;user_password&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="Impala集成OpenLDAP"><a href="#Impala集成OpenLDAP" class="headerlink" title="Impala集成OpenLDAP"></a><strong>Impala集成OpenLDAP</strong></h3><ol>
 <li>Impala -&gt; 配置 -&gt; 搜索框输入”LDAP”</li>
 <li>勾选<strong>启用 LDAP 身份验证 Impala(服务范围)</strong>(<code>enable_ldap_auth</code>)</li>
 <li>修改配置:</li>
@@ -183,8 +183,8 @@
 </tbody>
 </table>
 <p>因为使用的是<code>ldap</code>而非<code>ldaps</code>，所以需要配置<code>--ldap_passwords_in_clear_ok</code>。</p>
-<h4 id="验证Impala_OpenLDAP"><strong>验证Impala OpenLDAP</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">impala-shell <span class="operator">-l</span> -u &lt;user_name&gt; --auth_creds_ok_<span class="keyword">in</span>_clear</span><br></pre></td></tr></table></figure>
-<h3 id="HUE集成OpenLDAP"><strong>HUE集成OpenLDAP</strong></h3><ol>
+<h4 id="验证Impala-OpenLDAP"><a href="#验证Impala-OpenLDAP" class="headerlink" title="验证Impala OpenLDAP"></a><strong>验证Impala OpenLDAP</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">impala-shell <span class="operator">-l</span> -u &lt;user_name&gt; --auth_creds_ok_<span class="keyword">in</span>_clear</span><br></pre></td></tr></table></figure>
+<h3 id="HUE集成OpenLDAP"><a href="#HUE集成OpenLDAP" class="headerlink" title="HUE集成OpenLDAP"></a><strong>HUE集成OpenLDAP</strong></h3><ol>
 <li>HUE -&gt; 配置 -&gt; 搜索框输入”LDAP”</li>
 </ol>
 <table>
@@ -214,7 +214,7 @@
 </tbody>
 </table>
 <p>Hue登录时，需要使用一个预设的用户名和密码去连接hive/impala，连接成功之后，当真正执行SQL的时候，还使用登录时的账号来做鉴权，所以需要设置<code>hue_safety_valve.ini</code></p>
-<h3 id="配置LDAP组映射"><strong>配置LDAP组映射</strong></h3><p>HDFS默认是基于系统用户组进行管理，若新增一个组需要在所有集群节点机器上创建用户组，管理起来非常繁琐。配置LDAP组映射，让HDFS使用LDAP组方便管理。</p>
+<h3 id="配置LDAP组映射"><a href="#配置LDAP组映射" class="headerlink" title="配置LDAP组映射"></a><strong>配置LDAP组映射</strong></h3><p>HDFS默认是基于系统用户组进行管理，若新增一个组需要在所有集群节点机器上创建用户组，管理起来非常繁琐。配置LDAP组映射，让HDFS使用LDAP组方便管理。</p>
 <ol>
 <li>HDFS -&gt; 配置 -&gt; 范围 -&gt; HDFS(服务范围) -&gt; 类别 -&gt; 安全性 -&gt; 搜索框输入”LDAP”</li>
 </ol>
@@ -264,18 +264,18 @@
 </tr>
 </tbody>
 </table>
-<h2 id="CDH配置Sentry"><strong>CDH配置Sentry</strong></h2><h3 id="Sentry准备工作"><strong>Sentry准备工作</strong></h3><h4 id="设置Hive_warehouse目录权限"><strong>设置Hive warehouse目录权限</strong></h4><p>如果HDFS没有开启Sentry同步服务，则需要执行以下准备工作，否则跳过。Hive warehouse默认设置为<code>/user/hive/warehouse</code>(<code>hive-site.xml</code>/<strong><code>hive.metastore.warehouse.dir</code></strong>)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果开启了Kerberos则需要执行kinit</span></span><br><span class="line"><span class="comment"># sudo -u hdfs kinit -kt &lt;hdfs.keytab&gt; hdfs</span></span><br><span class="line">sudo -u hdfs hdfs dfs -chmod -R <span class="number">771</span> /user/hive/warehouse</span><br><span class="line">sudo -u hdfs hdfs dfs -chown -R hive:hive /user/hive/warehouse</span><br></pre></td></tr></table></figure></p>
-<h4 id="禁止HiveServer2_启用模拟"><strong>禁止HiveServer2 启用模拟</strong></h4><ol>
+<h2 id="CDH配置Sentry"><a href="#CDH配置Sentry" class="headerlink" title="CDH配置Sentry"></a><strong>CDH配置Sentry</strong></h2><h3 id="Sentry准备工作"><a href="#Sentry准备工作" class="headerlink" title="Sentry准备工作"></a><strong>Sentry准备工作</strong></h3><h4 id="设置Hive-warehouse目录权限"><a href="#设置Hive-warehouse目录权限" class="headerlink" title="设置Hive warehouse目录权限"></a><strong>设置Hive warehouse目录权限</strong></h4><p>如果HDFS没有开启Sentry同步服务，则需要执行以下准备工作，否则跳过。Hive warehouse默认设置为<code>/user/hive/warehouse</code>(<code>hive-site.xml</code>/<strong><code>hive.metastore.warehouse.dir</code></strong>)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果开启了Kerberos则需要执行kinit</span></span><br><span class="line"><span class="comment"># sudo -u hdfs kinit -kt &lt;hdfs.keytab&gt; hdfs</span></span><br><span class="line">sudo -u hdfs hdfs dfs -chmod -R <span class="number">771</span> /user/hive/warehouse</span><br><span class="line">sudo -u hdfs hdfs dfs -chown -R hive:hive /user/hive/warehouse</span><br></pre></td></tr></table></figure></p>
+<h4 id="禁止HiveServer2-启用模拟"><a href="#禁止HiveServer2-启用模拟" class="headerlink" title="禁止HiveServer2 启用模拟"></a><strong>禁止HiveServer2 启用模拟</strong></h4><ol>
 <li>Hive -&gt; 配置 -&gt; 范围 -&gt; HiveServer2 -&gt; 类别 -&gt; 主要 -&gt; 取消<strong>HiveServer2 启用模拟</strong>(<code>hive.server2.enable.impersonation, hive.server2.enable.doAs</code>)</li>
 </ol>
-<h4 id="允许Hive用户提交YARN任务"><strong>允许Hive用户提交YARN任务</strong></h4><ol>
+<h4 id="允许Hive用户提交YARN任务"><a href="#允许Hive用户提交YARN任务" class="headerlink" title="允许Hive用户提交YARN任务"></a><strong>允许Hive用户提交YARN任务</strong></h4><ol>
 <li>YARN -&gt; 配置 -&gt; 范围 -&gt; NodeManager -&gt; 类别 -&gt; 安全性 -&gt; <strong>允许的系统用户</strong>(<code>allowed.system.users</code>) -&gt; 添加<code>hive</code>、<code>impala</code>用户等用户</li>
 </ol>
-<h4 id="禁止Hive命令行用户访问Hive_metastore"><strong>禁止Hive命令行用户访问Hive metastore</strong></h4><ol>
+<h4 id="禁止Hive命令行用户访问Hive-metastore"><a href="#禁止Hive命令行用户访问Hive-metastore" class="headerlink" title="禁止Hive命令行用户访问Hive metastore"></a><strong>禁止Hive命令行用户访问Hive metastore</strong></h4><ol>
 <li>Hive -&gt; 配置 -&gt; <strong>Hive Metastore 访问控制和代理用户组覆盖</strong>(<code>hadoop.proxyuser.hive.groups</code>) -&gt; 添加<code>hive</code>、<code>hue</code>用户(允许<code>hive</code>/<code>hue</code>用户访问hive metastore，若使用sqoop，确保<code>sqoop</code>用户也添加)</li>
 <li>Hive/Impala -&gt; <strong>使用政策文件启用 Sentry 授权</strong>(<code>hive.sentry.enabled</code>/<code>impala.sentry.enabled</code>)没有勾选</li>
 </ol>
-<h3 id="Hive配置Sentry"><strong>Hive配置Sentry</strong></h3><ol>
+<h3 id="Hive配置Sentry"><a href="#Hive配置Sentry" class="headerlink" title="Hive配置Sentry"></a><strong>Hive配置Sentry</strong></h3><ol>
 <li>Hive -&gt; 配置 -&gt; 范围 -&gt; Hive(服务范围) -&gt; 类别 -&gt; 主要 -&gt; <strong>Sentry服务</strong> -&gt; <strong>Sentry</strong></li>
 <li>由于Hive要求使用SSL安全传输，暂时没有配置，需要将<code>sentry.hive.testing.mode</code>设置为<code>true</code><ul>
 <li>Hive -&gt; 配置 -&gt; <strong>sentry-site.xml 的 Hive 服务高级配置代码段（安全阀）</strong><ul>
@@ -287,13 +287,13 @@
 </li>
 <li>重启Hive</li>
 </ol>
-<h4 id="Hive_授权"><strong>Hive 授权</strong></h4><p>Hive在配置了Sentry、OpenLDAP和HDFS LDAP组映射环境下的授权操作</p>
+<h4 id="Hive-授权"><a href="#Hive-授权" class="headerlink" title="Hive 授权"></a><strong>Hive 授权</strong></h4><p>Hive在配置了Sentry、OpenLDAP和HDFS LDAP组映射环境下的授权操作</p>
 <ol>
 <li>创建OpenLDAP用户</li>
 <li>Hive用户授权 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create role &lt;ldap_user_name&gt;;</span><br><span class="line">grant role &lt;ldap_user_name&gt; to group &lt;ldap_user_name&gt;;</span><br><span class="line">grant [all|alert|update|create|drop|index|lock|select|show_database] on database &lt;db_name&gt; to role &lt;ldap_user_name&gt;;</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
-<h3 id="Impala配置Sentry"><strong>Impala配置Sentry</strong></h3><ol>
+<h3 id="Impala配置Sentry"><a href="#Impala配置Sentry" class="headerlink" title="Impala配置Sentry"></a><strong>Impala配置Sentry</strong></h3><ol>
 <li>需要先执行Hive配置Sentry</li>
 <li>Impala -&gt; 配置 -&gt; 范围 -&gt; Impala(服务范围) -&gt; 类别 -&gt; 主要 -&gt; <strong>Sentry服务</strong> -&gt; <strong>Sentry</strong></li>
 <li>由于Hive要求使用SSL安全传输，暂时没有配置，需要将<code>sentry.hive.testing.mode</code>设置为<code>true</code><ul>
@@ -306,7 +306,7 @@
 </li>
 <li>重启Impala</li>
 </ol>
-<h3 id="HUE配置Sentry"><strong>HUE配置Sentry</strong></h3><ol>
+<h3 id="HUE配置Sentry"><a href="#HUE配置Sentry" class="headerlink" title="HUE配置Sentry"></a><strong>HUE配置Sentry</strong></h3><ol>
 <li>需要先执行Hive &amp; Impala配置Sentry</li>
 <li>HUE -&gt; 配置 -&gt; 范围 -&gt; HUE(服务范围) -&gt; 类别 -&gt; 主要 -&gt; <strong>Sentry服务</strong> -&gt; <strong>Sentry</strong></li>
 <li>由于Hive要求使用SSL安全传输，暂时没有配置，需要将<code>sentry.hive.testing.mode</code>设置为<code>true</code><ul>
@@ -319,12 +319,12 @@
 </li>
 <li>重启HUE</li>
 </ol>
-<h3 id="将Hive、Impala和HUE组加入到Sentry管理员组"><strong>将Hive、Impala和HUE组加入到Sentry管理员组</strong></h3><ol>
+<h3 id="将Hive、Impala和HUE组加入到Sentry管理员组"><a href="#将Hive、Impala和HUE组加入到Sentry管理员组" class="headerlink" title="将Hive、Impala和HUE组加入到Sentry管理员组"></a><strong>将Hive、Impala和HUE组加入到Sentry管理员组</strong></h3><ol>
 <li>Sentry -&gt; 配置 -&gt; 范围 -&gt; Sentry(服务范围) -&gt; 类别 -&gt; 主要 -&gt; <strong>管理员组</strong>(<code>sentry.service.admin.group</code>) -&gt; 添加<code>hive</code>、<code>impala</code>和<code>hue</code>组</li>
 </ol>
-<h2 id="HUE配置MySQL数据库"><strong>HUE配置MySQL数据库</strong></h2><p>HUE默认使用<strong>Sqlite3</strong>作为存储<code>/var/lib/hue/desktop.db</code>。<br>如果不需要Sqlite3里面的数据，就不需要进行<code>migration</code>迁移数据，直接创建HUE数据库并指定MySQL做存储，重启即可。<br>若有多个HUE Server，注意多个HUE Server都需要能登录MySQL。</p>
-<h3 id="创建HUE数据库"><strong>创建HUE数据库</strong></h3><p>在配置前需要在MySQL中手动创建HUE数据库。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE DATABASE hue DEFAULT CHARSET utf8 COLLATE utf8_general_ci;</span><br><span class="line">mysql&gt; GRANT all on hue.* to <span class="string">'hue'</span>@<span class="string">'%'</span> identified by <span class="string">'huepassword'</span>;</span><br><span class="line">mysql&gt; GRANT all on hue.* to <span class="string">'hue'</span>@<span class="string">'localhost'</span> identified by <span class="string">'huepassword'</span>;</span><br></pre></td></tr></table></figure></p>
-<h3 id="HUE连接MySQL"><strong>HUE连接MySQL</strong></h3><p>如果还需要Sqlite3的数据则需要<strong><code>migration</code></strong>(以下带有<strong><code>migration only</code></strong>字样)，否则就不需要(<code>2/4/5</code>不需要做)。</p>
+<h2 id="HUE配置MySQL数据库"><a href="#HUE配置MySQL数据库" class="headerlink" title="HUE配置MySQL数据库"></a><strong>HUE配置MySQL数据库</strong></h2><p>HUE默认使用<strong>Sqlite3</strong>作为存储<code>/var/lib/hue/desktop.db</code>。<br>如果不需要Sqlite3里面的数据，就不需要进行<code>migration</code>迁移数据，直接创建HUE数据库并指定MySQL做存储，重启即可。<br>若有多个HUE Server，注意多个HUE Server都需要能登录MySQL。</p>
+<h3 id="创建HUE数据库"><a href="#创建HUE数据库" class="headerlink" title="创建HUE数据库"></a><strong>创建HUE数据库</strong></h3><p>在配置前需要在MySQL中手动创建HUE数据库。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE DATABASE hue DEFAULT CHARSET utf8 COLLATE utf8_general_ci;</span><br><span class="line">mysql&gt; GRANT all on hue.* to <span class="string">'hue'</span>@<span class="string">'%'</span> identified by <span class="string">'huepassword'</span>;</span><br><span class="line">mysql&gt; GRANT all on hue.* to <span class="string">'hue'</span>@<span class="string">'localhost'</span> identified by <span class="string">'huepassword'</span>;</span><br></pre></td></tr></table></figure></p>
+<h3 id="HUE连接MySQL"><a href="#HUE连接MySQL" class="headerlink" title="HUE连接MySQL"></a><strong>HUE连接MySQL</strong></h3><p>如果还需要Sqlite3的数据则需要<strong><code>migration</code></strong>(以下带有<strong><code>migration only</code></strong>字样)，否则就不需要(<code>2/4/5</code>不需要做)。</p>
 <ol>
 <li>停止HUE服务<br> 在Cloudera Manager中将HUE服务停止</li>
 <li><p>导出现有数据(<strong>migration only</strong>)</p>
@@ -362,39 +362,39 @@
 <li><p>启动HUE</p>
 </li>
 </ol>
-<h2 id="启用HDFS_High_Availability"><strong>启用HDFS High Availability</strong></h2><h3 id="配置HDFS_High_Availability"><strong>配置HDFS High Availability</strong></h3><p>启用HDFS HA，就是不使用存在单点故障的旧版<code>NameNode</code>、<code>Secondary NameNode</code>，采用新的两个<code>NameNode</code>(<code>active NameNode</code>、<code>standby NameNode</code>)的高可用架构。配置前确保部署了ZooKeeper。<br>CDH 5的HDFS HA是使用<strong>Quorum-based storage</strong>实现的，也即是需要使用到<strong>JournalNode</strong>。<br>Cloudera Manager中执行以下操作：</p>
+<h2 id="启用HDFS-High-Availability"><a href="#启用HDFS-High-Availability" class="headerlink" title="启用HDFS High Availability"></a><strong>启用HDFS High Availability</strong></h2><h3 id="配置HDFS-High-Availability"><a href="#配置HDFS-High-Availability" class="headerlink" title="配置HDFS High Availability"></a><strong>配置HDFS High Availability</strong></h3><p>启用HDFS HA，就是不使用存在单点故障的旧版<code>NameNode</code>、<code>Secondary NameNode</code>，采用新的两个<code>NameNode</code>(<code>active NameNode</code>、<code>standby NameNode</code>)的高可用架构。配置前确保部署了ZooKeeper。<br>CDH 5的HDFS HA是使用<strong>Quorum-based storage</strong>实现的，也即是需要使用到<strong>JournalNode</strong>。<br>Cloudera Manager中执行以下操作：</p>
 <ol>
 <li>HDFS -&gt; 操作 -&gt; 启用High Availability</li>
 <li>设置<strong>nameservice</strong>名称，默认为<code>nameservice1</code></li>
 <li>添加一个新<strong>NameNode</strong>(standby namenode)、添加<strong>JournalNode</strong>(至少3个以上奇数个JournalNode)</li>
 <li>启用HDFS High Availability</li>
 </ol>
-<h3 id="更新Hive_Metastore_NameNode_Nameservice名称"><strong>更新Hive Metastore NameNode Nameservice名称</strong></h3><ol>
+<h3 id="更新Hive-Metastore-NameNode-Nameservice名称"><a href="#更新Hive-Metastore-NameNode-Nameservice名称" class="headerlink" title="更新Hive Metastore NameNode Nameservice名称"></a><strong>更新Hive Metastore NameNode Nameservice名称</strong></h3><ol>
 <li>停止Hive。Hive -&gt; 操作 -&gt; 停止 (若有HUE或Impala，先停止HUE或Impala再停Hive)</li>
 <li>保险起见可先使用<code>mysqldump</code>备份Hive metastore数据库</li>
 <li>Hive -&gt; 操作 -&gt; 更新Hive Metastore NameNodes</li>
 <li>启动Hive。Hive -&gt; 操作 -&gt; 启动 (若有HUE或Impala则启动)</li>
 </ol>
-<h3 id="启用HUE_High_Availability"><strong>启用HUE High Availability</strong></h3><p>启用HDFS HA后，HUE也可启用HA。</p>
-<h4 id="添加HttpFS角色"><strong>添加HttpFS角色</strong></h4><ol>
+<h3 id="启用HUE-High-Availability"><a href="#启用HUE-High-Availability" class="headerlink" title="启用HUE High Availability"></a><strong>启用HUE High Availability</strong></h3><p>启用HDFS HA后，HUE也可启用HA。</p>
+<h4 id="添加HttpFS角色"><a href="#添加HttpFS角色" class="headerlink" title="添加HttpFS角色"></a><strong>添加HttpFS角色</strong></h4><ol>
 <li>HDFS -&gt; 实例 -&gt; 操作 -&gt; 添加角色实例 -&gt; 选择HttpFS主机并添加角色</li>
 <li>HDFS -&gt; 实例 -&gt; 启动HttpFS</li>
 </ol>
-<h4 id="配置HUE_High_Availability"><strong>配置HUE High Availability</strong></h4><ol>
+<h4 id="配置HUE-High-Availability"><a href="#配置HUE-High-Availability" class="headerlink" title="配置HUE High Availability"></a><strong>配置HUE High Availability</strong></h4><ol>
 <li>HUE -&gt; 配置 -&gt; HDFS Web 界面角色 -&gt; 选择HttpFS</li>
 <li>重启HUE</li>
 </ol>
-<h2 id="启用YARN_High_Availability"><strong>启用YARN High Availability</strong></h2><p>YARN HA其实就是对ResourceManager做HA，增加一个standby ResourceManager。</p>
+<h2 id="启用YARN-High-Availability"><a href="#启用YARN-High-Availability" class="headerlink" title="启用YARN High Availability"></a><strong>启用YARN High Availability</strong></h2><p>YARN HA其实就是对ResourceManager做HA，增加一个standby ResourceManager。</p>
 <ol>
 <li>YARN -&gt; 操作 -&gt; 启用High Availability</li>
 <li>选择一台主机作为standby ResourceManager。Cloudera Manager会执行停止YARN、添加standby ResourceManager、在ZooKeeper中初始化ResourceManager HA状态、重启YARN等一系列动作。</li>
 </ol>
-<h2 id="启用HBase_High_Availability"><strong>启用HBase High Availability</strong></h2><p>HBase HA直接添加一个backup Master即可，当active Master宕掉后，backup Master会接替其工作。</p>
+<h2 id="启用HBase-High-Availability"><a href="#启用HBase-High-Availability" class="headerlink" title="启用HBase High Availability"></a><strong>启用HBase High Availability</strong></h2><p>HBase HA直接添加一个backup Master即可，当active Master宕掉后，backup Master会接替其工作。</p>
 <ol>
 <li>HBase -&gt; 添加角色实例 -&gt; Master</li>
 </ol>
-<h2 id="启用Hive_High_Availability"><strong>启用Hive High Availability</strong></h2><p>Sentry<code>1.8.0</code>以下版本，<strong>如果开启了HDFS的Sentry同步则Hive Metastore HA不可用。</strong></p>
-<h3 id="启用Hive_Metastore_High_Availability"><strong>启用Hive Metastore High Availability</strong></h3><ol>
+<h2 id="启用Hive-High-Availability"><a href="#启用Hive-High-Availability" class="headerlink" title="启用Hive High Availability"></a><strong>启用Hive High Availability</strong></h2><p>Sentry<code>1.8.0</code>以下版本，<strong>如果开启了HDFS的Sentry同步则Hive Metastore HA不可用。</strong></p>
+<h3 id="启用Hive-Metastore-High-Availability"><a href="#启用Hive-Metastore-High-Availability" class="headerlink" title="启用Hive Metastore High Availability"></a><strong>启用Hive Metastore High Availability</strong></h3><ol>
 <li>Hive -&gt; 配置 -&gt; 范围 -&gt; Hive Metastore Server -&gt; 类别 -&gt; 高级</li>
 <li>Hive Metastore 代理令牌存储 -&gt; <strong>org.apache.hadoop.hive.thrift.DBTokenStore</strong></li>
 <li>Hive -&gt; 实例 -&gt; 操作 -&gt; 添加角色实例</li>
@@ -402,7 +402,7 @@
 <li>Hive -&gt; 实例。启动新增的Hive Metastore Server角色。</li>
 <li>重启Hive服务。(确保所有Hive Metastore Server的服务器都能登录到MySQL)、(Hive Metastore Server需要连接MySQL，会出现红色抑制异常，等待一段时间恢复绿色正常)。</li>
 </ol>
-<h3 id="启用HiveServer2_Load_Balance_&amp;_High_Availability"><strong>启用HiveServer2 Load Balance &amp; High Availability</strong></h3><p>为确保HiveServer2的高可用，Hive结合ZooKeeper提供动态服务发现功能。启用后client(<code>beeline</code>)不直接连接HiveServer2，而是直接连接ZooKeeper然后随机选择一个注册到ZooKeeper中的HiveServer2实例。</p>
+<h3 id="启用HiveServer2-Load-Balance-amp-High-Availability"><a href="#启用HiveServer2-Load-Balance-amp-High-Availability" class="headerlink" title="启用HiveServer2 Load Balance &amp; High Availability"></a><strong>启用HiveServer2 Load Balance &amp; High Availability</strong></h3><p>为确保HiveServer2的高可用，Hive结合ZooKeeper提供动态服务发现功能。启用后client(<code>beeline</code>)不直接连接HiveServer2，而是直接连接ZooKeeper然后随机选择一个注册到ZooKeeper中的HiveServer2实例。</p>
 <ol>
 <li>Hive -&gt; 操作 -&gt; 添加角色实例 -&gt; HiveServer2</li>
 <li>新增HiveServer2实例，保证HiveServer2机器数目至少<strong>3</strong>台</li>
