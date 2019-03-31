@@ -384,7 +384,7 @@ article li ul {
   font-weight: bold;
 }
 #toc {
-  line-height: 1.1em;
+/*line-height: 1.1em;*/
   font-size: 0.8em;
   float: right;
 }
