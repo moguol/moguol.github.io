@@ -129,8 +129,16 @@
 
 
 				<div class="content" itemprop="articleBody">
-					<p>##<strong>TCP传输控制协议</strong><br>&emsp;TCP工作在传输层，提供一种面向连接的、可靠的字节流服务。面向连接表示在进行数据传输之前必须先建立一个<strong>TCP连接</strong>，这就有了之后要讲的<strong>TCP三次握手</strong>。<br>&emsp;TCP传输的信息单元称之为<strong>段(segment)</strong>。TCP提供<strong>点对点</strong>的服务，不支持多播和组播(UDP支持广播和多播)。<br>&emsp;TCP提供确认重传机制，当TCP发送一个段(segment)后会启动一个定时器，超时后没有等到确认段则超时重传，所以说TCP为可靠的。<br>&emsp;TCP的可靠性还体现在数据校验上，TCP首部会有<code>检验和</code>字段会对<strong>TCP首部和数据</strong>进行检验(IP首部同样有<code>校验和</code>，但仅对<strong>IP首部</strong>进行校验不对其数据部分进行校验，数据的校验交给TCP完成)。<br>&emsp;TCP会对应用数据进行分割或填充，总是以TCP认为最合适的数据块大小进行发送。此外TCP还提供流量控制。</p>
-<p>###<strong>TCP首部结构</strong><br>&emsp;TCP首部如下图所示：<br><img src="http://7xk64o.com1.z0.glb.clouddn.com/tcp-header.png" alt="tcp-header"><br>&emsp;TCP头部如果不包含<code>选项</code>通常是<strong>20字节</strong>(IP头部不含选项也是<strong>20字节</strong>)</p>
+                    <!-- Table of Contents -->
+                    
+                    <div id="toc" class="toc-article">
+                        <strong class="toc-title">目录</strong>
+                        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP传输控制协议"><span class="toc-number">1.</span> <span class="toc-text">TCP传输控制协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP首部结构"><span class="toc-number">1.1.</span> <span class="toc-text">TCP首部结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP连接状态"><span class="toc-number">1.2.</span> <span class="toc-text">TCP连接状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP流量控制"><span class="toc-number">1.3.</span> <span class="toc-text">TCP流量控制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#滑动窗口"><span class="toc-number">1.3.1.</span> <span class="toc-text">滑动窗口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#零窗口-与-糊涂窗口"><span class="toc-number">1.3.2.</span> <span class="toc-text">零窗口 与 糊涂窗口</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP重传机制"><span class="toc-number">1.4.</span> <span class="toc-text">TCP重传机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#重传定时器"><span class="toc-number">1.4.1.</span> <span class="toc-text">重传定时器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#坚持定时器"><span class="toc-number">1.4.2.</span> <span class="toc-text">坚持定时器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#保活定时器"><span class="toc-number">1.4.3.</span> <span class="toc-text">保活定时器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2MSL定时器"><span class="toc-number">1.4.4.</span> <span class="toc-text">2MSL定时器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#超时重传-与-快速重传"><span class="toc-number">1.4.5.</span> <span class="toc-text">超时重传 与 快速重传</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP拥塞控制"><span class="toc-number">1.5.</span> <span class="toc-text">TCP拥塞控制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#慢启动"><span class="toc-number">1.5.1.</span> <span class="toc-text">慢启动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#拥塞避免-快速重传-快速恢复"><span class="toc-number">1.5.2.</span> <span class="toc-text">拥塞避免 快速重传 快速恢复</span></a></li></ol></li></ol></li></ol>
+                    </div>
+                    
+
+					<h2 id="TCP传输控制协议"><a href="#TCP传输控制协议" class="headerlink" title="TCP传输控制协议"></a><strong>TCP传输控制协议</strong></h2><p>&emsp;TCP工作在传输层，提供一种面向连接的、可靠的字节流服务。面向连接表示在进行数据传输之前必须先建立一个<strong>TCP连接</strong>，这就有了之后要讲的<strong>TCP三次握手</strong>。<br>&emsp;TCP传输的信息单元称之为<strong>段(segment)</strong>。TCP提供<strong>点对点</strong>的服务，不支持多播和组播(UDP支持广播和多播)。<br>&emsp;TCP提供确认重传机制，当TCP发送一个段(segment)后会启动一个定时器，超时后没有等到确认段则超时重传，所以说TCP为可靠的。<br>&emsp;TCP的可靠性还体现在数据校验上，TCP首部会有<code>检验和</code>字段会对<strong>TCP首部和数据</strong>进行检验(IP首部同样有<code>校验和</code>，但仅对<strong>IP首部</strong>进行校验不对其数据部分进行校验，数据的校验交给TCP完成)。<br>&emsp;TCP会对应用数据进行分割或填充，总是以TCP认为最合适的数据块大小进行发送。此外TCP还提供流量控制。</p>
+<h3 id="TCP首部结构"><a href="#TCP首部结构" class="headerlink" title="TCP首部结构"></a><strong>TCP首部结构</strong></h3><p>&emsp;TCP首部如下图所示：<br><img src="http://7xk64o.com1.z0.glb.clouddn.com/tcp-header.png" alt="tcp-header"><br>&emsp;TCP头部如果不包含<code>选项</code>通常是<strong>20字节</strong>(IP头部不含选项也是<strong>20字节</strong>)</p>
 <ul>
 <li><strong>源端口(16位)</strong>：发送端的端口号。源端口及目的端口主要用于寻找发送端和接收端的应用程序。端口占<strong>16位</strong>表明端口最大为<code>2^16</code>(端口最大为65535)。</li>
 <li><strong>目的端口(16位)</strong>： 接收端的端口号。TCP通过<strong><code>src_ip, src_port, dst_ip, dst_port</code></strong>四个元组唯一标识一个TCP连接。</li>
@@ -163,7 +171,7 @@
 </li>
 <li><strong>数据</strong>：TCP的<code>数据</code>部分是可选的，既TCP段是可以没有数据的，如三次握手的TCP段就没有<code>数据</code>。</li>
 </ul>
-<p>###<strong>TCP连接状态</strong><br>&emsp;TCP是面向连接的，所以在开始传输数据前需要建立连接。而这个建立连接并非是在发送端和接收端创建一个专属的链路，只是发送端和接受端双方来维护一个连接状态，从而使得网络存在一个连接一样。TCP连接状态十分重要，<strong>建立连接(三次握手)</strong>以及<strong>释放连接(四次挥手)</strong>的详细过程如下图所示(<a href="http://coolshell.cn/articles/11564.html" target="_blank" rel="external">图片来源</a>)</p>
+<h3 id="TCP连接状态"><a href="#TCP连接状态" class="headerlink" title="TCP连接状态"></a><strong>TCP连接状态</strong></h3><p>&emsp;TCP是面向连接的，所以在开始传输数据前需要建立连接。而这个建立连接并非是在发送端和接收端创建一个专属的链路，只是发送端和接受端双方来维护一个连接状态，从而使得网络存在一个连接一样。TCP连接状态十分重要，<strong>建立连接(三次握手)</strong>以及<strong>释放连接(四次挥手)</strong>的详细过程如下图所示(<a href="http://coolshell.cn/articles/11564.html" target="_blank" rel="external">图片来源</a>)</p>
 <p><center><br><img src="http://7xk64o.com1.z0.glb.clouddn.com/tcp-open-close.jpeg" alt="tcp-open-close"><br></center></p>
 <ul>
 <li>当上一次收到的包是<code>SYN</code>或<code>FIN</code>时，此次发送ACK的<code>确认序号</code>为上次收到<code>SYN</code>或<code>FIN</code>包的<strong><code>序号</code>+1</strong>。如图中第一次握手时，Client发送<code>SYN seq=x</code>。当Server收到此<code>SYN</code>包后需要回一个确认ACK包，Server判断由于上次收到的是一个<code>SYN</code>包，所以回复<code>ACK</code>包的<code>确认序号</code>为上次<code>SYN</code>包中的<strong><code>序号</code>+1</strong>既<code>x+1</code></li>
@@ -180,8 +188,8 @@
 <li>Linux内核中有很多专门针对TCP状态进行调整优化的选项，大多在<strong><code>/proc/sys/net/ipv4/</code></strong>目录下，其中各选项参数涉及复杂改天专门写一篇博客记录。</li>
 <li><code>RST</code>复位报文，在TCP首部FLAG字段中有一个<code>RST</code>复位字段，当报文发往基准的连接出现错误时，TCP就会发送一个复位报文。复位报文可以用来释放一个TCP连接，这种称之为<strong>异常释放</strong>(正常的释放都通过发送<code>FIN</code>释放TCP连接的)，正常释放会待双方数据都发送完毕后关闭，而异常释放则会丢弃待发送的数据。</li>
 </ul>
-<p>###<strong>TCP流量控制</strong><br>&emsp;TCP需要提供可靠的数据传输服务，那么就必须根据网络的实际情况及接受方数据的处理能力进行发送数据的调整，通过流量控制调整发送速率避免引起网络拥塞导致丢包。TCP是通过<strong>滑动窗口</strong>进行流量控制。</p>
-<p>####滑动窗口<br>&emsp;在<code>TCP首部</code>有<code>窗口大小</code>字段，该字段是告诉对方自己的缓冲区还能接受多少数据，发送方根据接收方窗口的大小调整发送速率，防止发送方发送数据过快过多导致接收方缓冲区被占满无法接受处理新的数据。一般我们称接收方缓冲区空间大小的窗口为<strong>通告窗口</strong>。下面通过一个实例来了解TCP是如何利用滑动窗口来实现流量控制的<br><img src="http://7xk64o.com1.z0.glb.clouddn.com/tcp-slide-window.jpg" alt="tcp-slide-window"><br>&emsp;如上图所示，图中大致可分为三部分，框框即为<strong>滑动窗口</strong>：</p>
+<h3 id="TCP流量控制"><a href="#TCP流量控制" class="headerlink" title="TCP流量控制"></a><strong>TCP流量控制</strong></h3><p>&emsp;TCP需要提供可靠的数据传输服务，那么就必须根据网络的实际情况及接受方数据的处理能力进行发送数据的调整，通过流量控制调整发送速率避免引起网络拥塞导致丢包。TCP是通过<strong>滑动窗口</strong>进行流量控制。</p>
+<h4 id="滑动窗口"><a href="#滑动窗口" class="headerlink" title="滑动窗口"></a>滑动窗口</h4><p>&emsp;在<code>TCP首部</code>有<code>窗口大小</code>字段，该字段是告诉对方自己的缓冲区还能接受多少数据，发送方根据接收方窗口的大小调整发送速率，防止发送方发送数据过快过多导致接收方缓冲区被占满无法接受处理新的数据。一般我们称接收方缓冲区空间大小的窗口为<strong>通告窗口</strong>。下面通过一个实例来了解TCP是如何利用滑动窗口来实现流量控制的<br><img src="http://7xk64o.com1.z0.glb.clouddn.com/tcp-slide-window.jpg" alt="tcp-slide-window"><br>&emsp;如上图所示，图中大致可分为三部分，框框即为<strong>滑动窗口</strong>：</p>
 <ul>
 <li><code>1-3</code>部分：发送并已收到<code>ACK</code>确认。这部分为已经成功传输的数据</li>
 <li><code>4-9</code>部分：此部分为在<code>滑动窗口</code>中的数据，如图所示目前窗口大小为<strong><code>6</code></strong>。其中又可细分为两部分：<ul>
@@ -206,7 +214,7 @@
 <li>发送方收到<code>ACK=10 window=0</code>的确认包，确定<code>7 8 9</code>数据已成功传输，<code>滑动窗口左边缘</code>向右移动到达数据<code>10</code>的位置，发现接收方的窗口大小为<code>0</code>表示已不能再接受数据了，于是停止发送数据并等待。</li>
 <li>如果接收方缓冲区中的数据被读走，缓冲区有剩余空间，那么接收方会再次发送一个<code>ACK</code>包通告自己的窗口大小<code>window=X</code>。发送方收到此确认包后调整<code>滑动窗口</code>大小再发送数据，如此重复。</li>
 </ul>
-<p>####零窗口 与 糊涂窗口<br>&emsp;TCP使用<code>滑动窗口</code>来进行流量控制需要注意<strong>零窗口</strong>与<strong>糊涂窗口</strong>：</p>
+<h4 id="零窗口-与-糊涂窗口"><a href="#零窗口-与-糊涂窗口" class="headerlink" title="零窗口 与 糊涂窗口"></a>零窗口 与 糊涂窗口</h4><p>&emsp;TCP使用<code>滑动窗口</code>来进行流量控制需要注意<strong>零窗口</strong>与<strong>糊涂窗口</strong>：</p>
 <ul>
 <li><strong>零窗口</strong>：如上面所说，当发送方窗口大小为<code>0</code>且接收方回复的<code>window=0</code>表明无法再接收数据时，发送方会停止发送数据并等待。当接收方缓存区有空间后，接收方会回复一个<code>ACK</code>给发送方告诉发送方自己的窗口大小让发送方发送数据。但如果接收方发送的这个<code>ACK</code>包丢失了，那么发送方就以为接收方窗口一直为<code>0</code>就无止境的等待。(TCP不对<code>ACK</code>包进行确认保证，故此<code>ACK</code>包一旦丢失发送方则无法知道接收方有可用缓存空间)<br>&emsp;&emsp;为防止此情况出现，TCP使用<strong>Zero Window Probe技术</strong>。当发送方窗口大小为<code>0</code>时，发送方会向接收方发送<strong>零窗口探测包</strong>，让接收方回复<code>ACK</code>通告它的窗口。有些设计会规定若三次探测包后接收方窗口大小依旧通告为<code>0</code>，则发送方会发一个<code>RST</code>复位报文中断连接。</li>
 <li><strong>糊涂窗口综合症</strong>：如上图的例子，当接收方通告自身窗口<code>window=0</code>时，发送方就会停止发送数据并等待。假若过了一段时间，接收方缓冲区有空间但空间很小比如说只有<code>1</code>字节的空间，此时接收方通告自身窗口<code>window=1</code>而发送方为了传输这<code>1字节</code>的数据需要耗费<code>40字节</code>开销(IP首部20字节+TCP首部20字节)，这种花费大开销传输少数据的情况称之为<em>糊涂窗口综合症</em>。<br>&emsp;&emsp;为了解决<em>糊涂窗口综合症</em>，特意针对是发送方引起的还是接收方引起的糊涂窗口分为两种情况的解决方法：<ul>
@@ -219,41 +227,41 @@
 </ul>
 </li>
 </ul>
-<p>###<strong>TCP重传机制</strong><br>&emsp;TCP是一个可靠的传输协议，为了保证数据成功到达接收方就必须有数据丢失后的重传机制，因为1)数据可能在传输过程中丢失，2)即使接收方成功接受到数据，当回复<code>ACK</code>时，这个<code>ACK</code>数据包也可能会丢失。<br>&emsp;TCP重传机制是通过在发送数据时设置<strong>定时器</strong>来解决丢包问题，当<code>定时器</code>溢出时仍没有收到<code>ACK</code>确认，TCP则认为该数据已经丢失便会重新传输该数据。TCP重传机制的重点在于<strong>如何确定超时时间</strong>和<strong>如何确定重传频率</strong>。<br>&emsp;TCP重传机制的<strong>定时器</strong>可分为四种类型：</p>
+<h3 id="TCP重传机制"><a href="#TCP重传机制" class="headerlink" title="TCP重传机制"></a><strong>TCP重传机制</strong></h3><p>&emsp;TCP是一个可靠的传输协议，为了保证数据成功到达接收方就必须有数据丢失后的重传机制，因为1)数据可能在传输过程中丢失，2)即使接收方成功接受到数据，当回复<code>ACK</code>时，这个<code>ACK</code>数据包也可能会丢失。<br>&emsp;TCP重传机制是通过在发送数据时设置<strong>定时器</strong>来解决丢包问题，当<code>定时器</code>溢出时仍没有收到<code>ACK</code>确认，TCP则认为该数据已经丢失便会重新传输该数据。TCP重传机制的重点在于<strong>如何确定超时时间</strong>和<strong>如何确定重传频率</strong>。<br>&emsp;TCP重传机制的<strong>定时器</strong>可分为四种类型：</p>
 <ul>
 <li>重传定时器</li>
 <li>坚持定时器</li>
 <li>保活定时器</li>
 <li>2MSL定时器</li>
 </ul>
-<p>####重传定时器<br>&emsp;为了确认数据是否丢失或被丢弃而设定，是对数据<code>ACK</code>确认包等待的时间。当TCP发送数据时，就创建针对该数据的<em>重传定时器</em>。若定时器超时前收到<code>ACK</code>确认包，则撤消<em>重传定时器</em>；若定时器超时后还没有收到<code>ACK</code>确认包，则重传该数据，并将<em>重传定时器</em>复位重新计时。<br>&emsp;如果重传失败，TCP会尝试多次重传，至于重传多少次后放弃则不同系统设计不同，Linux系统与<strong><code>/proc/sys/net/ipv4/tcp_retries1</code></strong>(放弃回应一个TCP连接请求前﹐需要进行多少次重试) 、<strong><code>/proc/sys/net/ipv4/tcp_retries2</code></strong>(在丢弃激活(已建立通讯状况)的TCP连接之前﹐需要进行多少次重试)有关，关于这两个选项参数更详细内容请点击<a href="https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt" target="_blank" rel="external">这里</a><br>&emsp;TCP多次重传的间隔并不都是一样的，TCP重传间隔采用<strong>指数退避(exponential backoff)</strong>策略，既两次重传时间间隔是一个倍乘关系(每次增加1倍)。如书中的例子重传时间间隔为<code>1 3 6 12 24 48 64 64 64 64...</code>；Linux下可能是这样<code>1 2 4 8 16 32 64 64*8</code>(<code>tcp_retries2</code>默认为<code>15</code>)。</p>
-<p>####坚持定时器<br>&emsp;其实<code>坚持定时器</code>在<strong>零窗口</strong>的时候就已经提到过。当接收方的窗口大小为<code>0</code>时，会通告自身<code>通告窗口</code>已为<code>0</code>让发送方停止发送数据。等到接收方的缓冲区空闲<code>通告窗口</code>恢复后，接收方会发送<code>ACK</code>包通告自身窗口大小。因为TCP是不会对<code>ACK</code>包进行确认的，既这个带<code>通告窗口</code>大小的<code>ACK</code>包可能会丢失。假若此<code>ACK</code>包丢失，发送方认为接收方窗口仍为<code>0</code>继续等待，接收方认为自己已经通知发送方自己窗口大小而等待发送方的数据，双方都陷入等待当中。为了避免这个<code>ACK</code>包丢失而导致的双方等待，当接收方通告自身窗口大小为<code>0</code>时，发送方会启用<strong>坚持定时器</strong>，当<strong>坚持定时器</strong>超时后，发送方会主动发送<code>探测包</code>询问接收方的窗口大小。在计算<strong>坚持定时器</strong>时同样是使用<strong>指数退避</strong>，比如说首次坚持定时器超时时间为<code>1.5秒</code>，则后续超时时间为<code>3 6 12</code>。但不会一直增加下去<strong>坚持定时器</strong>总是在<strong><code>5~60</code></strong>之间，达到<code>60</code>后就一直以<code>60</code>为超时时间。</p>
-<p>####保活定时器<br>&emsp;其实TCP的保活定时器就是类似于HTTP的Keepalive功能，<strong>保活定时器</strong>是用于检测对方是否发送异常，如果有异常则及时关闭连接释放资源。当<strong>保活定时器</strong>超时后会检查连接是否空闲太久，若空闲时间超过设定时间则发送探测报文。通过对方是否响应、响应是否符合预期，来判断对方是否正常，若不正常则关闭连接释放资源。<br>&emsp;在Linux系统中是由<strong><code>/proc/sys/net/ipv4/tcp_keepalive_time</code></strong>、<strong><code>/proc/sys/net/ipv4/tcp_keepalive_intvl</code></strong>、<strong><code>/proc/sys/net/ipv4/tcp_keepalive_probes</code></strong>三个内核参数决定。</p>
+<h4 id="重传定时器"><a href="#重传定时器" class="headerlink" title="重传定时器"></a>重传定时器</h4><p>&emsp;为了确认数据是否丢失或被丢弃而设定，是对数据<code>ACK</code>确认包等待的时间。当TCP发送数据时，就创建针对该数据的<em>重传定时器</em>。若定时器超时前收到<code>ACK</code>确认包，则撤消<em>重传定时器</em>；若定时器超时后还没有收到<code>ACK</code>确认包，则重传该数据，并将<em>重传定时器</em>复位重新计时。<br>&emsp;如果重传失败，TCP会尝试多次重传，至于重传多少次后放弃则不同系统设计不同，Linux系统与<strong><code>/proc/sys/net/ipv4/tcp_retries1</code></strong>(放弃回应一个TCP连接请求前﹐需要进行多少次重试) 、<strong><code>/proc/sys/net/ipv4/tcp_retries2</code></strong>(在丢弃激活(已建立通讯状况)的TCP连接之前﹐需要进行多少次重试)有关，关于这两个选项参数更详细内容请点击<a href="https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt" target="_blank" rel="external">这里</a><br>&emsp;TCP多次重传的间隔并不都是一样的，TCP重传间隔采用<strong>指数退避(exponential backoff)</strong>策略，既两次重传时间间隔是一个倍乘关系(每次增加1倍)。如书中的例子重传时间间隔为<code>1 3 6 12 24 48 64 64 64 64...</code>；Linux下可能是这样<code>1 2 4 8 16 32 64 64*8</code>(<code>tcp_retries2</code>默认为<code>15</code>)。</p>
+<h4 id="坚持定时器"><a href="#坚持定时器" class="headerlink" title="坚持定时器"></a>坚持定时器</h4><p>&emsp;其实<code>坚持定时器</code>在<strong>零窗口</strong>的时候就已经提到过。当接收方的窗口大小为<code>0</code>时，会通告自身<code>通告窗口</code>已为<code>0</code>让发送方停止发送数据。等到接收方的缓冲区空闲<code>通告窗口</code>恢复后，接收方会发送<code>ACK</code>包通告自身窗口大小。因为TCP是不会对<code>ACK</code>包进行确认的，既这个带<code>通告窗口</code>大小的<code>ACK</code>包可能会丢失。假若此<code>ACK</code>包丢失，发送方认为接收方窗口仍为<code>0</code>继续等待，接收方认为自己已经通知发送方自己窗口大小而等待发送方的数据，双方都陷入等待当中。为了避免这个<code>ACK</code>包丢失而导致的双方等待，当接收方通告自身窗口大小为<code>0</code>时，发送方会启用<strong>坚持定时器</strong>，当<strong>坚持定时器</strong>超时后，发送方会主动发送<code>探测包</code>询问接收方的窗口大小。在计算<strong>坚持定时器</strong>时同样是使用<strong>指数退避</strong>，比如说首次坚持定时器超时时间为<code>1.5秒</code>，则后续超时时间为<code>3 6 12</code>。但不会一直增加下去<strong>坚持定时器</strong>总是在<strong><code>5~60</code></strong>之间，达到<code>60</code>后就一直以<code>60</code>为超时时间。</p>
+<h4 id="保活定时器"><a href="#保活定时器" class="headerlink" title="保活定时器"></a>保活定时器</h4><p>&emsp;其实TCP的保活定时器就是类似于HTTP的Keepalive功能，<strong>保活定时器</strong>是用于检测对方是否发送异常，如果有异常则及时关闭连接释放资源。当<strong>保活定时器</strong>超时后会检查连接是否空闲太久，若空闲时间超过设定时间则发送探测报文。通过对方是否响应、响应是否符合预期，来判断对方是否正常，若不正常则关闭连接释放资源。<br>&emsp;在Linux系统中是由<strong><code>/proc/sys/net/ipv4/tcp_keepalive_time</code></strong>、<strong><code>/proc/sys/net/ipv4/tcp_keepalive_intvl</code></strong>、<strong><code>/proc/sys/net/ipv4/tcp_keepalive_probes</code></strong>三个内核参数决定。</p>
 <ul>
 <li><strong>/proc/sys/net/ipv4/tcp_keepalive_time</strong><br>  最后一次数据交换到TCP发送第一个保活探测报文的时间，即允许连接空闲的时间，默认为7200s</li>
 <li><strong>/proc/sys/net/ipv4/tcp_keepalive_intvl</strong><br>  保活探测报文的重传时间，默认为75s</li>
 <li><strong>/proc/sys/net/ipv4/tcp_keepalive_probes </strong><br>  保活探测报文的发送次数，默认为9次</li>
 </ul>
 <p>&emsp;默认情况下Linux的一次完整的保活探测时间，既Linux下TCP认为一个连接出现异常后关闭的时间：<br>tcp_keepalive_time + tcp_keepalive_intvl × tcp_keepalive_probes = <code>7200 + 75 × 9</code> = <code>7875</code></p>
-<p>####2MSL定时器<br>&emsp;TCP的<code>TIME_WAIT状态</code>也称之为<strong><code>2MSL等待状态</code></strong>，之前的章节也已说过。TCP连接的一端发起主动关闭，在四次挥手主动关闭方发送完最后一个<code>ACK</code>包后既进入<code>TIME_WAIT</code>状态，必须等待<strong><code>2MSL</code></strong>的时间后才能释放该TCP连接。之所以必须等待<code>2MSL</code>时间主要有以下两个原因：</p>
+<h4 id="2MSL定时器"><a href="#2MSL定时器" class="headerlink" title="2MSL定时器"></a>2MSL定时器</h4><p>&emsp;TCP的<code>TIME_WAIT状态</code>也称之为<strong><code>2MSL等待状态</code></strong>，之前的章节也已说过。TCP连接的一端发起主动关闭，在四次挥手主动关闭方发送完最后一个<code>ACK</code>包后既进入<code>TIME_WAIT</code>状态，必须等待<strong><code>2MSL</code></strong>的时间后才能释放该TCP连接。之所以必须等待<code>2MSL</code>时间主要有以下两个原因：</p>
 <ol>
 <li>给被动关闭方重传<code>FIN</code>包的机会。主动关闭方发送的最后一个<code>ACK</code>包有可能会丢失，假若该最后一个<code>ACK</code>包丢失，被动关闭方的<code>重传定时器</code>超时后仍没有收到该<code>ACK</code>包就会重传之前的<code>FIN</code>。假若主动关闭方在发送完最后一个<code>ACK</code>后释放连接而此<code>ACK</code>丢失，就会导致被动关闭方处在<code>CLOSE_WAIT</code>状态，<code>重传定时器</code>不断超时、<code>FIN</code>指数退避不断重传，Linux系统中直到被动关闭方达到<code>tcp_retries2</code>次数后，TCP认为此连接出现问题才会释放该连接。</li>
 <li>防止已失效连接的旧数据包出现在新连接上。TCP是根据四元组(src_ip,src_port,dst_ip,dst_port)唯一标识一个连接，数据包可能因为网络等原因延时到达，假若主动关闭方在发送最后一个<code>ACK</code>后立刻释放连接使得原先的端口可以被使用，当应用程序使用原先被释放的端口新建了一个TCP连接而旧连接的数据延时到达，这样就会造成数据混淆。</li>
 </ol>
-<p>####超时重传 与 快速重传<br>&emsp;介绍完四个定时器后，接下来看看TCP常见的两种重传机制——<strong>超时重传</strong>、<strong>快速重传</strong></p>
+<h4 id="超时重传-与-快速重传"><a href="#超时重传-与-快速重传" class="headerlink" title="超时重传 与 快速重传"></a>超时重传 与 快速重传</h4><p>&emsp;介绍完四个定时器后，接下来看看TCP常见的两种重传机制——<strong>超时重传</strong>、<strong>快速重传</strong></p>
 <ul>
 <li><strong>超时重传</strong>：超时重传机制利用到的就是<code>重传定时器</code>，当<code>重传定时器</code>超时后仍没有收到<code>ACK</code>确认则认为该数据包已经丢失，发送方会重传该数据包并将<code>重传定时器</code>复位重新计算。至于<code>重传定时器</code>的<strong>*超时时间</strong>则是由<strong>Jcobson/Karels 算法</strong>计算而得。</li>
 <li><strong>快速重传</strong>：由于<code>超时重传</code>是以时间作为驱动，需要等待<strong>timeout</strong>后才进行重传。为了更快的得知数据是否已经丢失，TCP还会使用<strong>快速重传</strong>机制。<strong>快速重传</strong>是以数据为驱动的，如果发送方<strong>连续</strong>收到<strong>3次</strong>相同的<strong>ACK</strong>，则认为数据包已经丢失需要重传。<br>  &emsp;比如说发送方发送<code>1 2 3 4 5</code>数据，但<code>2</code>丢失了<code>3 4 5</code>成功到达，则<code>3 4 5</code>到达时接收方回复的都是<code>ACK=2</code>。发送方收到三个重复的ACK则知道<code>2</code>已丢失需要重传。</li>
 </ul>
 <p>&emsp;所以只要是<code>重传定时器</code>超时或收到<code>重复ACK</code>，TCP则会认为数据丢失需要重传数据。</p>
-<p>###<strong>TCP拥塞控制</strong><br>&emsp;TCP流量控制主要是针对发送端和接收端进行，而TCP拥塞控制则是对其中的网络情况进行控制。试想一下，当网络负载严重导致网络拥塞，进而使得数据丢失或延时到达，假若TCP不加控制就超时重传数据，那便会加重网络负载致使恶性循环直至整个网络瘫痪。为了避免此情况出现，TCP拥塞控制的主要实现方法有以下四种：</p>
+<h3 id="TCP拥塞控制"><a href="#TCP拥塞控制" class="headerlink" title="TCP拥塞控制"></a><strong>TCP拥塞控制</strong></h3><p>&emsp;TCP流量控制主要是针对发送端和接收端进行，而TCP拥塞控制则是对其中的网络情况进行控制。试想一下，当网络负载严重导致网络拥塞，进而使得数据丢失或延时到达，假若TCP不加控制就超时重传数据，那便会加重网络负载致使恶性循环直至整个网络瘫痪。为了避免此情况出现，TCP拥塞控制的主要实现方法有以下四种：</p>
 <ul>
 <li>慢启动</li>
 <li>拥塞避免</li>
 <li>快速重传</li>
 <li>快速恢复</li>
 </ul>
-<p>####慢启动<br>&emsp;慢启动，既当刚刚需要发送数据时，不是一下便发送大流量数据而是一点点的进行提速。<br>&emsp;慢启动为TCP的发送方定义了一个窗口——<strong>拥塞窗口(Congestion Window)</strong>，简称<strong>cwnd</strong>，拥塞窗口表明发送方一次可以发送多少报文段，一般cwnd是根据MSS而定，每收到一个<code>ACK</code>则<code>cwnd=cwnd+cwnd</code>。<br>&emsp;慢启动理想状态的过程如下所示()：</p>
+<h4 id="慢启动"><a href="#慢启动" class="headerlink" title="慢启动"></a>慢启动</h4><p>&emsp;慢启动，既当刚刚需要发送数据时，不是一下便发送大流量数据而是一点点的进行提速。<br>&emsp;慢启动为TCP的发送方定义了一个窗口——<strong>拥塞窗口(Congestion Window)</strong>，简称<strong>cwnd</strong>，拥塞窗口表明发送方一次可以发送多少报文段，一般cwnd是根据MSS而定，每收到一个<code>ACK</code>则<code>cwnd=cwnd+cwnd</code>。<br>&emsp;慢启动理想状态的过程如下所示()：</p>
 <ul>
 <li>TCP三次握手建立连接后，<strong>cwnd=1</strong>，表明可以发送一个MSS大小的数据。假定MSS=1024，cwnd=1则可发送<code>1024(1)</code>大小的数据</li>
 <li>当收到<code>ACK</code>后，<strong>cwnd=1+1</strong>，表明可以发送两个MSS大小的数据。cwnd=2可发送<code>2048(2)</code>大小的数据</li>
@@ -261,7 +269,7 @@
 <li>当收到cwnd=4时发送数据的<code>ACK</code>后，<strong>cwnd=4+4</strong>，表明可以发送八个MSS大小的数据。cwnd=8可发送<code>8192(8)</code>大小的数据</li>
 <li>cwnd呈指数增长。但并不会无限增长下去，当拥塞窗口&lt;通告窗口时，发送拥塞窗口大小数据;但当拥塞窗口&gt;通告窗口时，只能发送通告窗口大小数据</li>
 </ul>
-<p>####拥塞避免 快速重传 快速恢复<br>&emsp;TCP对于拥塞避免有一套复杂的拥塞避免算法，在此只能简要的描述TCP是如何实现拥塞避免的。<br>&emsp;TCP的拥塞避免算法通常都是与<strong>慢启动</strong>一起作用，那么每个TCP连接就会维持两个变量——<strong><code>cwnd</code></strong>(拥塞窗口Congestion Window)、<strong><code>ssthresh</code></strong>(慢启动门限slow start threshold)，TCP拥塞避免大致过程如下：</p>
+<h4 id="拥塞避免-快速重传-快速恢复"><a href="#拥塞避免-快速重传-快速恢复" class="headerlink" title="拥塞避免 快速重传 快速恢复"></a>拥塞避免 快速重传 快速恢复</h4><p>&emsp;TCP对于拥塞避免有一套复杂的拥塞避免算法，在此只能简要的描述TCP是如何实现拥塞避免的。<br>&emsp;TCP的拥塞避免算法通常都是与<strong>慢启动</strong>一起作用，那么每个TCP连接就会维持两个变量——<strong><code>cwnd</code></strong>(拥塞窗口Congestion Window)、<strong><code>ssthresh</code></strong>(慢启动门限slow start threshold)，TCP拥塞避免大致过程如下：</p>
 <ul>
 <li>当TCP完成三次握手后，会给该连接设定两个变量<strong><code>cwnd</code></strong>和<strong>ssthresh</strong>。<strong><code>cwnd</code></strong>初始化值为<code>1个报文段</code>(该值通常为MSS-40[IP+TCP header])，<strong><code>ssthresh</code></strong>初始化值一般为<code>65535字节</code></li>
 <li>首先TCP使用<strong>慢启动</strong>，<strong><code>cwnd</code></strong>指数增长，但<strong><code>cwnd</code></strong>并不会无限制增长，当<strong><code>cwnd</code></strong><code>&gt;</code>接收方的<strong>通告窗口</strong>时以<strong>通告窗口</strong>为标准。<strong>拥塞窗口</strong>是发送方的流量控制、<strong>通告窗口</strong>是接收方的流量控制。当<em>拥塞窗口</em> <code>&lt;</code> <em>通告窗口</em>时，由<em>拥塞窗口</em>(发送方)控制发送速率(既为慢启动)；当<em>拥塞窗口</em> <code>&gt;</code> <em>通告窗口</em>时，由<em>通告窗口</em>(接收方)控制发送速率。</li>
@@ -276,7 +284,7 @@
 </li>
 <li>假若在<strong>慢启动</strong>过程中<strong>收到重复<code>ACK</code></strong><ul>
 <li>收到<code>3</code>个重复<code>ACK</code>后需要重新设置<strong>ssthresh</strong>，<strong><code>ssthresh=cwnd/2</code></strong>。进入<strong>快速恢复算法</strong></li>
-<li>在<strong>快速恢复算法</strong>中，<code>cwnd</code>会被重新计算——<strong><code>cwnd = ssthresh(既上面的cwnd/2) + 3*MSS(3个ACK)</code></strong> </li>
+<li>在<strong>快速恢复算法</strong>中，<code>cwnd</code>会被重新计算——<strong><code>cwnd = ssthresh(既上面的cwnd/2) + 3*MSS(3个ACK)</code></strong></li>
 <li>启用<strong>快速重传</strong>重新丢失的数据包</li>
 <li>如果在收到重复<code>ACK</code>则<code>cwnd=cwnd+1MSS</code></li>
 <li>如果收到新<code>ACK</code>则<code>cwnd=ssthresh</code>，然后进入<strong>拥塞避免算法</strong>(既每收到一个<code>ACK</code>则<code>cwnd=cwnd+1/cwnd</code>)</li>

@@ -129,6 +129,14 @@
 
 
 				<div class="content" itemprop="articleBody">
+                    <!-- Table of Contents -->
+                    
+                    <div id="toc" class="toc-article">
+                        <strong class="toc-title">目录</strong>
+                        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#介绍"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础概念"><span class="toc-number">2.</span> <span class="toc-text">基础概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装"><span class="toc-number">3.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#应用实例"><span class="toc-number">4.</span> <span class="toc-text">应用实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#配置"><span class="toc-number">4.1.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建任务-task"><span class="toc-number">4.2.</span> <span class="toc-text">创建任务(task)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定时任务"><span class="toc-number">4.3.</span> <span class="toc-text">定时任务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后续"><span class="toc-number">5.</span> <span class="toc-text">后续</span></a></li></ol>
+                    </div>
+                    
+
 					<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a><strong>介绍</strong></h2><p>&emsp;最近工作要异步执行任务，需要用到<a href="http://docs.celeryproject.org/en/latest/" target="_blank" rel="external">Celery</a>故简单记录一下使用过程。<br>&emsp;Celery常用于实时处理任务队列或任务调度，Celery适用于以下场景：</p>
 <ul>
 <li>异步执行任务：当需要发送邮件或执行耗时操作时，程序需要等待执行结果才能继续。若将这些任务交给Celery异步执行，可大大提高效率。</li>
@@ -165,7 +173,7 @@
 </ul>
 <h3 id="定时任务"><a href="#定时任务" class="headerlink" title="定时任务"></a><strong>定时任务</strong></h3><p>&emsp;Celery支持任务调度，使用Celery Beat执行定时任务</p>
 <ul>
-<li><p>配置文件——<strong><code>crontab_celeryconfig.py</code></strong> </p>
+<li><p>配置文件——<strong><code>crontab_celeryconfig.py</code></strong></p>
   <figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">from celery.schedules <span class="keyword">import</span> crontab</span><br><span class="line"><span class="constant"></span><br><span class="line">BROKER_URL</span> = 'redis:<span class="comment">//localhost:6379/2'</span></span><br><span class="line"><span class="constant">CELERY_RESULT_BACKEND</span> = 'redis:<span class="comment">//localhost:6379/3'</span></span><br><span class="line"><span class="constant"></span><br><span class="line">CELERY_TASK_SERIALIZER</span> = 'json'</span><br><span class="line"><span class="constant">CELERY_RESULT_SERIALIZER</span> = 'json'</span><br><span class="line"><span class="constant">CELERY_ACCEPT_CONTENT</span> = ['json']</span><br><span class="line"><span class="constant">CELERY_TIMEZONE</span> = 'Asia/Shanghai'</span><br><span class="line"><span class="constant">CELERY_ENABLE_UTC</span> = False</span><br><span class="line"><span class="constant"></span><br><span class="line">CELERYBEAT_SCHEDULE</span> = &#123;</span><br><span class="line">	<span class="string">"add"</span>: &#123;</span><br><span class="line">		<span class="string">"task"</span>: <span class="string">"crontab_tasks.sendmail"</span>,</span><br><span class="line">		<span class="string">"schedule"</span>: crontab(minute='*/<span class="number">1</span>')</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>任务程序——<strong>crontab_tasks.py</strong></p>

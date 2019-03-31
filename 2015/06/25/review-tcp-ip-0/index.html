@@ -129,15 +129,23 @@
 
 
 				<div class="content" itemprop="articleBody">
+                    <!-- Table of Contents -->
+                    
+                    <div id="toc" class="toc-article">
+                        <strong class="toc-title">目录</strong>
+                        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#分层"><span class="toc-number">1.</span> <span class="toc-text">分层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IP地址"><span class="toc-number">2.</span> <span class="toc-text">IP地址</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#封装"><span class="toc-number">3.</span> <span class="toc-text">封装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#端口号"><span class="toc-number">4.</span> <span class="toc-text">端口号</span></a></li></ol>
+                    </div>
+                    
+
 					<p>&emsp;《TCP/IP详解卷一》此书在学校期间就已经读过，当时还是花了一定的精力和时间去读的。前段时间在看有关LVS方面的资料，其中涉及网络方面的知识，这让我发现自己关于TCP/IP方面的细节知识已经有点模糊。于是决定再重新仔细的阅读《TCP/IP详解卷一》这边经典书籍，顺便做个笔记记录，方便以后查阅。</p>
-<p>##<strong>分层</strong><br>有别于OSI七层模型，TCP/IP协议族分为四层：</p>
+<h2 id="分层"><a href="#分层" class="headerlink" title="分层"></a><strong>分层</strong></h2><p>有别于OSI七层模型，TCP/IP协议族分为四层：</p>
 <ul>
 <li>应用层：处理应用程序细节，例如：Telnet远程登录、FTP文件传输协议、HTTP协议等。信息单元称之为<strong>数据(data)</strong></li>
 <li>传输层：主要负责提供端对端通信，主要有两个不通的传输协议：TCP(传输控制协议)、UDP(用户数据报协议)。信息单元称之为<strong>段(segment)</strong></li>
 <li>网络层：负责处理分组在网络的活动，即路由寻址。网络层协议包括：IP协议、ICMP协议和IGMP协议。信息单元称之为<strong>包/分组(Packet)</strong></li>
 <li>链路层：主要包括设备驱动及网络设备接口，链路层协议：以太网、令牌环网、FDDI等。信息单元称之为<strong>帧(frame)</strong></li>
 </ul>
-<p>##<strong>IP地址</strong><br>IPv4地址长32bit，分成5类</p>
+<h2 id="IP地址"><a href="#IP地址" class="headerlink" title="IP地址"></a><strong>IP地址</strong></h2><p>IPv4地址长32bit，分成5类</p>
 <ul>
 <li>A类地址：0.0.0.~127.255.255.255，0-网络号(7位)-主机号(24位)</li>
 <li>B类地址：128.0.0.0~192.255.255.255，10-网络号(14位)-主机号(16位)</li>
@@ -154,15 +162,14 @@
 <li>192.168.0.0/16</li>
 <li>E类地址(用于实验)</li>
 </ul>
-<p>##<strong>封装</strong><br>数据从<code>应用层——&gt;传输层——&gt;网络层——&gt;链路层</code>逐层传递时，每层都会对收到的数据添加首部信息/尾部信息</p>
+<h2 id="封装"><a href="#封装" class="headerlink" title="封装"></a><strong>封装</strong></h2><p>数据从<code>应用层——&gt;传输层——&gt;网络层——&gt;链路层</code>逐层传递时，每层都会对收到的数据添加首部信息/尾部信息</p>
 <ul>
 <li>应用层：用户数据</li>
 <li>传输层：用户数据+TCP首部                                    此数据单元(以TCP为例)称为——<strong>TCP报文(TCP segment)</strong></li>
 <li>网络层：用户数据+TCP首部+IP首部                            此数据单元称为——<strong>分组(packet)</strong></li>
 <li>链路层：以太网尾部+应用数据+TCP首部+IP首部+以太网首部    此数据单元称为——<strong>帧(frame)</strong>，由于以太网物理性质限制<code>46B&lt; 应用数据+TCP首部+IP首部&lt; 1500B</code></li>
 </ul>
-<p>##<strong>端口号</strong></p>
-<ul>
+<h2 id="端口号"><a href="#端口号" class="headerlink" title="端口号"></a><strong>端口号</strong></h2><ul>
 <li>1~1023        知名服务端口(<code>/etc/services</code>查看常用熟知端口)</li>
 <li>1024~65535    随机端口(之所以最大端口号为65535是因为TCP/UDP头部采用<code>16bit</code>来标识端口，故最大为<code>2^16</code>)</li>
 </ul>

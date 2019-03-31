@@ -129,6 +129,14 @@
 
 
 				<div class="content" itemprop="articleBody">
+                    <!-- Table of Contents -->
+                    
+                    <div id="toc" class="toc-article">
+                        <strong class="toc-title">目录</strong>
+                        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#SYN-Flood"><span class="toc-number">1.</span> <span class="toc-text">SYN Flood</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#UDP-Flood-DNS-Query-Flood"><span class="toc-number">2.</span> <span class="toc-text">UDP Flood/DNS Query Flood</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC攻击"><span class="toc-number">3.</span> <span class="toc-text">CC攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#慢速连接攻击"><span class="toc-number">4.</span> <span class="toc-text">慢速连接攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DRDOS-分布式反射DOS攻击"><span class="toc-number">5.</span> <span class="toc-text">DRDOS(分布式反射DOS攻击)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#链路泛洪"><span class="toc-number">6.</span> <span class="toc-text">链路泛洪</span></a></li></ol>
+                    </div>
+                    
+
 					<p>&emsp;<a href="https://zh.wikipedia.org/wiki/%E9%98%BB%E6%96%B7%E6%9C%8D%E5%8B%99%E6%94%BB%E6%93%8A" target="_blank" rel="external">DDOS(Distributed Denial of Service)</a>，分布式拒绝服务攻击是目前互联网上主流的攻击方式，也是最难防御的攻击方式。之前就已经有了解，只是最近刚刚好整理相关方面的资料，顺便简单记录一下。</p>
 <h3 id="SYN-Flood"><a href="#SYN-Flood" class="headerlink" title="SYN Flood"></a><strong>SYN Flood</strong></h3><p>&emsp;<strong>SYN Flood</strong>既SYN 洪水攻击，是DDOS攻击方式中最为经典的一种，利用TCP三次握手的设计缺陷，通过发送含有虚假源IP地址的SYN报文，使得服务端永远无法完成三次握手，一直处于<strong>SYN_RECV</strong>状态无法释放资源，直到占满系统协议栈等待队列无法新建连接导致拒绝服务。(关于TCP三次握手详见<a href="https://moguol.github.io/2015/07/16/review-tcp-ip-3/" target="_blank" rel="external">这里</a>)</p>
 <ol>

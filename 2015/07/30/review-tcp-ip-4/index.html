@@ -129,8 +129,16 @@
 
 
 				<div class="content" itemprop="articleBody">
-					<p>##<strong>UDP用户数据报协议</strong><br>&emsp;UDP是一种简单的<strong>面向数据报</strong>的传输层协议(TCP是面向数据流)。面向数据报，既当应用层交给UDP的数据，UDP并不会理会数据的大小而是直接在数据上封装UDP首部后直接交给网络层的IP(TCP对数据则会是<code>大割小补</code>，总是以TCP认为适合的数据大小进行传输)。<br>&emsp;UDP不提供可靠性，与IP一样是不可靠协议，数据会有丢失的可能性。<br>&emsp;应用程序必须关系网络层中IP数据报的长度。因为UDP是面向数据报的，不理会数据大小直接将数据交给IP，如果数据大小超过<strong>MTU</strong>则会涉及到<strong>IP分片</strong>的问题。</p>
-<p>###<strong>UDP首部</strong><br>&emsp;UDP首部结构相比TCP要简单得多，如下图所示：</p>
+                    <!-- Table of Contents -->
+                    
+                    <div id="toc" class="toc-article">
+                        <strong class="toc-title">目录</strong>
+                        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#UDP用户数据报协议"><span class="toc-number">1.</span> <span class="toc-text">UDP用户数据报协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#UDP首部"><span class="toc-number">1.1.</span> <span class="toc-text">UDP首部</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DNS"><span class="toc-number">2.</span> <span class="toc-text">DNS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基础概念"><span class="toc-number">2.1.</span> <span class="toc-text">基础概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DNS服务器类型"><span class="toc-number">2.2.</span> <span class="toc-text">DNS服务器类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DNS查询方式"><span class="toc-number">2.3.</span> <span class="toc-text">DNS查询方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DNS资源记录"><span class="toc-number">2.4.</span> <span class="toc-text">DNS资源记录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP-or-UDP"><span class="toc-number">2.5.</span> <span class="toc-text">TCP or UDP</span></a></li></ol></li></ol>
+                    </div>
+                    
+
+					<h2 id="UDP用户数据报协议"><a href="#UDP用户数据报协议" class="headerlink" title="UDP用户数据报协议"></a><strong>UDP用户数据报协议</strong></h2><p>&emsp;UDP是一种简单的<strong>面向数据报</strong>的传输层协议(TCP是面向数据流)。面向数据报，既当应用层交给UDP的数据，UDP并不会理会数据的大小而是直接在数据上封装UDP首部后直接交给网络层的IP(TCP对数据则会是<code>大割小补</code>，总是以TCP认为适合的数据大小进行传输)。<br>&emsp;UDP不提供可靠性，与IP一样是不可靠协议，数据会有丢失的可能性。<br>&emsp;应用程序必须关系网络层中IP数据报的长度。因为UDP是面向数据报的，不理会数据大小直接将数据交给IP，如果数据大小超过<strong>MTU</strong>则会涉及到<strong>IP分片</strong>的问题。</p>
+<h3 id="UDP首部"><a href="#UDP首部" class="headerlink" title="UDP首部"></a><strong>UDP首部</strong></h3><p>&emsp;UDP首部结构相比TCP要简单得多，如下图所示：</p>
 <center><br><img src="http://7xk64o.com1.z0.glb.clouddn.com/udp-header.jpg" alt="udp-header"><br></center>
 
 <ul>
@@ -139,26 +147,25 @@
 <li><strong>UDP长度</strong>：UDP首部+UDP数据的总长度。</li>
 <li><strong>UDP校验和</strong>：校验和是校验以下三个部分：UDP首部+UDP数据+<strong>UDP伪首部</strong></li>
 </ul>
-<p>##<strong>DNS</strong></p>
-<p>###<strong>基础概念</strong><br>&emsp;域名系统(DNS)提供主机名和IP地址间的转换，是一种TCP/IP应用程序的分布式数据库，具有层次化结构且不区分大小写。<br>&emsp;以<strong>点</strong>结尾的域名称之为<strong>绝对域名</strong>或<strong>完全合格域名——FQDN(Full Qualified Domain Name)</strong>，比如<code>www.google.com.</code>(域名树的根节点即为<strong>点</strong>)<br>&emsp;<strong>顶级域名</strong>分为三部分：</p>
+<h2 id="DNS"><a href="#DNS" class="headerlink" title="DNS"></a><strong>DNS</strong></h2><h3 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a><strong>基础概念</strong></h3><p>&emsp;域名系统(DNS)提供主机名和IP地址间的转换，是一种TCP/IP应用程序的分布式数据库，具有层次化结构且不区分大小写。<br>&emsp;以<strong>点</strong>结尾的域名称之为<strong>绝对域名</strong>或<strong>完全合格域名——FQDN(Full Qualified Domain Name)</strong>，比如<code>www.google.com.</code>(域名树的根节点即为<strong>点</strong>)<br>&emsp;<strong>顶级域名</strong>分为三部分：</p>
 <ul>
 <li>arpa是一个用作地址到名字转换的特殊域</li>
 <li>7个3字符长的普通域。<code>com edu gov int mil net org</code></li>
 <li>所有2字符长的域均是基于ISO3166中定义的国家代码。<code>us cn</code></li>
 </ul>
-<p>###<strong>DNS服务器类型</strong><br>&emsp;DNS服务器大致分成四种类型：</p>
+<h3 id="DNS服务器类型"><a href="#DNS服务器类型" class="headerlink" title="DNS服务器类型"></a><strong>DNS服务器类型</strong></h3><p>&emsp;DNS服务器大致分成四种类型：</p>
 <ul>
 <li>主域名服务器：负责维护一个区域的所有域名信息，是特定的所有信息的权威信息源，数据可以修改</li>
 <li>辅助域名服务器：辅助域名服务器中区域文件中的数据是从主域名服务器中复制得来，是不可以修改的。辅助域名服务器从主域名服务器复制区域数据的行为称之为<strong>区域传送</strong>(区域传送使用的是<strong>TCP 53端口</strong>)</li>
 <li>缓存域名服务器：又称<code>唯缓存域名服务器</code>，将查询过的结果进行缓存以便快速查询，缓存域名服务器不是权威的域名服务器，提供的信息只是间接信息。</li>
 <li>转发域名服务器：将所有非本地域名的查询转发到指定的域名服务器中。</li>
 </ul>
-<p>###<strong>DNS查询方式</strong><br>&emsp;一般DNS提供本地域名查询，若遇到非本地域名则会采用<strong>递归查询</strong>或<strong>迭代查询</strong>两种方式进行查询：</p>
+<h3 id="DNS查询方式"><a href="#DNS查询方式" class="headerlink" title="DNS查询方式"></a><strong>DNS查询方式</strong></h3><p>&emsp;一般DNS提供本地域名查询，若遇到非本地域名则会采用<strong>递归查询</strong>或<strong>迭代查询</strong>两种方式进行查询：</p>
 <ul>
 <li>递归查询(最常见的查询方式)：<br>  由本地域名服务器代替客户端向根域名服务器发起查询请求并在域名树中上下分支中进行递归查询，最终将查询结果返回给客户端。<br>  比如客户端发起一个域名查询<code>www.google.com</code>，假设本地域名服务器没有相应记录，则本地域名服务器向根域名服务器发起查询，根域名服务器告知本地域名服务器去问<code>.com</code>域名服务器，以此类推本地域名服务器依次向<code>.com</code>、<code>google.com</code>、<code>www.google.com</code>发起查询请求，最终将结果返回给客户端并存入高速缓存中。</li>
 <li>迭代查询：<br>  迭代查询与递归查询不同的是，查询请求都有客户端自己发起。迭代查询时客户端依次向<code>.</code>、<code>.com</code>、<code>google.com</code>、<code>www.google.com</code>发起查询请求，而并非像递归查询由本地服务器发起。</li>
 </ul>
-<p>###<strong>DNS资源记录</strong><br>&emsp;DNS资源记录常见的有5种类型，详细请参见<a href="https://zh.wikipedia.org/wiki/%E5%9F%9F%E5%90%8D%E6%9C%8D%E5%8B%99%E5%99%A8%E8%A8%98%E9%8C%84%E9%A1%9E%E5%9E%8B%E5%88%97%E8%A1%A8" target="_blank" rel="external">这里</a>：</p>
+<h3 id="DNS资源记录"><a href="#DNS资源记录" class="headerlink" title="DNS资源记录"></a><strong>DNS资源记录</strong></h3><p>&emsp;DNS资源记录常见的有5种类型，详细请参见<a href="https://zh.wikipedia.org/wiki/%E5%9F%9F%E5%90%8D%E6%9C%8D%E5%8B%99%E5%99%A8%E8%A8%98%E9%8C%84%E9%A1%9E%E5%9E%8B%E5%88%97%E8%A1%A8" target="_blank" rel="external">这里</a>：</p>
 <ul>
 <li>主机（A）：将域名FQND映射到IP  正向解析</li>
 <li>别名（CNAME）：将A记录指向的域名 指向 另外一个域名</li>
@@ -166,7 +173,7 @@
 <li>名称服务器（NS）：指出当前区域内有几个DNS服务器在提供服务</li>
 <li>反向解析(PRT)：将IP解析为域名(FQND)</li>
 </ul>
-<p>###<strong>TCP or UDP</strong><br>&emsp;DNS是使用<code>TCP 53</code>端口和<code>UDP 53</code>端口的，那么什么时候使用TCP，什么时候使用UDP呢？<br>&emsp;一般情况下DNS默认都是使用<strong>UDP 53</strong>，但在一些特殊情况下会使用到<strong>TCP 53</strong></p>
+<h3 id="TCP-or-UDP"><a href="#TCP-or-UDP" class="headerlink" title="TCP or UDP"></a><strong>TCP or UDP</strong></h3><p>&emsp;DNS是使用<code>TCP 53</code>端口和<code>UDP 53</code>端口的，那么什么时候使用TCP，什么时候使用UDP呢？<br>&emsp;一般情况下DNS默认都是使用<strong>UDP 53</strong>，但在一些特殊情况下会使用到<strong>TCP 53</strong></p>
 <ul>
 <li>应答长度超过512字节，使用TCP。DNS在UDP模式下限制报文长度在<code>512</code>字节以下，假若应答报文超过512字节则使用TCP</li>
 <li><strong>区域传送</strong>使用TCP。辅助服务器与主服务器在进行<strong>区域传输</strong>时使用TCP</li>

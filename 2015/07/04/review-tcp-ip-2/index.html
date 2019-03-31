@@ -129,12 +129,20 @@
 
 
 				<div class="content" itemprop="articleBody">
-					<p>##<strong>IP网际协议</strong><br>&emsp;IP提供的是不可靠、无连接的数据报传输服务。</p>
+                    <!-- Table of Contents -->
+                    
+                    <div id="toc" class="toc-article">
+                        <strong class="toc-title">目录</strong>
+                        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#IP网际协议"><span class="toc-number">1.</span> <span class="toc-text">IP网际协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IP头部分析"><span class="toc-number">2.</span> <span class="toc-text">IP头部分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IP路由选择"><span class="toc-number">3.</span> <span class="toc-text">IP路由选择</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ARP"><span class="toc-number">4.</span> <span class="toc-text">ARP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IP路由"><span class="toc-number">5.</span> <span class="toc-text">IP路由</span></a></li></ol>
+                    </div>
+                    
+
+					<h2 id="IP网际协议"><a href="#IP网际协议" class="headerlink" title="IP网际协议"></a><strong>IP网际协议</strong></h2><p>&emsp;IP提供的是不可靠、无连接的数据报传输服务。</p>
 <ul>
 <li>不可靠：不能保证IP数据报能成功到达目的地，既可能<strong>丢包</strong>。可靠性需要由上层提供，如TCP的超时重传机制等。IP有一个简单的错误处理办法，当IP数据报被丢弃后，会发送ICMP消息告诉发送端错误情况。</li>
 <li>无连接：不维护任何后续数据报的状态信息。每个数据报都是相互独立的，独立进行路由选择，到达目的地的顺序和发送顺序可以不同。虽然IP是无连接的，但TCP是面向连接的。<br>举个例子，发送端TCP有四个数据包<code>0 1 2 3</code>，传给网络层，IP封装IP头部后将四个数据包发送出去；由于网络原因产生丢包或延时到达，在接收端只收到<code>0 1 3</code>三个数据包，由于IP是无连接的所以它不需要等<code>2</code>号包的到来就直接将三个数据包传给TCP。由于TCP是面向连接的，所以必须等到<code>2</code>号包的到达组装成完整的数据包后才能传入应用层。</li>
 </ul>
-<p>##<strong>IP头部分析</strong><br>&emsp;IP头部如图所示：</p>
+<h2 id="IP头部分析"><a href="#IP头部分析" class="headerlink" title="IP头部分析"></a><strong>IP头部分析</strong></h2><p>&emsp;IP头部如图所示：</p>
 <p><center><br><img src="http://7xk64o.com1.z0.glb.clouddn.com/ip-header.png" alt="ip-header"><br></center><br>&emsp;普通的IP头部长<strong>20字节</strong>(不包含选项字段)</p>
 <ul>
 <li><strong>版本(4位)</strong>：常说的IPv4或IPv6</li>
@@ -158,7 +166,7 @@
 </ul>
 </li>
 </ul>
-<p>##<strong>IP路由选择</strong><br>&emsp;IP路由选择是<strong>逐跳</strong>进行的，所有的IP路由选择只为数据传输提供下一站路由的IP地址。IP路由选择需要注意以下两点：</p>
+<h2 id="IP路由选择"><a href="#IP路由选择" class="headerlink" title="IP路由选择"></a><strong>IP路由选择</strong></h2><p>&emsp;IP路由选择是<strong>逐跳</strong>进行的，所有的IP路由选择只为数据传输提供下一站路由的IP地址。IP路由选择需要注意以下两点：</p>
 <ul>
 <li>数据报中的<strong>目的IP</strong>始终是不变的(除非在IP头部<code>选项</code>中使用<code>源站路由</code>，目的IP才可能会被改变)。</li>
 <li>链路层的<strong>目的MAC</strong>始终都是在改变的(非直连路由)，并且是下一跳路由的MAC地址。(下一跳路由的MAC通过ARP协议获得)</li>
@@ -178,7 +186,7 @@
 <li>非直连路由<br>  <code>源IP</code>、<code>源MAC</code>、<code>目的IP</code>都是不变的(IP头部非源站路由)，但其中需要经过若干个路由器，每经过一次IP路由选择得出<code>下一跳路由</code>后，<code>目的MAC</code>就被修改成该<code>下一跳路由</code>接口的MAC</li>
 </ul>
 <p>&emsp;直连路由的目的MAC就是目标主机的MAC，而非直连路由的目的MAC是经路由选择后下一跳接口的MAC</p>
-<p>##<strong>ARP</strong><br>&emsp;ARP是为IP地址到对应的硬件地址(以太网中既MAC地址)之间提供动态映射的一种协议。</p>
+<h2 id="ARP"><a href="#ARP" class="headerlink" title="ARP"></a><strong>ARP</strong></h2><p>&emsp;ARP是为IP地址到对应的硬件地址(以太网中既MAC地址)之间提供动态映射的一种协议。</p>
 <p>###<strong>实例分析</strong><br>&emsp;书中举例一个FTP的例子，可以从这个例子中全局的理解TCP/IP一个整体的过程，例子图如下：</p>
 <p><center><br><img src="http://7xk64o.com1.z0.glb.clouddn.com/arp_example.png" alt="arp_example"><br></center><br><code>ftp bsdi</code></p>
 <ol>
@@ -245,7 +253,7 @@
 <li>非IP分片的第一片，因为只有第一片分片才包含<strong>前8字节</strong>所需的源端口和目的端口</li>
 <li>源地址不是单个主机的数据报，既源地址不能为全零、环回地址、广播地址和多播地址</li>
 </ul>
-<p>##<strong>IP路由</strong><br>&emsp;路由选路是IP最为重要的功能之一，系统会维护一张包含路由条目的路由表，通过查询路由表得出下一跳地址然后进行路由转发及选路。</p>
+<h2 id="IP路由"><a href="#IP路由" class="headerlink" title="IP路由"></a><strong>IP路由</strong></h2><p>&emsp;路由选路是IP最为重要的功能之一，系统会维护一张包含路由条目的路由表，通过查询路由表得出下一跳地址然后进行路由转发及选路。</p>
 <p>###<strong>路由更新方式</strong><br>&emsp;路由表更新的方式有如下三种：</p>
 <ul>
 <li>路由守护进程，运行着动态路由协议的用户进程，比如OSPF守护进程、RIP守护进程。</li>

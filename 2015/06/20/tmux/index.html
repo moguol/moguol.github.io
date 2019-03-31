@@ -129,9 +129,17 @@
 
 
 				<div class="content" itemprop="articleBody">
+                    <!-- Table of Contents -->
+                    
+                    <div id="toc" class="toc-article">
+                        <strong class="toc-title">目录</strong>
+                        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装"><span class="toc-number">1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础概念"><span class="toc-number">2.</span> <span class="toc-text">基础概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#会话-session-操作"><span class="toc-number">3.</span> <span class="toc-text">会话(session)操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#窗口-window-操作"><span class="toc-number">4.</span> <span class="toc-text">窗口(window)操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#面板-pane-操作"><span class="toc-number">5.</span> <span class="toc-text">面板(pane)操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VI模式的面板-pane-间移动"><span class="toc-number">6.</span> <span class="toc-text">VI模式的面板(pane)间移动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复制模式"><span class="toc-number">7.</span> <span class="toc-text">复制模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#重启保持会话-session"><span class="toc-number">8.</span> <span class="toc-text">重启保持会话(session)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH-Tips"><span class="toc-number">9.</span> <span class="toc-text">SSH Tips</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tmux配置"><span class="toc-number">10.</span> <span class="toc-text">tmux配置</span></a></li></ol>
+                    </div>
+                    
+
 					<p>&emsp;<a href="https://tmux.github.io/" target="_blank" rel="external">tmux</a>是一款优秀且好用的终端复用工具，有点类似screen。之所以说好用是因为它支持全键盘操作，连屏幕复制都能直接通过键盘完成，以下是平时的一点使用记录。</p>
-<p>##<strong>安装</strong><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ubuntu：sudo apt-get install tmux</span><br><span class="line">CentOS：yum install tmux</span><br></pre></td></tr></table></figure></p>
-<p>##<strong>基础概念</strong><br>&emsp;要用好tmux，需要先了解有关tmux的几个基础概念——会话(session)、窗口(window)和面板(pane)</p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a><strong>安装</strong></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Ubuntu：sudo apt-get install tmux</span><br><span class="line">CentOS：yum install tmux</span><br></pre></td></tr></table></figure>
+<h2 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a><strong>基础概念</strong></h2><p>&emsp;要用好tmux，需要先了解有关tmux的几个基础概念——会话(session)、窗口(window)和面板(pane)</p>
 <ul>
 <li>会话(session)：直接输入<code>tmux</code>命令即创建了一个会话</li>
 <li>窗口(window)： window为session的终端，一个session可以包含多个window</li>
@@ -139,11 +147,236 @@
 <li>前缀操作(prefix)：tmux的所有键盘操作都必须以前缀操作开始即<code>prefix + command</code>，默认的前缀操作prefix为<code>Ctrl + b</code>(可根据个人习惯更改)</li>
 </ul>
 <p>&emsp;会话(session)、窗口(window)、面板(pane)之间的关系<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sessio<span class="label">n1</span>&#123;</span><br><span class="line">		wi<span class="label">ndow1</span>&#123;pa<span class="label">ne1</span>,pa<span class="label">ne2</span>,...&#125;,</span><br><span class="line">		wi<span class="label">ndow2</span>&#123;pa<span class="label">ne1</span>,pa<span class="label">ne2</span>,...&#125;,</span><br><span class="line">		wi<span class="label">ndow3</span>&#123;pa<span class="label">ne1</span>,pa<span class="label">ne2</span>,...&#125;,</span><br><span class="line">		...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>##<strong>会话(session)操作</strong><br>|快捷键| | | | 操作 |<br>|:—-| | | |:—-|<br>|tmux ls| | | |列出所有session|<br>|tmux attach -t session_name| | | |重新进入指定的session|<br>|prefix d| | | |离开session|<br>|prefix $| | | |重命名session|<br>|prefix s| | | |查看/切换session|<br>|prefix t| | | |查看时间|</p>
-<p>##<strong>窗口(window)操作</strong><br>|快捷键| | | | 操作 |<br>|:—-| | | |:—-|<br>|prefix c| | | |新建窗口|<br>|prefix ,| | | |重命名窗口|<br>|prefix &amp;| | | |关闭窗口|<br>|prefix 窗口号| | | |切换到窗口号|<br>|prefix n| | | |移动到下一个窗口|<br>|prefix p| | | |移动到上一个窗口|<br>|prefix l| | | |移动到上一次活动的窗口|<br>|prefix w| | | |列出所有窗口，并进行选择切换|<br>|prefix f| | | |搜索窗口名|</p>
-<p>##<strong>面板(pane)操作</strong><br>|快捷键| | | | 操作 |<br>|:—-| | | |:—-|<br>|prefix “| | | |水平分隔出一个pane|<br>|prefix %| | | |垂直分隔出一个pane|<br>|prefix 方向键| | | |在所有pane中移动|<br>|prefix o| | | |移动到下一个pane|<br>|prefix 空格| | | |循环变换pane布局|<br>|prefix q| | | |显示pane编号|<br>|prefix x| | | |关闭当前pane|<br>|prefix !| | | |将当前pane置于一个新建窗口中|<br>|prefix z| | | |临时最大化当前pane/恢复pane原大小|<br>|prefix ;| | | |切换到上次使用的pane|<br>|prefix {| | | |向前置换当前pane|<br>|prefix }| | | |向后置换当前pane|</p>
-<p>##<strong>VI模式的面板(pane)间移动</strong><br>&emsp;面板的移动默认都是通过<code>prefix o</code>或<code>prefix 方向键</code>来实现，但习惯使用vim的用户会想通过<code>hjkl</code>来移动，可以通过以下配置实现<br>&emsp;配置完后通过<code>prefix hjkl</code>在各面板间移动<br><figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#pane hjkl移动</span></span><br><span class="line"><span class="keyword">bind</span> h <span class="keyword">select</span>-pane -L</span><br><span class="line"><span class="keyword">bind</span> j <span class="keyword">select</span>-pane -D</span><br><span class="line"><span class="keyword">bind</span> k <span class="keyword">select</span>-pane -U</span><br><span class="line"><span class="keyword">bind</span> l <span class="keyword">select</span>-pane -R</span><br></pre></td></tr></table></figure></p>
-<p>##<strong>复制模式</strong><br>&emsp;进入复制模式可以非常方便的复制粘贴屏幕的内容，有点类似与VIM的<code>Ctrl-v</code>模式，首先要在配置文件<code>~/.tmux.conf</code>添加如下配置：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">set</span>-window-<span class="keyword">option</span> -<span class="keyword">g</span> <span class="keyword">mode</span>-<span class="keyword">keys</span> vi</span><br><span class="line">bind-<span class="keyword">key</span> -<span class="keyword">t</span> vi-copy <span class="string">'v'</span> <span class="keyword">begin</span>-selection</span><br><span class="line">bind-<span class="keyword">key</span> -<span class="keyword">t</span> vi-copy <span class="string">'y'</span> copy-selection</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="会话-session-操作"><a href="#会话-session-操作" class="headerlink" title="会话(session)操作"></a><strong>会话(session)操作</strong></h2><table>
+<thead>
+<tr>
+<th style="text-align:left">快捷键</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">tmux ls</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">列出所有session</td>
+</tr>
+<tr>
+<td style="text-align:left">tmux attach -t session_name</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">重新进入指定的session</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix d</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">离开session</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix $</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">重命名session</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix s</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">查看/切换session</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix t</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">查看时间</td>
+</tr>
+</tbody>
+</table>
+<h2 id="窗口-window-操作"><a href="#窗口-window-操作" class="headerlink" title="窗口(window)操作"></a><strong>窗口(window)操作</strong></h2><table>
+<thead>
+<tr>
+<th style="text-align:left">快捷键</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">prefix c</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">新建窗口</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix ,</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">重命名窗口</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix &amp;</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">关闭窗口</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix 窗口号</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">切换到窗口号</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix n</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">移动到下一个窗口</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix p</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">移动到上一个窗口</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix l</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">移动到上一次活动的窗口</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix w</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">列出所有窗口，并进行选择切换</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix f</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">搜索窗口名</td>
+</tr>
+</tbody>
+</table>
+<h2 id="面板-pane-操作"><a href="#面板-pane-操作" class="headerlink" title="面板(pane)操作"></a><strong>面板(pane)操作</strong></h2><table>
+<thead>
+<tr>
+<th style="text-align:left">快捷键</th>
+<th></th>
+<th></th>
+<th></th>
+<th style="text-align:left">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">prefix “</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">水平分隔出一个pane</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix %</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">垂直分隔出一个pane</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix 方向键</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">在所有pane中移动</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix o</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">移动到下一个pane</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix 空格</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">循环变换pane布局</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix q</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">显示pane编号</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix x</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">关闭当前pane</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix !</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">将当前pane置于一个新建窗口中</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix z</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">临时最大化当前pane/恢复pane原大小</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix ;</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">切换到上次使用的pane</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix {</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">向前置换当前pane</td>
+</tr>
+<tr>
+<td style="text-align:left">prefix }</td>
+<td></td>
+<td></td>
+<td></td>
+<td style="text-align:left">向后置换当前pane</td>
+</tr>
+</tbody>
+</table>
+<h2 id="VI模式的面板-pane-间移动"><a href="#VI模式的面板-pane-间移动" class="headerlink" title="VI模式的面板(pane)间移动"></a><strong>VI模式的面板(pane)间移动</strong></h2><p>&emsp;面板的移动默认都是通过<code>prefix o</code>或<code>prefix 方向键</code>来实现，但习惯使用vim的用户会想通过<code>hjkl</code>来移动，可以通过以下配置实现<br>&emsp;配置完后通过<code>prefix hjkl</code>在各面板间移动<br><figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#pane hjkl移动</span></span><br><span class="line"><span class="keyword">bind</span> h <span class="keyword">select</span>-pane -L</span><br><span class="line"><span class="keyword">bind</span> j <span class="keyword">select</span>-pane -D</span><br><span class="line"><span class="keyword">bind</span> k <span class="keyword">select</span>-pane -U</span><br><span class="line"><span class="keyword">bind</span> l <span class="keyword">select</span>-pane -R</span><br></pre></td></tr></table></figure></p>
+<h2 id="复制模式"><a href="#复制模式" class="headerlink" title="复制模式"></a><strong>复制模式</strong></h2><p>&emsp;进入复制模式可以非常方便的复制粘贴屏幕的内容，有点类似与VIM的<code>Ctrl-v</code>模式，首先要在配置文件<code>~/.tmux.conf</code>添加如下配置：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">set</span>-window-<span class="keyword">option</span> -<span class="keyword">g</span> <span class="keyword">mode</span>-<span class="keyword">keys</span> vi</span><br><span class="line">bind-<span class="keyword">key</span> -<span class="keyword">t</span> vi-copy <span class="string">'v'</span> <span class="keyword">begin</span>-selection</span><br><span class="line">bind-<span class="keyword">key</span> -<span class="keyword">t</span> vi-copy <span class="string">'y'</span> copy-selection</span></span><br></pre></td></tr></table></figure></p>
 <ul>
 <li><code>prefix [</code>进入选择模式</li>
 <li>按<code>v</code>进入vi选择模式</li>
@@ -159,14 +392,14 @@
 <li>按<code>prefix ]</code>粘贴到光标所在处</li>
 </ul>
 <p>&emsp;假若像我这样平时以Ubuntu系统作为桌面系统，还可将tmux粘贴板里的内容复制到系统粘贴板上，只需绑定<code>prefix o</code>快捷键并调用命令即可。<br>&emsp;如下配置完后，如上面<code>prefix [</code>所示操作选择需要复制内容，最后一步并非按<code>prefix ]</code>而是按<code>prefix o</code>既可将tmux粘贴板上的内容复制到系统粘贴板上<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bind o <span class="keyword">run</span>-<span class="keyword">shell</span> <span class="string">"tmux saveb - | xsel -i -b"</span></span><br></pre></td></tr></table></figure></p>
-<p>##<strong>重启保持会话(session)</strong><br>&emsp;tmux自身有会话保存功能，只要机器不重启就能保存会话，一旦机器重启会话便会丢失。如果想重启仍保持会话则需要额外的插件，这里使用的是<a href="https://github.com/tmux-plugins/tmux-resurrect" target="_blank" rel="external">tmux-resurrect</a>和<a href="https://github.com/tmux-plugins/tmux-continuum" target="_blank" rel="external">tmux-continuum</a>。使用此插件tmux版本需要在<strong><code>1.9</code></strong>以上，Ubuntu14.04默认安装的是<strong><code>1.8</code></strong>版本，所以先对tmux进行升级。也可自行进行编译安装，<a href="https://tmux.github.io/" target="_blank" rel="external">tmux下载地址</a></p>
+<h2 id="重启保持会话-session"><a href="#重启保持会话-session" class="headerlink" title="重启保持会话(session)"></a><strong>重启保持会话(session)</strong></h2><p>&emsp;tmux自身有会话保存功能，只要机器不重启就能保存会话，一旦机器重启会话便会丢失。如果想重启仍保持会话则需要额外的插件，这里使用的是<a href="https://github.com/tmux-plugins/tmux-resurrect" target="_blank" rel="external">tmux-resurrect</a>和<a href="https://github.com/tmux-plugins/tmux-continuum" target="_blank" rel="external">tmux-continuum</a>。使用此插件tmux版本需要在<strong><code>1.9</code></strong>以上，Ubuntu14.04默认安装的是<strong><code>1.8</code></strong>版本，所以先对tmux进行升级。也可自行进行编译安装，<a href="https://tmux.github.io/" target="_blank" rel="external">tmux下载地址</a></p>
 <p>####<strong>Ubuntu14.04升级tmux到2.0版本</strong><br><figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y python-software-properties software-properties-common</span><br><span class="line">sudo<span class="instruction"> add-apt-repository </span>-y ppa:pi-rho/dev</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y tmux=2.0-1~ppa1~t</span><br><span class="line"></span><br><span class="line"><span class="comment">#查看tmux版本</span></span><br><span class="line">tmux -V</span><br></pre></td></tr></table></figure></p>
 <p>####<strong>安装tmxu-resurrect插件</strong><br>&emsp;此插件是用来保存tmux的会话，安装后按快捷键<strong><code>prefix+Ctrl+s</code></strong>保存会话，<strong>tmux-resurrect</strong>会将会话以文本方式保存在<code>~/.tmux/resurrect</code>目录中。按<strong><code>prefix+Ctrl+r</code></strong>还原。<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir ~/<span class="class">.tmux</span> &amp;&amp; cd ~/<span class="class">.tmux</span></span><br><span class="line">git clone https:<span class="comment">//github.com/tmux-plugins/tmux-resurrect.git</span></span><br><span class="line">echo <span class="string">'run-shell ~/.tmux/tmux-resurrect/resurrect.tmux'</span> &gt;&gt; ~/<span class="class">.tmux</span><span class="class">.conf</span></span><br></pre></td></tr></table></figure></p>
 <p>####<strong>安装tmux-continuum插件</strong><br>&emsp;此插件会自动完成保存和还原会话的功能，无需手动执行。默认每隔<strong><code>15分钟</code></strong>对会话进行一次保存。<br>&emsp;目前我还是选择手动保存和恢复会话，暂时没有使用此插件<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cd ~/<span class="class">.tmux</span></span><br><span class="line">git clone https:<span class="comment">//github.com/tmux-plugins/tmux-continuum.git</span></span><br><span class="line">echo <span class="string">'run-shell ~/.tmux/tmux-continuum/continuum.tmux'</span> &gt;&gt; ~/<span class="class">.tmux</span><span class="class">.conf</span></span><br><span class="line">echo <span class="string">"set -g @continuum-restore 'on'"</span> &gt;&gt; ~/<span class="class">.tmux</span><span class="class">.conf</span></span><br><span class="line"></span><br><span class="line">#若想调整自动保存时间间隔，可将此设置添加到~/<span class="class">.tmux</span><span class="class">.conf</span>下(改为<span class="number">60</span>分钟自动保存一次)。更多设置查看项目网页</span><br><span class="line">set -g @continuum-save-interval <span class="string">'60'</span></span><br><span class="line"></span><br><span class="line">#若安装插件前已启用tmux，则需重载配置文件</span><br><span class="line">tmux source-file ~/<span class="class">.tmux</span><span class="class">.conf</span></span><br></pre></td></tr></table></figure></p>
-<p>##<strong>SSH Tips</strong><br>&emsp;对于需要登录多台机器进行操作的用户来说，Windows有诸如<strong>Xshell</strong>等SSH连接管理工具，当远程登录多台机器的时候会有预先填好的标签方便识别每台机器。Linux平台上本来就可通过终端进行远程登录，所以这类软件较少，比较好用的是<a href="https://sites.google.com/site/davidtv/" target="_blank" rel="external">PAC Manager</a>。但其实使用<strong>Tmux</strong>就可以完成类<strong>Xshell</strong>的便签功能，在SSH远程登录的时候修改Tmux的Window Name就能很好的用于识别多台机器。<br>&emsp;个人的做法是先配完SSH无密码登录，然后做<code>alias</code>别名命令，最后是修改Tmux的Window Name。可根据个人需求就行修改，在此仅说说我个人的做法。将<code>tmux_rename_window</code>函数写入到<code>~/.bashrc</code>并配置好<code>alias</code>命令。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">tmux_rename_window</span></span>() &#123;</span><br><span class="line">    wname=<span class="string">"<span class="variable">$1</span>"</span></span><br><span class="line">    sship=$(<span class="built_in">echo</span> <span class="string">"<span class="variable">$wname</span>"</span>|grep -Po <span class="string">"(\d+\.)&#123;3&#125;\d+$"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> [ <span class="string">"<span class="variable">$(ps -p $(ps -p $$ -o ppid=)</span> -o comm=)"</span> = <span class="string">"tmux"</span> ]; <span class="keyword">then</span></span><br><span class="line">        tmux rename-window -t<span class="variable">$&#123;TMUX_PANE&#125;</span> <span class="string">"<span class="variable">$&#123;wname&#125;</span>"</span></span><br><span class="line">        <span class="built_in">command</span> ssh root@<span class="variable">$&#123;sship&#125;</span></span><br><span class="line">        tmux <span class="built_in">set</span>-window-option automatic-rename <span class="string">"on"</span> <span class="number">1</span>&gt;/dev/null</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">alias</span> nagios.<span class="number">192.16</span>.<span class="number">1.1</span>=<span class="string">'tmux_rename_window nagios.192.16.1.1'</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="SSH-Tips"><a href="#SSH-Tips" class="headerlink" title="SSH Tips"></a><strong>SSH Tips</strong></h2><p>&emsp;对于需要登录多台机器进行操作的用户来说，Windows有诸如<strong>Xshell</strong>等SSH连接管理工具，当远程登录多台机器的时候会有预先填好的标签方便识别每台机器。Linux平台上本来就可通过终端进行远程登录，所以这类软件较少，比较好用的是<a href="https://sites.google.com/site/davidtv/" target="_blank" rel="external">PAC Manager</a>。但其实使用<strong>Tmux</strong>就可以完成类<strong>Xshell</strong>的便签功能，在SSH远程登录的时候修改Tmux的Window Name就能很好的用于识别多台机器。<br>&emsp;个人的做法是先配完SSH无密码登录，然后做<code>alias</code>别名命令，最后是修改Tmux的Window Name。可根据个人需求就行修改，在此仅说说我个人的做法。将<code>tmux_rename_window</code>函数写入到<code>~/.bashrc</code>并配置好<code>alias</code>命令。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">tmux_rename_window</span></span>() &#123;</span><br><span class="line">    wname=<span class="string">"<span class="variable">$1</span>"</span></span><br><span class="line">    sship=$(<span class="built_in">echo</span> <span class="string">"<span class="variable">$wname</span>"</span>|grep -Po <span class="string">"(\d+\.)&#123;3&#125;\d+$"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> [ <span class="string">"<span class="variable">$(ps -p $(ps -p $$ -o ppid=)</span> -o comm=)"</span> = <span class="string">"tmux"</span> ]; <span class="keyword">then</span></span><br><span class="line">        tmux rename-window -t<span class="variable">$&#123;TMUX_PANE&#125;</span> <span class="string">"<span class="variable">$&#123;wname&#125;</span>"</span></span><br><span class="line">        <span class="built_in">command</span> ssh root@<span class="variable">$&#123;sship&#125;</span></span><br><span class="line">        tmux <span class="built_in">set</span>-window-option automatic-rename <span class="string">"on"</span> <span class="number">1</span>&gt;/dev/null</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">alias</span> nagios.<span class="number">192.16</span>.<span class="number">1.1</span>=<span class="string">'tmux_rename_window nagios.192.16.1.1'</span></span><br></pre></td></tr></table></figure></p>
 <p>&emsp;当想登录<code>192.168.1.1</code>这台部署了<code>nagiso</code>的机器时，终端上输入<code>nagios.192.16.1.1</code>后会将Tmux的Window Name修改成<code>nagios.192.16.1.1</code>并SSH到<code>192.168.1.1</code>机器上去。</p>
 <p>&emsp;当SSH远程登录多台机器后可以使用<code>prefix w</code>列出所有窗口方便按照Window Name进行快速选择机器进行操作。</p>
-<p>##<strong>tmux配置</strong><br>&emsp;可通过以下命令查看所有终端的颜色：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;<span class="number">0</span>..<span class="number">255</span>&#125;;<span class="keyword">do</span> <span class="built_in">printf</span> <span class="string">"\x1b[38;5;<span class="variable">$&#123;i&#125;</span>mcolour<span class="variable">$&#123;i&#125;</span>\n"</span>; <span class="keyword">done</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="tmux配置"><a href="#tmux配置" class="headerlink" title="tmux配置"></a><strong>tmux配置</strong></h2><p>&emsp;可通过以下命令查看所有终端的颜色：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;<span class="number">0</span>..<span class="number">255</span>&#125;;<span class="keyword">do</span> <span class="built_in">printf</span> <span class="string">"\x1b[38;5;<span class="variable">$&#123;i&#125;</span>mcolour<span class="variable">$&#123;i&#125;</span>\n"</span>; <span class="keyword">done</span></span><br></pre></td></tr></table></figure></p>
 <p>###<strong>我的tmux配置</strong><br>&emsp;tmux的配置文件为<code>~/.tmux.conf</code>，以下是我参考网上修改的配置文件，因为终端颜色显示问题最好先执行此命令<strong><code>echo &quot;alias tmux=&#39;tmux -2&#39;&quot; &gt;&gt; ~/.bashrc</code></strong><br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line">##设置颜色</span><br><span class="line">#<span class="operator"><span class="keyword">set</span> -<span class="keyword">g</span> <span class="keyword">default</span>-terminal <span class="string">"screen-256color"</span></span><br><span class="line">#<span class="keyword">set</span> -<span class="keyword">g</span> <span class="keyword">default</span>-terminal <span class="string">"xterm-256color"</span></span><br><span class="line"><span class="keyword">set</span> -<span class="keyword">g</span> <span class="keyword">default</span>-terminal <span class="string">"linux"</span></span><br><span class="line">#<span class="keyword">set</span>-window-<span class="keyword">option</span> -<span class="keyword">g</span> alternate-screen <span class="keyword">off</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -<span class="keyword">g</span> display-<span class="keyword">time</span> <span class="number">5000</span></span><br><span class="line">##设置windowlist背景前景色</span><br><span class="line"><span class="keyword">set</span> -wg <span class="keyword">mode</span>-<span class="keyword">style</span> bg=green,fg=black</span><br><span class="line"></span><br><span class="line">##### <span class="number">256</span> ######</span><br><span class="line"># <span class="keyword">default</span> statusbar colors</span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -<span class="keyword">g</span> <span class="keyword">status</span>-bg colour235 #base02</span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -<span class="keyword">g</span> <span class="keyword">status</span>-fg colour34 #purple</span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -<span class="keyword">g</span> <span class="keyword">status</span>-<span class="keyword">attr</span> <span class="keyword">default</span></span><br><span class="line"></span><br><span class="line"># <span class="keyword">default</span> window title colors</span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -<span class="keyword">g</span> window-<span class="keyword">status</span>-fg colour244 #base0</span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -<span class="keyword">g</span> window-<span class="keyword">status</span>-bg <span class="keyword">default</span></span><br><span class="line"></span><br><span class="line"># active window title colors</span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -<span class="keyword">g</span> window-<span class="keyword">status</span>-<span class="keyword">current</span>-fg colour88 #red</span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -<span class="keyword">g</span> window-<span class="keyword">status</span>-<span class="keyword">current</span>-bg colour232 #black</span><br><span class="line"></span><br><span class="line"># pane border</span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -<span class="keyword">g</span> pane-border-fg colour235 #base02</span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -<span class="keyword">g</span> pane-active-border-fg colour196 #base01</span><br><span class="line"></span><br><span class="line"># message <span class="built_in">text</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -<span class="keyword">g</span> message-bg colour235 #base02</span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -<span class="keyword">g</span> message-fg colour83 #green</span><br><span class="line"></span><br><span class="line"># pane <span class="built_in">number</span> display</span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -<span class="keyword">g</span> display-panes-active-colour colour33 #blue #<span class="number">001</span></span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -<span class="keyword">g</span> display-panes-colour colour166 #orange #<span class="number">141</span></span><br><span class="line"><span class="keyword">set</span> -<span class="keyword">g</span> display-panes-<span class="keyword">time</span> <span class="number">5000</span></span><br><span class="line"></span><br><span class="line"># clock</span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -<span class="keyword">g</span> clock-<span class="keyword">mode</span>-colour colour64</span><br><span class="line"><span class="keyword">set</span>-<span class="keyword">option</span> -<span class="keyword">g</span> <span class="keyword">status</span>-<span class="keyword">right</span> <span class="string">"[#(hostname)] #(date +%H:%M' '%Y-%m-%d)"</span></span><br><span class="line"></span><br><span class="line">#设置前缀</span><br><span class="line"><span class="keyword">set</span> -<span class="keyword">g</span> prefix <span class="keyword">C</span>-o</span><br><span class="line">#解除Ctrl+b 与前缀的对应关系</span><br><span class="line">unbind <span class="keyword">C</span>-b</span><br><span class="line"></span><br><span class="line">#复制</span><br><span class="line"><span class="keyword">set</span>-window-<span class="keyword">option</span> -<span class="keyword">g</span> <span class="keyword">mode</span>-<span class="keyword">keys</span> vi</span><br><span class="line">bind-<span class="keyword">key</span> -<span class="keyword">t</span> vi-copy <span class="string">'v'</span> <span class="keyword">begin</span>-selection</span><br><span class="line">bind-<span class="keyword">key</span> -<span class="keyword">t</span> vi-copy <span class="string">'y'</span> copy-selection</span><br><span class="line"></span><br><span class="line">#pane hjkl移动</span><br><span class="line">bind h <span class="keyword">select</span>-pane -<span class="keyword">L</span></span><br><span class="line">bind j <span class="keyword">select</span>-pane -<span class="keyword">D</span></span><br><span class="line">bind <span class="keyword">k</span> <span class="keyword">select</span>-pane -U</span><br><span class="line">bind <span class="keyword">l</span> <span class="keyword">select</span>-pane -R</span><br><span class="line"></span><br><span class="line">#调整pane大小</span><br><span class="line">bind -r <span class="keyword">C</span>-<span class="keyword">k</span> resizep -U <span class="number">3</span></span><br><span class="line">bind -r <span class="keyword">C</span>-j resizep -<span class="keyword">D</span> <span class="number">3</span></span><br><span class="line">bind -r <span class="keyword">C</span>-h resizep -<span class="keyword">L</span> <span class="number">3</span></span><br><span class="line">bind -r <span class="keyword">C</span>-<span class="keyword">l</span> resizep -R <span class="number">3</span></span><br><span class="line"></span><br><span class="line">#系统粘贴</span><br><span class="line">#Ctrl+o将tmux粘贴板中的内容复制到系统剪切板中</span><br><span class="line">bind o run-shell <span class="string">"tmux saveb - | xsel -i -b"</span></span><br><span class="line"></span><br><span class="line">#鼠标操作</span><br><span class="line">#<span class="number">1.8</span></span><br><span class="line">#setw -<span class="keyword">g</span> mouse-<span class="keyword">resize</span>-pane <span class="keyword">on</span></span><br><span class="line">#setw -<span class="keyword">g</span> mouse-<span class="keyword">select</span>-pane <span class="keyword">on</span></span><br><span class="line">#setw -<span class="keyword">g</span> mouse-<span class="keyword">select</span>-window <span class="keyword">on</span></span><br><span class="line">#setw -<span class="keyword">g</span> <span class="keyword">mode</span>-mouse <span class="keyword">on</span></span><br><span class="line">#<span class="number">1.9</span> <span class="keyword">and</span> above</span><br><span class="line">#<span class="keyword">set</span>-<span class="keyword">option</span> -<span class="keyword">g</span> mouse <span class="keyword">on</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#绑定<span class="string">'prefix ;'</span>到<span class="string">'跳转到上个活动的窗口处'</span></span><br><span class="line">bind-<span class="keyword">key</span> \;</span> last-window</span><br><span class="line"></span><br><span class="line">#窗口列表在状态栏居中</span><br><span class="line">#<span class="operator"><span class="keyword">set</span> -<span class="keyword">g</span> <span class="keyword">status</span>-justify centre</span><br><span class="line"></span><br><span class="line">#tmux-resurrect <span class="keyword">and</span> tmux-continuum</span><br><span class="line">run-shell ~/.tmux/tmux-resurrect/resurrect.tmux</span><br><span class="line">#run-shell ~/.tmux/tmux-continuum/continuum.tmux</span><br><span class="line">#<span class="keyword">set</span> -<span class="keyword">g</span> @continuum-<span class="keyword">restore</span> <span class="string">'on'</span></span></span><br></pre></td></tr></table></figure></p>
 
 				</div>

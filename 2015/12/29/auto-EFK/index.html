@@ -129,6 +129,14 @@
 
 
 				<div class="content" itemprop="articleBody">
+                    <!-- Table of Contents -->
+                    
+                    <div id="toc" class="toc-article">
+                        <strong class="toc-title">目录</strong>
+                        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#自动添加Fluentd配置"><span class="toc-number">1.</span> <span class="toc-text">自动添加Fluentd配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kibana自动绘图"><span class="toc-number">2.</span> <span class="toc-text">Kibana自动绘图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#改进"><span class="toc-number"></span> <span class="toc-text">改进</span></a>
+                    </div>
+                    
+
 					<p>&emsp;自从使用EFK(Elasticsearch/Fluentd/Kibana)日志系统对各项目的日志进行采集、分析及可视化展示后，逐渐发现添加配置是件繁琐的事情。于是构想对从添加配置到可视化过程中可自动化的部分，初步针对以下方面进行自动化减轻工作负担，让日志的采集、分析和可视化更轻松方便：</p>
 <ol>
 <li>自动添加Fluentd配置<br> &emsp;日志需要采集则需要在日志生成端对Fluentd进行配置，并且汇聚端同样需要添加相关的Fluentd配置。手动添加既繁琐又容易出错，所以这部分需要交由程序完成。</li>
