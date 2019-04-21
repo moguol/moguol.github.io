@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" OpenTracing &amp; Jaeger | Hexo " />
+	<meta name="twitter:title" content=" OpenTracing &amp; Jaeger | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" OpenTracing &amp; Jaeger | Hexo ">
+	<meta property="og:description" content=" OpenTracing &amp; Jaeger | Hexo " />
+	<meta name="twitter:description" content=" OpenTracing &amp; Jaeger | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2019/04/05/jaeger/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Bigdata/">Bigdata</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2019-04-05">2019-04-05</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/OPS/">OPS</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2019/04/05/jaeger/" itemprop="url"><span itemprop="name">OpenTracing &amp; Jaeger</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+                    <!-- Table of Contents -->
+                    
+                    <div id="toc" class="toc-article">
+                        <strong class="toc-title">目录</strong>
+                        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#OpenTracing"><span class="toc-number">1.</span> <span class="toc-text">OpenTracing</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#微服务诊断分析系统"><span class="toc-number">1.1.</span> <span class="toc-text">微服务诊断分析系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分布式全链路追踪系统核心步骤"><span class="toc-number">1.2.</span> <span class="toc-text">分布式全链路追踪系统核心步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OpenTracing-术语"><span class="toc-number">1.3.</span> <span class="toc-text">OpenTracing 术语</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jaeger"><span class="toc-number">2.</span> <span class="toc-text">Jaeger</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Jaeger-核心组件"><span class="toc-number">2.1.</span> <span class="toc-text">Jaeger 核心组件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Jaeger-二进制部署"><span class="toc-number">2.2.</span> <span class="toc-text">Jaeger 二进制部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Jaeger-Golang-Demo"><span class="toc-number">2.3.</span> <span class="toc-text">Jaeger Golang Demo</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#初始化Jaeger"><span class="toc-number">2.3.1.</span> <span class="toc-text">初始化Jaeger</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#内部函数追踪"><span class="toc-number">2.3.2.</span> <span class="toc-text">内部函数追踪</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HTTP请求跟踪"><span class="toc-number">2.3.3.</span> <span class="toc-text">HTTP请求跟踪</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#gRPC请求跟踪"><span class="toc-number">2.3.4.</span> <span class="toc-text">gRPC请求跟踪</span></a></li></ol></li></ol></li></ol>
+                    </div>
+                    
+
+					<h2 id="OpenTracing"><a href="#OpenTracing" class="headerlink" title="OpenTracing"></a><strong>OpenTracing</strong></h2><h3 id="微服务诊断分析系统"><a href="#微服务诊断分析系统" class="headerlink" title="微服务诊断分析系统"></a><strong>微服务诊断分析系统</strong></h3><ul>
+<li>集中式日志系统(logging)：ELK</li>
+<li>集中式度量系统(metrics)：Prometheus</li>
+<li>分布式全链路追踪系统(tracing)：Jaeger<ul>
+<li>完全实现OpenTracing</li>
+<li>Golang编写</li>
+<li>UDP传输</li>
+</ul>
+</li>
+</ul>
+<h3 id="分布式全链路追踪系统核心步骤"><a href="#分布式全链路追踪系统核心步骤" class="headerlink" title="分布式全链路追踪系统核心步骤"></a><strong>分布式全链路追踪系统核心步骤</strong></h3><ul>
+<li>代码埋点</li>
+<li>数据存储</li>
+<li>查询展示</li>
+</ul>
+<h3 id="OpenTracing-术语"><a href="#OpenTracing-术语" class="headerlink" title="OpenTracing 术语"></a><strong>OpenTracing 术语</strong></h3><p>为了解决不同的分布式追踪系统 API 不兼容的问题，诞生了 <a href="https://opentracing.io/" target="_blank" rel="external">OpenTracing</a>规范</p>
+<p>一条 <strong>Trace</strong>（调用链）可以被认为是一个由多个 <strong>Span</strong> 组成的有向无环图（DAG图），<strong>Span</strong> 与 <strong>Span</strong> 的关系被命名为 <strong>References</strong></p>
+<p><strong>Span</strong>，可以被翻译为跨度，可以被理解为一次方法调用, 一个程序块的调用, 或者一次RPC/数据库访问.只要是一个具有完整时间周期的程序访问，都可以被认为是一个 <strong>Span</strong></p>
+<p>一个<strong>Span</strong>包含以下状态：</p>
+<ul>
+<li><strong>An operation name</strong>: 操作名称</li>
+<li><strong>A start timestamp</strong>: 起始时间</li>
+<li><strong>A finish timestamp</strong>: 结束时间</li>
+<li><strong>Span Tag</strong>: 一组键值对构成的 Span 标签集合。键值对中，键必须为 string，值可以是字符串，布尔，或者数字类型。Tag不会被子Span继承</li>
+<li><strong>Span Log</strong>: 一组span的日志集合。 每次log操作包含一个<strong>键值对</strong>，以及一个<strong>时间戳</strong>。 键值对中，键必须为string，值可以是任意类型。 但是需要注意，不是所有的支持OpenTracing的Tracer,都需要支持所有的值类型。</li>
+<li><strong>SpanContext</strong>: Span 上下文对象。SpanContext代表跨越进程边界，传递到下级span的状态，并用于封装<strong>Baggage</strong>。</li>
+<li><strong>References</strong>: Span间关系，相关的零个或者多个 Span(Span 间通过 SpanContext 建立这种关系)<ul>
+<li>一个Span可以与一个或者多个Span存在因果关系。OpenTracing目前定义了两种关系：<code>ChildOf</code> 和 <code>FollowsFrom</code></li>
+</ul>
+</li>
+</ul>
+<p>其他术语:</p>
+<ul>
+<li><strong>Baggage</strong>: 存储在SpanContext中的键值对，在整个trace链路中<strong>全局传输</strong>，会被子Span继承。(全局传输代价大，过多baggage会影响性能)</li>
+<li><strong>Inject &amp; Extract</strong>: SpanContexts通过Inject/Extract实现跨进程通讯数据。SpanContexts通过Inject操作向Carrier(例如：HTTP header)增加数据，通过EXtract从Carrier中获取数据。</li>
+<li><strong>Carrier</strong>: 用于在进场间携带SpanContext，对Carrier可进行Inject及Extract操作。OpenTracing支持2种Carrier格式(允许自定义Carrier格式)：<ul>
+<li><strong>text map</strong>，平台惯用的map格式，基于unicode编码的<code>字符串</code>对<code>字符串</code>键值对</li>
+<li><strong>binary</strong>，不透明的二进制数组</li>
+</ul>
+</li>
+</ul>
+<h2 id="Jaeger"><a href="#Jaeger" class="headerlink" title="Jaeger"></a><strong>Jaeger</strong></h2><h3 id="Jaeger-核心组件"><a href="#Jaeger-核心组件" class="headerlink" title="Jaeger 核心组件"></a><strong>Jaeger 核心组件</strong></h3><ul>
+<li><p><strong>jaeger-client</strong>: 为不同语言实现了符合 OpenTracing 标准的 SDK</p>
+</li>
+<li><p><strong>jaeger-agent</strong>: 监听在 <strong>UDP</strong> 端口上接收 span 数据的网络守护进程，将数据批量发送给 jaeger-collector</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>端口号</th>
+<th>协议</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5775</td>
+<td>UDP</td>
+<td>通过兼容性 thrift 协议，接收 zipkin thrift 类型的数据</td>
+</tr>
+<tr>
+<td>6831</td>
+<td>UDP</td>
+<td>通过兼容性 thrift 协议，接收 jaeger thrift 类型的数据</td>
+</tr>
+<tr>
+<td>6832</td>
+<td>UDP</td>
+<td>通过二进制 thrift 协议，接收 jaeger thrift 类型的数据</td>
+</tr>
+<tr>
+<td>5778</td>
+<td>HTTP</td>
+<td>可用于配置采样策略</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>jaeger-collector</strong>: 接收 jaeger-agent 发送来的数据，然后将数据写入后端存储。<strong>无状态</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>端口号</th>
+<th>协议</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>14267</td>
+<td>TChannel</td>
+<td>用于接收 jaeger-agent 发送来的 jaeger.thrift 格式的 span</td>
+</tr>
+<tr>
+<td>14268</td>
+<td>HTTP</td>
+<td>能直接接收来自客户端的 jaeger.thrift 格式的 span</td>
+</tr>
+<tr>
+<td>14269</td>
+<td>HTTP</td>
+<td>健康检测/</td>
+</tr>
+<tr>
+<td>14250</td>
+<td>gRPC</td>
+<td>用于接收 jaeger-agent 发送来的 model.proto 格式的 span</td>
+</tr>
+<tr>
+<td>9411</td>
+<td>HTTP</td>
+<td>能通过 JSON 或 Thrift 接收 Zipkin spans，默认关闭</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><strong>Data Store</strong>: Cassandra、ElasticSearch</p>
+</li>
+<li><p><strong>jaeger-query</strong>: 接收查询请求，然后从后端存储系统中检索 trace 并通过 UI 进行展示。<strong>无状态</strong></p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>端口号</th>
+<th>协议</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16686</td>
+<td>HTTP</td>
+<td>1. /api/* - API 端口路径  2. / - Jaeger UI 路径</td>
+</tr>
+<tr>
+<td>16687</td>
+<td>HTTP</td>
+<td>健康检测/</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>jaeger-ui</strong>: 查询结果展示</li>
+</ul>
+<p>jaeger-agent 和 jaeger-collecor 之间使用的是Uber自研的 <a href="https://github.com/uber/tchannel" target="_blank" rel="external">TChannel</a>协议</p>
+<p>可以支持 Thrift 和 HTTP+JSON 等, 该协议的设计目标之一是将分布式追踪能力融入协议中, 为了实现这一目标，TChannel协议规范将追踪字段直接定义到了二进制格式中, 形如:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spanid:<span class="number">8</span> parentid:<span class="number">8</span> traceid:<span class="number">8</span> traceflags:<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>各字段含义如下:</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>spanid</td>
+<td>int64</td>
+<td>Span 标识</td>
+</tr>
+<tr>
+<td>parentid</td>
+<td>int64</td>
+<td>父Span标识</td>
+</tr>
+<tr>
+<td>traceid</td>
+<td>int64</td>
+<td>负责分配的原始操作方</td>
+</tr>
+<tr>
+<td>traceflags</td>
+<td>uint8</td>
+<td>标志位</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Jaeger-二进制部署"><a href="#Jaeger-二进制部署" class="headerlink" title="Jaeger 二进制部署"></a><strong>Jaeger 二进制部署</strong></h3><p><a href="https://www.jaegertracing.io/docs/1.11/deployment/" target="_blank" rel="external">Jaeger 官方文档</a></p>
+<p><a href="https://github.com/jaegertracing/jaeger/releases" target="_blank" rel="external">Jaeger 二进制包下载地址</a></p>
+<ul>
+<li><p>Supervisor</p>
+<p>使用Supervisor管理，主配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /etc/supervisord.conf</span></span><br><span class="line">[unix_http_server]</span><br><span class="line">file=/tmp/supervisor.sock   ; the path to the socket file</span><br><span class="line"></span><br><span class="line">[supervisord]</span><br><span class="line">logfile=/tmp/supervisord.log ; main <span class="built_in">log</span> file; default <span class="variable">$CWD</span>/supervisord.log</span><br><span class="line">logfile_maxbytes=<span class="number">50</span>MB        ; max main logfile bytes b4 rotation; default <span class="number">50</span>MB</span><br><span class="line">logfile_backups=<span class="number">10</span>           ; <span class="comment"># of main logfile backups; 0 means none, default 10</span></span><br><span class="line">loglevel=info                ; <span class="built_in">log</span> level; default info; others: debug,warn,trace</span><br><span class="line">pidfile=/tmp/supervisord.pid ; supervisord pidfile; default supervisord.pid</span><br><span class="line">nodaemon=<span class="literal">false</span>               ; start <span class="keyword">in</span> foreground <span class="keyword">if</span> <span class="literal">true</span>; default <span class="literal">false</span></span><br><span class="line">minfds=<span class="number">655350</span>                  ; min. avail startup file descriptors; default <span class="number">1024</span></span><br><span class="line">minprocs=<span class="number">655350</span>                 ; min. avail process descriptors;default <span class="number">200</span></span><br><span class="line"></span><br><span class="line">[rpcinterface:supervisor]</span><br><span class="line">supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface</span><br><span class="line"></span><br><span class="line">[supervisorctl]</span><br><span class="line">serverurl=unix:///tmp/supervisor.sock ; use a unix:// URL  <span class="keyword">for</span> a unix socket</span><br><span class="line"></span><br><span class="line">[include]</span><br><span class="line">files = /etc/supervisord.d/*.conf</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>jaeger-collect</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /etc/supervisord.d/jaeger-collect.conf</span></span><br><span class="line">[program:jaeger-collect]</span><br><span class="line"><span class="built_in">command</span>     =  /usr/<span class="built_in">local</span>/jaeger/jaeger-collector --es.server-urls <span class="string">"http://192.168.1.180:9200"</span> --es.timeout <span class="number">30</span>s --es.num-replicas <span class="number">1</span> --es.num-shards <span class="number">5</span></span><br><span class="line">directory   = /usr/<span class="built_in">local</span>/jaeger/</span><br><span class="line">user        = root</span><br><span class="line">startsecs   = <span class="number">3</span></span><br><span class="line">stopwaitsecs= <span class="number">5</span></span><br><span class="line"></span><br><span class="line">redirect_stderr         = <span class="literal">true</span></span><br><span class="line">stdout_logfile_maxbytes = <span class="number">50</span>MB</span><br><span class="line">stdout_logfile_backups  = <span class="number">10</span></span><br><span class="line">stdout_logfile          = /var/<span class="built_in">log</span>/jaeger/jaeger-collect.log</span><br><span class="line">environment=SPAN_STORAGE_TYPE=<span class="string">"elasticsearch"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>jaeger-agent</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /etc/supervisord.d/jaeger-agent.conf</span></span><br><span class="line">[program:jaeger-agent]</span><br><span class="line"><span class="built_in">command</span>     = /usr/<span class="built_in">local</span>/jaeger/jaeger-agent --collector.host-port=<span class="number">192.168</span>.<span class="number">1.180</span>:<span class="number">14267</span></span><br><span class="line">directory   = /usr/<span class="built_in">local</span>/jaeger/</span><br><span class="line">user        = root</span><br><span class="line">startsecs   = <span class="number">3</span></span><br><span class="line">stopwaitsecs= <span class="number">5</span></span><br><span class="line"></span><br><span class="line">redirect_stderr         = <span class="literal">true</span></span><br><span class="line">stdout_logfile_maxbytes = <span class="number">50</span>MB</span><br><span class="line">stdout_logfile_backups  = <span class="number">10</span></span><br><span class="line">stdout_logfile          = /var/<span class="built_in">log</span>/jaeger/jaeger-agent.log</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>jaeger-query</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /etc/supervisord.d/jaeger-query.conf</span></span><br><span class="line">[program:jaeger-query]</span><br><span class="line"><span class="built_in">command</span>     =  /usr/<span class="built_in">local</span>/jaeger/jaeger-query --es.server-urls <span class="string">"http://192.168.1.180:9200"</span></span><br><span class="line">directory   = /usr/<span class="built_in">local</span>/jaeger/</span><br><span class="line">user        = root</span><br><span class="line">startsecs   = <span class="number">3</span></span><br><span class="line">stopwaitsecs= <span class="number">5</span></span><br><span class="line"></span><br><span class="line">redirect_stderr         = <span class="literal">true</span></span><br><span class="line">stdout_logfile_maxbytes = <span class="number">50</span>MB</span><br><span class="line">stdout_logfile_backups  = <span class="number">10</span></span><br><span class="line">stdout_logfile          = /var/<span class="built_in">log</span>/jaeger/jaeger-query.log</span><br><span class="line">environment=SPAN_STORAGE_TYPE=<span class="string">"elasticsearch"</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="Jaeger-Golang-Demo"><a href="#Jaeger-Golang-Demo" class="headerlink" title="Jaeger Golang Demo"></a><strong>Jaeger Golang Demo</strong></h3><p><a href="https://github.com/yurishkuro/opentracing-tutorial/tree/master/go" target="_blank" rel="external">OpenTracing Tutorial - Go</a></p>
+<h4 id="初始化Jaeger"><a href="#初始化Jaeger" class="headerlink" title="初始化Jaeger"></a><strong>初始化Jaeger</strong></h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> InitJaeger(service <span class="typename">string</span>) (opentracing.Tracer, io.Closer) &#123;</span><br><span class="line">        cfg := &amp;config.Configuration&#123;</span><br><span class="line">            	<span class="comment">// 设置Sampler，此处为全量采集，按实际情况调整采集率</span></span><br><span class="line">                Sampler: &amp;config.SamplerConfig&#123;</span><br><span class="line">                        Type:  <span class="string">"const"</span>,		<span class="comment">// 全量采集策略</span></span><br><span class="line">                        Param: <span class="number">1</span>,			<span class="comment">// 0 or 1</span></span><br><span class="line">                &#125;,</span><br><span class="line">            	<span class="comment">// 设置Reporter</span></span><br><span class="line">                Reporter: &amp;config.ReporterConfig&#123;</span><br><span class="line">                        LogSpans:           <span class="constant">true</span>,</span><br><span class="line">                    	LocalAgentHostPort: <span class="string">":6831"</span>,	<span class="comment">// jaeger-agent IP:Port</span></span><br><span class="line">                &#125;,</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    	<span class="comment">// 创建tracer</span></span><br><span class="line">        tracer, closer, err := cfg.New(service, config.Logger(jaeger.StdLogger))</span><br><span class="line">        <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line">                <span class="built_in">panic</span>(fmt.Sprintf(<span class="string">"ERROR: can't init jaeger: %v\n"</span>, err))</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> tracer, closer</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>config.Configuration</code>结构体中最主要的是设置<code>Sampler</code>和<code>Reporter</code>。</p>
+<ul>
+<li><strong><code>Sampler</code></strong>：采集设置，对应结构体为<code>SamplerConfig</code>，提供4种采集策略(由<code>Type</code>值指定采集策略)：<ul>
+<li><code>const</code>：全量采集(0/1)</li>
+<li><code>probabilistic</code>：概率采集(0~1, 0.1表示10个trace中只采集1个)</li>
+<li><code>rateLimiting</code>：限速采集，每秒采集设定的Span(e.g, 2表示每秒采集2个trace)</li>
+<li><code>remote</code>： 动态采集，根据当前访问量调节采集策略(<a href="https://www.jaegertracing.io/docs/1.11/sampling/#adaptive-sampler" target="_blank" rel="external">adaptive sampler</a>)</li>
+</ul>
+</li>
+<li><strong><code>Reporter</code></strong>：上报设置，对应结构体为<code>ReporterConfig</code>，提供2种上报方式：<ul>
+<li><code>LocalAgentHostPort</code>：上报至jaeger-agent，设置其IP:Port</li>
+<li><code>CollectorEndpoint</code>：上报至jaeger-collector，设置其IP:Port</li>
+</ul>
+</li>
+</ul>
+<h4 id="内部函数追踪"><a href="#内部函数追踪" class="headerlink" title="内部函数追踪"></a><strong>内部函数追踪</strong></h4><p>内部函数的追踪通过<code>context.Context</code>来实现span的传递</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> main() &#123;</span><br><span class="line">        <span class="comment">// 初始化并创建tracer</span></span><br><span class="line">        tracer, closer := tracing.InitJaeger(<span class="string">"inner"</span>)</span><br><span class="line">        <span class="keyword">defer</span> closer.Close()</span><br><span class="line">        <span class="comment">// opentracing.StartSpanFromContext()需要使用opentracing.SetGlobalTracer()创建新span</span></span><br><span class="line">        opentracing.SetGlobalTracer(tracer)</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建root span</span></span><br><span class="line">        span := tracer.StartSpan(<span class="string">"RootSpanOpname"</span>)</span><br><span class="line">        <span class="keyword">defer</span> span.Finish()</span><br><span class="line"></span><br><span class="line">        <span class="comment">// span中设置tag/log</span></span><br><span class="line">        span.SetTag(<span class="string">"tayKey"</span>, <span class="string">"tagValue"</span>)</span><br><span class="line">        span.LogFields(</span><br><span class="line">            log.String(<span class="string">"event"</span>, <span class="string">"inner-call"</span>),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用context.Context类型传输span</span></span><br><span class="line">        ctx := opentracing.ContextWithSpan(context.Background(), span)</span><br><span class="line">        <span class="comment">// 调用函数</span></span><br><span class="line">        CallService1(ctx, <span class="string">"callService1"</span>)</span><br><span class="line">        time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line">        <span class="comment">// 调用函数</span></span><br><span class="line">        CallService2(ctx, <span class="string">"callService2"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用<code>StartSpan(oprationName string, opts ...StartSpanOption) Span</code>方法创建RootSpan</p>
+<p>调用<code>SetTag(key string, value interface{}) Span</code>方法设置tag</p>
+<p>调用<code>LogFields(fields ...log.Field)</code>方法设置log</p>
+<p>使用<code>opentracing.ContextWithSpan(ctx context.Context, span Span) context.Context</code>函数创建携带span的<code>Context</code>，通过将<code>Context</code>传递给被调函数来传递span</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> CallService1(ctx context.Context, request <span class="typename">string</span>) <span class="typename">string</span> &#123;</span><br><span class="line">        <span class="comment">// 创建子Span</span></span><br><span class="line">        span, ctxService1 := opentracing.StartSpanFromContext(ctx, <span class="string">"Service1Opname"</span>)</span><br><span class="line">        <span class="keyword">defer</span> span.Finish()</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置tag</span></span><br><span class="line">        span.SetTag(<span class="string">"FuncName"</span>, <span class="string">"CallService1"</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment">// CallService1函数处理逻辑</span></span><br><span class="line">        fmt.Printf(<span class="string">"req: %v, requesting...\n"</span>, request)</span><br><span class="line">        time.Sleep(<span class="number">3</span> * time.Second)</span><br><span class="line">        response := <span class="string">"service1Response"</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置log</span></span><br><span class="line">        span.LogFields(</span><br><span class="line">                log.String(<span class="string">"event"</span>, <span class="string">"service1-call"</span>),</span><br><span class="line">                log.String(<span class="string">"request"</span>, request),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用新函数，传入的Context为子Span的新Context</span></span><br><span class="line">        CallService2(ctxService1, <span class="string">"CallService2-2"</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> response</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用<code>StartSpanFromContext(ctx context.Context, operationName string, opts ...StartSpanOption) (Span, context.Context)</code>函数创建span</p>
+<p>如果<code>ctx</code>中存在span，则创建的span为<code>ctx</code>span的子span，否则创建的是RootSpan</p>
+<p><code>ctxService1</code>是新创建span的Context，如果<code>CallService1</code>需要调用其他函数创建子span，传递的Context应该为<code>ctxService1</code>而非传入的<code>ctx</code>参数</p>
+<p><img src="https://raw.githubusercontent.com/moguol/blogImg/master/jaeger-inner.png" alt="jaeger-inner.png"></p>
+<h4 id="HTTP请求跟踪"><a href="#HTTP请求跟踪" class="headerlink" title="HTTP请求跟踪"></a><strong>HTTP请求跟踪</strong></h4><p>HTTP请求的追踪是通过<code>Carrier(HTTP Header)</code>传递span，client通过<code>Inject()</code>函数将SpanContext注入到Carrier，再将Carrier写入到HTTP Header中，server通过<code>Extract()</code>函数从HTTP Header中提取SpanContext，从而实现请求跟踪。</p>
+<p>client(:2333/http) —(内部调用)—&gt; CallHttpService1 —(远程调用)—&gt; HttpService1(:2334/httpService1)</p>
+<ul>
+<li><p>client</p>
+<p>client的<code>http.HandleFunc(&quot;/http&quot;, func(w http.ResponseWriter, r *http.Request) {JaegerHttp(w, r, tracer)})</code>Handle函数</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// client handle function</span></span><br><span class="line"><span class="keyword">func</span> JaegerHttp(w http.ResponseWriter, r *http.Request, tracer opentracing.Tracer) &#123;</span><br><span class="line">        <span class="comment">// 服务端从Carrier(http header)中提取span</span></span><br><span class="line">        spanCtx, _ := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(r.Header))</span><br><span class="line">        <span class="comment">// 创建span</span></span><br><span class="line">        <span class="comment">// ext.RPCServerOption() 如果SpanContext中client==nil，则创建的span为RootSpan</span></span><br><span class="line">        span := tracer.StartSpan(<span class="string">"jaegerHttpOpname"</span>, ext.RPCServerOption(spanCtx))</span><br><span class="line">        <span class="keyword">defer</span> span.Finish()</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置tag</span></span><br><span class="line">        span.SetTag(<span class="string">"httpKey"</span>, <span class="string">"httpValue"</span>)</span><br><span class="line">        <span class="comment">// 设置baggage</span></span><br><span class="line">        span.SetBaggageItem(<span class="string">"baggage"</span>, <span class="string">"123456789"</span>)</span><br><span class="line"></span><br><span class="line">        response := <span class="string">"Jaeger Http"</span></span><br><span class="line">        <span class="comment">// 设置log</span></span><br><span class="line">        span.LogFields(</span><br><span class="line">                log.String(<span class="string">"funcName"</span>, <span class="string">"JaegerHttp"</span>),</span><br><span class="line">                log.String(<span class="string">"response"</span>, response),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 内部函数间跟踪，使用context.Context类型传输span</span></span><br><span class="line">        ctx := opentracing.ContextWithSpan(context.Background(), span)</span><br><span class="line"></span><br><span class="line">        CallHttpService1(ctx)</span><br><span class="line">        time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line">        <span class="comment">//CallHttpService2(ctx)</span></span><br><span class="line"></span><br><span class="line">        w.Write([]<span class="typename">byte</span>(response))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>CallHttpService1(client)</p>
+<p>client <code>http.HandleFunc(&quot;/http&quot;, ...)</code>函数中调用<code>CallHttpService1()</code>函数请求<code>HttpService1</code>接口提供的服务</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> CallHttpService1(ctx context.Context) &#123;</span><br><span class="line">        <span class="comment">// 创建子Span</span></span><br><span class="line">        span, _ := opentracing.StartSpanFromContext(ctx, <span class="string">"CallHttpService1Opname"</span>)</span><br><span class="line">        <span class="keyword">defer</span> span.Finish()</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置baggage</span></span><br><span class="line">        span.SetBaggageItem(<span class="string">"baggage1"</span>, <span class="string">"12345"</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 请求设置</span></span><br><span class="line">        httpService1Url := <span class="string">"http://localhost:2334/httpService1"</span></span><br><span class="line">        req, err := http.NewRequest(<span class="string">"GET"</span>, httpService1Url, <span class="constant">nil</span>)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line">                <span class="built_in">panic</span>(err.Error())</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 向span中增加tag</span></span><br><span class="line">        ext.SpanKindRPCClient.Set(span)</span><br><span class="line">        ext.HTTPUrl.Set(span, httpService1Url)</span><br><span class="line">        ext.HTTPMethod.Set(span, <span class="string">"GET"</span>)</span><br><span class="line">        <span class="comment">// 向Carrier(http header)中添加span</span></span><br><span class="line">        span.Tracer().Inject(</span><br><span class="line">                span.Context(),</span><br><span class="line">                opentracing.HTTPHeaders,</span><br><span class="line">                opentracing.HTTPHeadersCarrier(req.Header),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 请求接口</span></span><br><span class="line">        httpClient := http.Client&#123;&#125;</span><br><span class="line">        resp, err := httpClient.Do(req)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line">                <span class="built_in">panic</span>(err.Error())</span><br><span class="line">        &#125;</span><br><span class="line">        body, err := ioutil.ReadAll(resp.Body)</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置log</span></span><br><span class="line">        span.LogFields(</span><br><span class="line">                log.String(<span class="string">"body"</span>, <span class="typename">string</span>(body)),</span><br><span class="line">        )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>HttpService1(server)</p>
+<p>server端注册<code>http.HandleFunc(&quot;/httpService1&quot;, ...)</code>路由，Handle处理函数<code>JaegerHttpService1()</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> JaegerHttpService1(w http.ResponseWriter, r *http.Request, tracer opentracing.Tracer) &#123;</span><br><span class="line">        <span class="comment">// 服务端从Carrier(http header)中提取span</span></span><br><span class="line">        spanCtx, _ := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(r.Header))</span><br><span class="line">        <span class="comment">// 创建span</span></span><br><span class="line">        <span class="comment">// ext.RPCServerOption() 如果SpanContext中client==nil，则创建的span为RootSpan</span></span><br><span class="line">        span := tracer.StartSpan(<span class="string">"jaegerHttpService1Opname"</span>, ext.RPCServerOption(spanCtx))</span><br><span class="line">        <span class="keyword">defer</span> span.Finish()</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取baggage</span></span><br><span class="line">        baggage := span.BaggageItem(<span class="string">"baggage"</span>)</span><br><span class="line">        baggage1 := span.BaggageItem(<span class="string">"baggage1"</span>)</span><br><span class="line">        <span class="comment">// 设置tag</span></span><br><span class="line">        span.SetTag(<span class="string">"baggage"</span>, baggage)</span><br><span class="line">        span.SetTag(<span class="string">"baggage1"</span>, baggage1)</span><br><span class="line"></span><br><span class="line">        response := <span class="string">"Jaeger Http Service1"</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置log</span></span><br><span class="line">        span.LogFields(</span><br><span class="line">                log.String(<span class="string">"funcName"</span>, <span class="string">"JaegerHttpService1"</span>),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        time.Sleep(<span class="number">2</span> * time.Second)</span><br><span class="line"></span><br><span class="line">        w.Write([]<span class="typename">byte</span>(response))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/moguol/blogImg/master/jaeger-http0.png" alt="jaeger-http0"></p>
+<p><img src="https://raw.githubusercontent.com/moguol/blogImg/master/jaeger-http1.png" alt="jaeger-http1"></p>
+<h4 id="gRPC请求跟踪"><a href="#gRPC请求跟踪" class="headerlink" title="gRPC请求跟踪"></a><strong>gRPC请求跟踪</strong></h4><p>此例子基于<a href="https://github.com/grpc/grpc-go/tree/master/examples/helloworld" target="_blank" rel="external">gRPC helloworld</a> 实现</p>
+<p>gRPC同样需要通过<code>Carrier(metadata)</code>来传递Span，client通过<code>Inject()</code>函数将SpanContext注入到<code>Carrier</code>中，再将<code>Carrier</code>写入到metadata中，server通过<code>Extract()</code>函数从metadata中提取SpanContext</p>
+<ul>
+<li><p>protobuf</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 协议版本</span></span><br><span class="line">syntax = <span class="string">"proto3"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> protos;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义服务及方法</span></span><br><span class="line"><span class="class"><span class="keyword">service</span> <span class="title">Greeter</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 定义SayHello方法, 接收HelloRequest参数, 返回HelloReply</span></span><br><span class="line">    <span class="function"><span class="keyword">rpc</span> SayHello (HelloRequest) <span class="keyword">returns</span> (HelloReply) &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 定义传入参数</span><br><span class="line">// protoc根据此生成HelloRequest结构体，包含元素Name</span><br><span class="line">// type HelloRequest struct &#123;</span><br><span class="line">//      Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`</span><br><span class="line">//      XXX_NoUnkeyedLiteral struct&#123;&#125; `json:"-"`</span><br><span class="line">//      XXX_unrecognized     []byte   `json:"-"`</span><br><span class="line">//      XXX_sizecache        int32    `json:"-"`</span><br><span class="line">// &#125;</span><br><span class="line">message HelloRequest &#123;</span><br><span class="line">    string name = 1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义返回参数</span></span><br><span class="line"><span class="comment">// protoc根据此生成HelloReply结构体，包含元素Msg</span></span><br><span class="line"><span class="comment">//type HelloReply struct &#123;</span></span><br><span class="line"><span class="comment">//      Msg                  string   `protobuf:"bytes,1,opt,name=msg,proto3" json:"msg,omitempty"`</span></span><br><span class="line"><span class="comment">//      <span class="label">XXX_NoUnkeyedLiteral struct&#123;&#125; `json:"-"`</span></span></span><br><span class="line"><span class="comment">//      <span class="label">XXX_unrecognized     []byte   `json:"-"`</span></span></span><br><span class="line"><span class="comment">//      <span class="label">XXX_sizecache        int32    `json:"-"`</span></span></span><br><span class="line"><span class="comment">//&#125;</span></span><br><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">HelloReply</span> </span>&#123;</span><br><span class="line">    <span class="built_in">string</span> msg = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>client</p>
+<p>client通过<code>Inject()</code>函数将SpanContext注入到Carrier(metadata)中，此操作在client调用<code>grpc.Dial()</code>函数时设置拦截器完成<code>grpc.Dial(address, grpc.WithInsecure(), grpc.WithUnaryInterceptor(gRPCClientInterceptor(tracer)))</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	address     = <span class="string">"localhost:50051"</span></span><br><span class="line">	defaultName = <span class="string">"World"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> mdWriter <span class="keyword">struct</span> &#123;</span><br><span class="line">	metadata.MD</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// opentracing.TextMapWriter method</span></span><br><span class="line"><span class="comment">// 重写Set()方法，将carrier写入metadata(key/value写入到metadata)</span></span><br><span class="line"><span class="keyword">func</span> (mrw mdWriter) Set(key, value <span class="typename">string</span>) &#123;</span><br><span class="line">	mrw.MD[key] = <span class="built_in">append</span>(mrw.MD[key], value)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将Span注入到metadata</span></span><br><span class="line"><span class="keyword">func</span> InjectClientSpanToMetadata(ctx context.Context, tracer opentracing.Tracer, clientSpan opentracing.Span) (context.Context, error) &#123;</span><br><span class="line">	<span class="comment">// 从context中获取metadata</span></span><br><span class="line">	md, ok := metadata.FromIncomingContext(ctx)</span><br><span class="line">	<span class="keyword">if</span> !ok &#123;</span><br><span class="line">		md = metadata.New(<span class="constant">nil</span>)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="comment">// 不能对md直接进行修改，会产生竞争，需要拷贝然后对副本就行修改</span></span><br><span class="line">		md = md.Copy()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 将SpanContext注入到carrier(metadata)中</span></span><br><span class="line">	carrier := mdWriter&#123;md&#125;</span><br><span class="line">	err := tracer.Inject(clientSpan.Context(), opentracing.TextMap, carrier)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> ctx, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> metadata.NewOutgoingContext(ctx, md), <span class="constant">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 重写client interceptor 以传输数据</span></span><br><span class="line"><span class="keyword">func</span> gRPCClientInterceptor(tracer opentracing.Tracer) grpc.UnaryClientInterceptor &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">func</span>(</span><br><span class="line">		ctx context.Context,</span><br><span class="line">		method <span class="typename">string</span>,</span><br><span class="line">		req, reply <span class="keyword">interface</span>&#123;&#125;,</span><br><span class="line">		cc *grpc.ClientConn,</span><br><span class="line">		invoker grpc.UnaryInvoker,</span><br><span class="line">		opts ...grpc.CallOption,</span><br><span class="line">	) error &#123;</span><br><span class="line">		<span class="comment">// 尝试从context中获取父span</span></span><br><span class="line">		<span class="keyword">var</span> parentCtx opentracing.SpanContext</span><br><span class="line">		<span class="keyword">if</span> parentSpan := opentracing.SpanFromContext(ctx); parentSpan != <span class="constant">nil</span> &#123;</span><br><span class="line">			parentCtx = parentSpan.Context()</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 创建client span</span></span><br><span class="line">		clientSpan := tracer.StartSpan(</span><br><span class="line">			method,</span><br><span class="line">			opentracing.ChildOf(parentCtx),</span><br><span class="line">			ext.SpanKindRPCClient,</span><br><span class="line">			opentracing.Tag&#123;Key: <span class="typename">string</span>(ext.Component), Value: <span class="string">"gRPC"</span>&#125;,</span><br><span class="line">		)</span><br><span class="line">		<span class="keyword">defer</span> clientSpan.Finish()</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 设置baggage</span></span><br><span class="line">		clientSpan.SetBaggageItem(<span class="string">"baggage"</span>, <span class="string">"gRPC-Baggage"</span>)</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 将SpanContext注入到metadata</span></span><br><span class="line">		newCtx, err := InjectClientSpanToMetadata(ctx, tracer, clientSpan)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line">			log.Printf(<span class="string">"inject to metadata err %v"</span>, err)</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		err = invoker(newCtx, method, req, reply, cc, opts...)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line">			log.Printf(<span class="string">"SpanContext inject to metadata failed: %v"</span>, err)</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> main() &#123;</span><br><span class="line">	<span class="comment">// 初始化并创建tracer</span></span><br><span class="line">	tracer, closer := tracing.InitJaeger(<span class="string">"jaeger-gRPC-client"</span>)</span><br><span class="line">	<span class="keyword">defer</span> closer.Close()</span><br><span class="line">	<span class="comment">// opentracing.StartSpanFromContext()需要使用opentracing.SetGlobalTracer()创建新span</span></span><br><span class="line">	opentracing.SetGlobalTracer(tracer)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 与server建立连接</span></span><br><span class="line">	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithUnaryInterceptor(gRPCClientInterceptor(tracer)))</span><br><span class="line">	<span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">"can't connect to the server: %v"</span>, address)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> conn.Close()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// new client</span></span><br><span class="line">	client := pb.NewGreeterClient(conn)</span><br><span class="line"></span><br><span class="line">	name := defaultName</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(os.Args) &gt; <span class="number">1</span> &#123;</span><br><span class="line">		name = os.Args[<span class="number">1</span>]</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 连接server调用SayHello()函数</span></span><br><span class="line">	resp, err := client.SayHello(context.Background(), &amp;pb.HelloRequest&#123;Name: name&#125;)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">"client call SayHello() failed: %v"</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	log.Printf(<span class="string">"server response: %v"</span>, resp.Msg)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>server</p>
+<p>server通过<code>Extract()</code>函数从Carrier(metadata)中提取SpanContext，此操作在调用<code>grpc.NewServer()</code>时设置拦截器实现<code>grpc.NewServer(grpc.UnaryInterceptor(gRPCServerInterceptor(tracer)))</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> mdReader <span class="keyword">struct</span> &#123;</span><br><span class="line">	metadata.MD</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// opentracing.TextMapReader method</span></span><br><span class="line"><span class="comment">// 读取metadata中的所有span</span></span><br><span class="line"><span class="keyword">func</span> (mdr mdReader) ForeachKey(handler <span class="keyword">func</span>(key, value <span class="typename">string</span>) error) error &#123;</span><br><span class="line">	<span class="keyword">for</span> key, value := <span class="keyword">range</span> mdr.MD &#123;</span><br><span class="line">		<span class="keyword">for</span> _, val := <span class="keyword">range</span> value &#123;</span><br><span class="line">			<span class="keyword">if</span> err := handler(key, val); err != <span class="constant">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> err</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="constant">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 从metadata提取SpanContext</span></span><br><span class="line"><span class="keyword">func</span> ExtractSpanFromMetadata(ctx context.Context, tracer opentracing.Tracer) (opentracing.SpanContext, error) &#123;</span><br><span class="line">	md, ok := metadata.FromIncomingContext(ctx)</span><br><span class="line">	<span class="keyword">if</span> !ok &#123;</span><br><span class="line">		md = metadata.New(<span class="constant">nil</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	carrier := mdReader&#123;md&#125;</span><br><span class="line">	spanContext, err := tracer.Extract(opentracing.TextMap, carrier)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> spanContext, err</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 重写server interceptor 以传输数据</span></span><br><span class="line"><span class="keyword">func</span> gRPCServerInterceptor(tracer opentracing.Tracer) grpc.UnaryServerInterceptor &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">func</span>(</span><br><span class="line">		ctx context.Context,</span><br><span class="line">		req <span class="keyword">interface</span>&#123;&#125;,</span><br><span class="line">		info *grpc.UnaryServerInfo,</span><br><span class="line">		handler grpc.UnaryHandler,</span><br><span class="line">	) (resp <span class="keyword">interface</span>&#123;&#125;, err error) &#123;</span><br><span class="line">		<span class="comment">// 从metadata中提取spanContext</span></span><br><span class="line">		spanContext, err := ExtractSpanFromMetadata(ctx, tracer)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line">			log.Printf(<span class="string">"Extract from metadata failed: %v"</span>, err)</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 创建server span</span></span><br><span class="line">		serverSpan := tracer.StartSpan(</span><br><span class="line">			info.FullMethod,</span><br><span class="line">			ext.RPCServerOption(spanContext),</span><br><span class="line">			ext.SpanKindRPCServer,</span><br><span class="line">			opentracing.Tag&#123;Key: <span class="typename">string</span>(ext.Component), Value: <span class="string">"gRPC"</span>&#125;,</span><br><span class="line">		)</span><br><span class="line">		<span class="keyword">defer</span> serverSpan.Finish()</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 获取baggage，设置tag</span></span><br><span class="line">		baggage := serverSpan.BaggageItem(<span class="string">"baggage"</span>)</span><br><span class="line">		serverSpan.SetTag(<span class="string">"baggage"</span>, baggage)</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 创建新context</span></span><br><span class="line">		newCtx := opentracing.ContextWithSpan(ctx, serverSpan)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> handler(newCtx, req)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/moguol/blogImg/master/jaeger-gRPC.png" alt="jaeger-gRPC"></p>
+</li>
+</ul>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/GO/">GO</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+
+				
+					<a href="/2018/12/05/redis-cluster/" title="RedisCluster">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>

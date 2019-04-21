@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+	
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title> 墨 痕 </title>
+	<meta property="og:title" content=" Prometheus | Hexo " />
+	<meta name="twitter:title" content=" Prometheus | Hexo ">
+
+	<meta property="og:type" content="article">
+	<meta name="twitter:card" content="summary">
+
+	<meta name="description" content=" Prometheus | Hexo ">
+	<meta property="og:description" content=" Prometheus | Hexo " />
+	<meta name="twitter:description" content=" Prometheus | Hexo " />
+
+	<link rel="icon" type="image/x-icon" href="http://yoursite.com/asset/img/favicon.png">
+
+	<link rel="image_src" href="http://yoursite.com/asset/img/logo.png" >
+	<meta property="og:image" content="http://yoursite.com/asset/img/logo.png" />
+
+	
+	<link href="http://yoursite.com/atom.xml" title="Hexo" type="application/atom+xml" rel="alternative">
+	
+
+	<link rel="canonical" href="/2018/10/05/prometheus/index.html">
+
+	<link rel="stylesheet" href="/asset/css/main.css">
+
+</head>
+
+
+<body>
+
+	
+	<header class="site-header">
+
+		
+		<nav class="nav-page">
+
+			<div class="row">
+
+				<ul>
+
+					
+
+					<li><a href="/">Home</a></li>
+
+					
+
+					<li><a href="/archives">Sitemap</a></li>
+
+					
+
+					<li><a href="/atom.xml">Rss</a></li>
+
+					
+
+				</ul>
+
+			</div>
+
+		</nav>
+
+
+		<div class="site-header-main">
+
+			<div class="row">
+
+				<h1><a href="/">墨 痕</a></h1>
+				<h6><a href="/">fatesai#gmail.com</a></h6>
+
+				
+
+			</div>
+
+		</div>
+
+		
+
+
+		<nav class="nav-cat">
+
+			<div class="row">
+
+				<ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Bigdata/">Bigdata</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/OPS/">OPS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-IP/">TCP/IP</a></li></ul>
+
+			</div>
+
+		</nav>
+
+
+
+
+	</header>
+
+
+	<div id="content" class="site-content">
+
+		
+		<div class="row content-post">
+			<article itemscope itemtype="http://schema.org/Article">
+
+				
+
+				
+
+				<p class="content-meta">
+					<span class="meta-date" itemprop="datePublished" content="2018-10-05">2018-10-05</span>
+
+					
+					  <span class="meta-cat">
+						<a class="category-link" href="/categories/OPS/">OPS</a>
+					  </span>
+					
+				</p>
+
+				
+
+					<h2 class="content-title">
+						<a href="/2018/10/05/prometheus/" itemprop="url"><span itemprop="name">Prometheus</span></a>
+					</h2>
+
+				
+
+
+				<div class="content" itemprop="articleBody">
+                    <!-- Table of Contents -->
+                    
+                    <div id="toc" class="toc-article">
+                        <strong class="toc-title">目录</strong>
+                        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Prometheus-核心组件"><span class="toc-number">1.</span> <span class="toc-text">Prometheus 核心组件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PromQL"><span class="toc-number">2.</span> <span class="toc-text">PromQL</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#time-series-时间序列"><span class="toc-number">2.1.</span> <span class="toc-text">time-series(时间序列)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#metric-指标"><span class="toc-number">2.2.</span> <span class="toc-text">metric(指标)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#metric-type-指标类型"><span class="toc-number">2.3.</span> <span class="toc-text">metric type(指标类型)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Counter-计数器"><span class="toc-number">2.3.1.</span> <span class="toc-text">Counter 计数器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Gauge-仪表盘"><span class="toc-number">2.3.2.</span> <span class="toc-text">Gauge 仪表盘</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Histogram-直方图"><span class="toc-number">2.3.3.</span> <span class="toc-text">Histogram 直方图</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Summary-摘要"><span class="toc-number">2.3.4.</span> <span class="toc-text">Summary 摘要</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PromeQL-语法"><span class="toc-number">2.4.</span> <span class="toc-text">PromeQL 语法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#匹配模式"><span class="toc-number">2.4.1.</span> <span class="toc-text">匹配模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#范围查询"><span class="toc-number">2.4.2.</span> <span class="toc-text">范围查询</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#时间位移操作"><span class="toc-number">2.4.3.</span> <span class="toc-text">时间位移操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#操作符"><span class="toc-number">2.4.4.</span> <span class="toc-text">操作符</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#数学运算符"><span class="toc-number">2.4.4.1.</span> <span class="toc-text">数学运算符</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#布尔运算符"><span class="toc-number">2.4.4.2.</span> <span class="toc-text">布尔运算符</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#集合运算符"><span class="toc-number">2.4.4.3.</span> <span class="toc-text">集合运算符</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#操作符优先级"><span class="toc-number">2.4.4.4.</span> <span class="toc-text">操作符优先级</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#聚合操作"><span class="toc-number">2.4.5.</span> <span class="toc-text">聚合操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#内置函数"><span class="toc-number">2.4.6.</span> <span class="toc-text">内置函数</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Prometheus-Server"><span class="toc-number">3.</span> <span class="toc-text">Prometheus Server</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Prometheus-Server-部署启动"><span class="toc-number">3.1.</span> <span class="toc-text">Prometheus Server 部署启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Prometheus-Server-配置文件"><span class="toc-number">3.2.</span> <span class="toc-text">Prometheus Server 配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#global-全局配置"><span class="toc-number">3.2.1.</span> <span class="toc-text">global 全局配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#alerting-告警配置"><span class="toc-number">3.2.2.</span> <span class="toc-text">alerting 告警配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rule-files-规则配置"><span class="toc-number">3.2.3.</span> <span class="toc-text">rule_files 规则配置</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#自定义告警规则"><span class="toc-number">3.2.3.1.</span> <span class="toc-text">自定义告警规则</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#scrape-configs-数据拉取配置"><span class="toc-number">3.2.4.</span> <span class="toc-text">scrape_configs 数据拉取配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#remote-write-远程写"><span class="toc-number">3.2.5.</span> <span class="toc-text">remote_write 远程写</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#remote-read-远程读"><span class="toc-number">3.2.6.</span> <span class="toc-text">remote_read 远程读</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AlertManager"><span class="toc-number">4.</span> <span class="toc-text">AlertManager</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AlertManager-部署启动"><span class="toc-number">4.1.</span> <span class="toc-text">AlertManager 部署启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AlertManager-特性"><span class="toc-number">4.2.</span> <span class="toc-text">AlertManager 特性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#分组"><span class="toc-number">4.2.1.</span> <span class="toc-text">分组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#抑制"><span class="toc-number">4.2.2.</span> <span class="toc-text">抑制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#静默"><span class="toc-number">4.2.3.</span> <span class="toc-text">静默</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AlertManager-配置文件"><span class="toc-number">4.3.</span> <span class="toc-text">AlertManager 配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#global-全局配置-1"><span class="toc-number">4.3.1.</span> <span class="toc-text">global 全局配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#route-路由配置"><span class="toc-number">4.3.2.</span> <span class="toc-text">route 路由配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#receiver-接收配置"><span class="toc-number">4.3.3.</span> <span class="toc-text">receiver 接收配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#inhibit-rules-抑制配置"><span class="toc-number">4.3.4.</span> <span class="toc-text">inhibit_rules 抑制配置</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exporter"><span class="toc-number">5.</span> <span class="toc-text">Exporter</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#elasticsearch-exporter"><span class="toc-number">5.1.</span> <span class="toc-text">elasticsearch_exporter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redis-exporter"><span class="toc-number">5.2.</span> <span class="toc-text">redis_exporter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rabbitmq-exporter"><span class="toc-number">5.3.</span> <span class="toc-text">rabbitmq_exporter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#node-exporter"><span class="toc-number">5.4.</span> <span class="toc-text">node_exporter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mysql-exporter"><span class="toc-number">5.5.</span> <span class="toc-text">mysql_exporter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mongodb-exporter"><span class="toc-number">5.6.</span> <span class="toc-text">mongodb_exporter</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Adapter"><span class="toc-number">6.</span> <span class="toc-text">Adapter</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#InfluxDB"><span class="toc-number">6.1.</span> <span class="toc-text">InfluxDB</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ElasticSearch"><span class="toc-number">6.2.</span> <span class="toc-text">ElasticSearch</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#高可用"><span class="toc-number">7.</span> <span class="toc-text">高可用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务发现"><span class="toc-number">8.</span> <span class="toc-text">服务发现</span></a></li></ol>
+                    </div>
+                    
+
+					<p>参考资料</p>
+<ul>
+<li><a href="https://yunlzheng.gitbook.io/prometheus-book/" target="_blank" rel="external">Prometheus中文</a></li>
+<li><a href="https://www.bookstack.cn/books/prometheus_practice" target="_blank" rel="external">Prometheus 实战</a></li>
+</ul>
+<h2 id="Prometheus-核心组件"><a href="#Prometheus-核心组件" class="headerlink" title="Prometheus 核心组件"></a><strong>Prometheus 核心组件</strong></h2><p><img src="https://prometheus.io/assets/architecture.png" alt="Prometheus 架构图"></p>
+<ul>
+<li><p><strong>Prometheus Server</strong></p>
+<p>Prometheus组件中的核心部分，负责实现对监控数据的获取，存储以及查询。</p>
+<p>Prometheus Server本身就是一个时序数据库，将采集到的监控数据按照时间序列的方式存储在本地磁盘当中。</p>
+<p>Prometheus Server对外提供了自定义的PromQL语言，实现对数据的查询以及分析。</p>
+</li>
+<li><p><strong>AlertManager</strong></p>
+<p>AlertManager为告警处理中心。Prometheus Server中支持基于PromQL创建告警规则，如果满足PromQL定义的规则，则会产生一条告警，而告警的后续处理流程则由AlertManager进行管理。</p>
+</li>
+<li><p><strong>Exporters</strong></p>
+<p>Exporter将监控数据采集通过HTTP方式暴露，Prometheus Server通过拉的方式获取监控数据</p>
+</li>
+<li><p><strong>PushGateway</strong></p>
+<p>如果监控数据不能通过Pull方式采集，可以将监控数据Push到PushGateway，然后Prometheus Server到PushGateway Pull</p>
+</li>
+</ul>
+<h2 id="PromQL"><a href="#PromQL" class="headerlink" title="PromQL"></a><strong>PromQL</strong></h2><h3 id="time-series-时间序列"><a href="#time-series-时间序列" class="headerlink" title="time-series(时间序列)"></a><strong>time-series(时间序列)</strong></h3><p>Prometheus Server将采集到的数据以<strong><code>time-series</code>(时间序列)</strong>方式保存在内存数据库中，并定时落到磁盘中。</p>
+<p><code>time-series</code>按照<strong>时间戳</strong>和<strong>值的序列</strong>顺序存放，<code>time-series</code>中的每个数据称之为<strong><code>sample</code>(样本)</strong>。</p>
+<p><strong><code>sample</code>(样本)</strong> 由3部分组成：</p>
+<ul>
+<li><strong><code>metric</code>(指标)</strong>: metric name + labelsets</li>
+<li><strong><code>timestamp</code>(时间戳)</strong>: 精确到毫秒</li>
+<li><strong><code>value</code>(样本值)</strong>: folat64的浮点型数据表示当前样本的值</li>
+</ul>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;--------------- metric ---------------------&gt;&lt;-timestamp -&gt;&lt;-value-&gt;</span><br><span class="line">http_request_total<span class="special">&#123;</span>status="200", method="GET"<span class="special">&#125;</span>@1434417560938 =&gt; 94355</span><br><span class="line">http_request_total<span class="special">&#123;</span>status="200", method="GET"<span class="special">&#125;</span>@1434417561287 =&gt; 94334</span><br></pre></td></tr></table></figure>
+<h3 id="metric-指标"><a href="#metric-指标" class="headerlink" title="metric(指标)"></a><strong>metric(指标)</strong></h3><p><code>metric</code> 是 <code>time-series</code>数据中重要组成部分，<code>metric</code>格式如下:</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;-metric name-&gt;&lt;----------labelsets---------&gt;</span><br><span class="line">&lt;metric name&gt;<span class="special">&#123;</span>&lt;label name&gt;=&lt;label value&gt;, ...<span class="special">&#125;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><strong><code>metric name</code></strong>: 反映被监控样本的含义，可由ASCII字符、数字、下划线以及冒号组成并必须符合正则表达式<code>[a-zA-Z_:][a-zA-Z0-9_:]*</code></p>
+</li>
+<li><p><strong><code>labelsets</code></strong>: 反映当前样本的<strong>特征维度</strong>，通过这些维度Prometheus可以对样本数据进行过滤，聚合等。<code>label = label name + label value</code>， <code>label name</code>由ASCII字符、数字以及下划线组成并满足正则表达式<code>[a-zA-Z_][a-zA-Z0-9_]*</code> 。以<code>__</code>作为前缀的标签，是系统保留的关键字，只能在系统内部使用。以下两个metric是完成相同的</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">api_http_requests_total<span class="special">&#123;</span>method="POST", handler="/messages"<span class="special">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="special">&#123;</span>__name__="api_http_requests_total"，method="POST", handler="/messages"<span class="special">&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="metric-type-指标类型"><a href="#metric-type-指标类型" class="headerlink" title="metric type(指标类型)"></a><strong>metric type(指标类型)</strong></h3><p>Prometheus 定义了4种metric type(指标类型)</p>
+<ul>
+<li>Counter (计数器)</li>
+<li>Gauge (仪表盘)</li>
+<li>Histogram (直方图)</li>
+<li>Summary (摘要)</li>
+</ul>
+<h4 id="Counter-计数器"><a href="#Counter-计数器" class="headerlink" title="Counter 计数器"></a><strong>Counter 计数器</strong></h4><p>Counter类型的指标<strong>只增不减</strong>(除非系统发生重置)，侧重于累计。一般在定义Counter类型指标的名称时推荐使用<code>_total</code>作为后缀，如: <code>http_requests_total</code>。</p>
+<h4 id="Gauge-仪表盘"><a href="#Gauge-仪表盘" class="headerlink" title="Gauge 仪表盘"></a><strong>Gauge 仪表盘</strong></h4><p>Gauge类型的指标<strong>可增可减</strong>，侧重于反应系统的当前状态。</p>
+<h4 id="Histogram-直方图"><a href="#Histogram-直方图" class="headerlink" title="Histogram 直方图"></a><strong>Histogram 直方图</strong></h4><p>Histogram类型的指标主用用于<strong>统计和分析样本的分布情况</strong>。主要用于表示一段时间范围内对数据进行采样，并能够对其指定区间以及总数进行统计，如: <code>http_response_time</code>、<code>http_response_size</code>。</p>
+<p><code>&lt;basename&gt;_bucket{le=&quot;&lt;upper inclusive bound&gt;&quot;}</code>、<code>&lt;basename&gt;_bucket{le=&quot;+Inf&quot;}</code>、<code>&lt;basename&gt;_sum</code>、<code>&lt;basename&gt;_count</code> 组成。</p>
+<p>Histogram 需要通过 <basename>_bucket 计算 quantile(分位数), 而 Summary 直接存储了 quantile(分位数)的值。Histogram通过<code>histogram_quantile</code>函数在<strong>服务器端</strong>计算出分位数，Sumamry的分位数则是直接在<strong>客户端</strong>计算完成</basename></p>
+<h4 id="Summary-摘要"><a href="#Summary-摘要" class="headerlink" title="Summary 摘要"></a><strong>Summary 摘要</strong></h4><p>Summary类型和Histogram类型类似，主要用于表示一段时间内数据采样结果，它直接存储了quantile数据，而不是根据统计区间计算出来的。</p>
+<p><code>&lt;basename&gt;{quantile=&quot;&lt;φ&gt;&quot;}</code>、<code>&lt;basename&gt;_sum</code>、<code>&lt;basename&gt;_count</code> 组成。</p>
+<p>Histogram 需要通过 <basename>_bucket 计算 quantile(分位数), 而 Summary 直接存储了 quantile(分位数)的值。Histogram通过<code>histogram_quantile</code>函数在<strong>服务器端</strong>计算出分位数，Sumamry的分位数则是直接在<strong>客户端</strong>计算完成</basename></p>
+<h3 id="PromeQL-语法"><a href="#PromeQL-语法" class="headerlink" title="PromeQL 语法"></a><strong>PromeQL 语法</strong></h3><h4 id="匹配模式"><a href="#匹配模式" class="headerlink" title="匹配模式"></a><strong>匹配模式</strong></h4><ul>
+<li><p>完全匹配 <strong><code>=</code></strong> 、<strong><code>!=</code></strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http_requests_total&#123;instance="localhost:9090"&#125;</span><br><span class="line">http_requests_total&#123;instance!="localhost:9090"&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>正则匹配 <strong><code>=~</code></strong>、<strong><code>!~</code></strong></p>
+<p>PromQL支持使用正则表达式作为匹配条件，多个表达式之间使用<code>|</code>进行分离</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http_requests_total&#123;environment=~"staging|testing|development",method!="GET"&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="范围查询"><a href="#范围查询" class="headerlink" title="范围查询"></a><strong>范围查询</strong></h4><p>PromQL支持查询一段时间范围内的样本数据，时间范围通过时间范围选择器<code>[]</code>进行定义。时间单位支持如下：</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">s - 秒</span><br><span class="line">m - 分钟</span><br><span class="line">h - 小时</span><br><span class="line">d - 天</span><br><span class="line">w - 周</span><br><span class="line">y - 年</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http_request_total&#123;&#125;[5m]</span><br></pre></td></tr></table></figure>
+<h4 id="时间位移操作"><a href="#时间位移操作" class="headerlink" title="时间位移操作"></a><strong>时间位移操作</strong></h4><p>PromQL支持时间位移操作以查询过去某时间数据，位移操作关键字为 <code>offset</code></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http_request_total&#123;&#125; offset 5m</span><br><span class="line">-- 昨天一天的请求总量</span><br><span class="line">http_request_total&#123;&#125;[1d] offset 1d</span><br></pre></td></tr></table></figure>
+<h4 id="操作符"><a href="#操作符" class="headerlink" title="操作符"></a><strong>操作符</strong></h4><h5 id="数学运算符"><a href="#数学运算符" class="headerlink" title="数学运算符"></a><strong>数学运算符</strong></h5><ul>
+<li><code>+</code> (加法)</li>
+<li><code>-</code> (减法)</li>
+<li><code>*</code> (乘法)</li>
+<li><code>/</code> (除法)</li>
+<li><code>%</code> (求余)</li>
+<li><code>^</code> (幂运算)</li>
+</ul>
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node_memory_free_bytes_total / (<span class="number">1024</span> * <span class="number">1024</span>)</span><br></pre></td></tr></table></figure>
+<h5 id="布尔运算符"><a href="#布尔运算符" class="headerlink" title="布尔运算符"></a><strong>布尔运算符</strong></h5><ul>
+<li><code>==</code> (相等)</li>
+<li><code>!=</code> (不相等)</li>
+<li><code>&gt;</code> (大于)</li>
+<li><code>&lt;</code> (小于)</li>
+<li><code>&gt;=</code> (大于等于)</li>
+<li><code>&lt;=</code> (小于等于)</li>
+</ul>
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(node_memory_bytes_total - node_memory_free_bytes_total) / node_memory_bytes_total &gt; <span class="number">0.95</span></span><br></pre></td></tr></table></figure>
+<h5 id="集合运算符"><a href="#集合运算符" class="headerlink" title="集合运算符"></a><strong>集合运算符</strong></h5><ul>
+<li><code>and</code> (并且)</li>
+<li><code>or</code> (或者)</li>
+<li><code>unless</code> (排除)</li>
+</ul>
+<h5 id="操作符优先级"><a href="#操作符优先级" class="headerlink" title="操作符优先级"></a><strong>操作符优先级</strong></h5><ul>
+<li><code>^</code></li>
+<li><code>*, /, %</code></li>
+<li><code>+, -</code></li>
+<li><code>==, !=, &lt;=, &lt;, &gt;=, &gt;</code></li>
+<li><code>and, unless</code></li>
+<li><code>or</code></li>
+</ul>
+<h4 id="聚合操作"><a href="#聚合操作" class="headerlink" title="聚合操作"></a><strong>聚合操作</strong></h4><p>PromeQL内置聚合操作符</p>
+<ul>
+<li><code>sum</code> (求和)</li>
+<li><code>min</code> (最小值)</li>
+<li><code>max</code> (最大值)</li>
+<li><code>avg</code> (平均值)</li>
+<li><code>stddev</code> (标准差)</li>
+<li><code>stdvar</code> (标准差异)</li>
+<li><code>count</code> (计数)</li>
+<li><code>count_values</code> (对value进行计数)</li>
+<li><code>bottomk</code> (后n条时序)</li>
+<li><code>topk</code> (前n条时序)</li>
+<li><code>quantile</code> (分位数)</li>
+</ul>
+<p>聚合操作语法</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;aggr-op&gt;(<span class="special">[</span>parameter,<span class="special">]</span> &lt;vector expression&gt;) <span class="special">[</span>without|by (&lt;label list&gt;)<span class="special">]</span></span><br></pre></td></tr></table></figure>
+<p>只有<code>count_values</code>, <code>quantile</code>, <code>topk</code>, <code>bottomk</code>支持parameter(参数)</p>
+<p>without用于从计算结果中移除列举的标签，而保留其它标签。by则正好相反，结果向量中只保留列出的标签，其余标签则移除。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sum(http_requests_total) without (instance)</span><br><span class="line">sum(http_requests_total) by (code,<span class="operator"><span class="keyword">handler</span>,job,method)</span></span><br></pre></td></tr></table></figure>
+<h4 id="内置函数"><a href="#内置函数" class="headerlink" title="内置函数"></a><strong>内置函数</strong></h4><p><a href="https://prometheus.io/docs/prometheus/latest/querying/functions/" target="_blank" rel="external">Prometheus 内置函数 官方文档</a></p>
+<p><a href="https://ryanyang.gitbook.io/prometheus/di-san-zhang-prometheus/di-4-jie-cha-xun/functions" target="_blank" rel="external">Prometheus 内置函数 中文文档</a></p>
+<h2 id="Prometheus-Server"><a href="#Prometheus-Server" class="headerlink" title="Prometheus Server"></a><strong>Prometheus Server</strong></h2><h3 id="Prometheus-Server-部署启动"><a href="#Prometheus-Server-部署启动" class="headerlink" title="Prometheus Server 部署启动"></a><strong>Prometheus Server 部署启动</strong></h3><ul>
+<li><p>安装</p>
+<p>直接下载二进制包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://prometheus.io/download/<span class="comment">#prometheus</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup /usr/<span class="built_in">local</span>/prometheus/prometheus --config.file=/usr/<span class="built_in">local</span>/prometheus/prometheus.yml --storage.tsdb.path=/data/prometheus --storage.tsdb.retention=<span class="number">1</span>d --web.enable-lifecycle &amp;&gt;/var/<span class="built_in">log</span>/prometheus.log &amp;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>--config.file</code>: Prometheus默认加载当前目录下的<code>prometheus.yaml</code>配置文件，可使用此启动参数修改</li>
+<li><code>--storage.tsdb.path</code>: Prometheus也是一个时间序列数据库，其采集的数据会以文件的形似存储在本地中，默认的存储路径为<code>data/</code>，使用此启动参数修改本地存储路径</li>
+<li><code>--storage.tsdb.retention</code>: 数据保留时间</li>
+<li><code>--web.enable-lifecycle</code>: 开启此参数后，可通过HTTP请求平滑重启Prometheus</li>
+</ul>
+</li>
+<li><p>平滑重启加载配置文件</p>
+<p>需开启<code>--web.enable-lifecycle</code>参数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XPOST http://localhost:<span class="number">9090</span>/-/reload</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Prometheus UI 地址</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">http://localhost:9090</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="Prometheus-Server-配置文件"><a href="#Prometheus-Server-配置文件" class="headerlink" title="Prometheus Server 配置文件"></a><strong>Prometheus Server 配置文件</strong></h3><p>Prometheus默认使用<code>prometheus.yaml</code>配置文件，也在启动时使用<code>--config.file</code>指定。<code>prometheus.yaml</code>主要由以下部分组成:</p>
+<ul>
+<li><strong><code>global</code></strong>: 全局配置</li>
+<li><strong><code>alerting</code></strong>: alertmanager 相关配置</li>
+<li><strong><code>rule_files</code></strong>: 告警规则相关配置</li>
+<li><strong><code>scrape_configs</code></strong>: 数据拉取相关配置</li>
+<li><strong><code>remote_write</code></strong>: 远程写相关配置</li>
+<li><strong><code>remote_read</code></strong>: 远程读相关配置</li>
+</ul>
+<h4 id="global-全局配置"><a href="#global-全局配置" class="headerlink" title="global 全局配置"></a><strong>global 全局配置</strong></h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">global:&#10;  scrape_interval:     15s # &#25289;&#21462; targets &#30340;&#26102;&#38388;&#38388;&#38548;&#10;  evaluation_interval: 15s # &#25191;&#34892; rules &#30340;&#26102;&#38388;&#38388;&#38548;&#10;  scrape_timeout: 10s # &#25289;&#21462;&#19968;&#20010; target &#30340;&#36229;&#26102;&#26102;&#38388;&#10;  external_labels:&#9;# &#39069;&#22806;&#30340;&#23646;&#24615;&#65292;&#20250;&#28155;&#21152;&#21040;&#25289;&#21462;&#30340;&#25968;&#25454;&#24182;&#23384;&#21040;&#25968;&#25454;&#24211;&#20013;&#10;  monitor: &#39;codelab-monitor&#39;</span><br></pre></td></tr></table></figure>
+<h4 id="alerting-告警配置"><a href="#alerting-告警配置" class="headerlink" title="alerting 告警配置"></a><strong>alerting 告警配置</strong></h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alerting:&#10;  alertmanagers:&#9;# &#29992;&#20110;&#21160;&#24577;&#21457;&#29616; Alertmanager &#30340;&#37197;&#32622;&#10;  - static_configs:&#10;    - targets:&#10;      - 192.168.1.180:9093&#10;      - 192.168.1.181:9093&#10;  #alert_relabel_configs:&#9;# &#21160;&#24577;&#20462;&#25913; alert &#23646;&#24615;&#30340;&#35268;&#21017;&#37197;&#32622;&#10;  #-</span><br></pre></td></tr></table></figure>
+<h4 id="rule-files-规则配置"><a href="#rule-files-规则配置" class="headerlink" title="rule_files 规则配置"></a><strong>rule_files 规则配置</strong></h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rule_files:&#9;# &#20027;&#35201;&#29992;&#20110;&#37197;&#32622; rules &#25991;&#20214;&#65292;&#23427;&#25903;&#25345;&#22810;&#20010;&#25991;&#20214;&#20197;&#21450;&#25991;&#20214;&#30446;&#24405;&#10;  - &#34;rules/*.yml&#34;</span><br></pre></td></tr></table></figure>
+<h5 id="自定义告警规则"><a href="#自定义告警规则" class="headerlink" title="自定义告警规则"></a><strong>自定义告警规则</strong></h5><p>指定告警文件后，可针对具体服务配置自定义告警规则。将一组相关的规则设置定义在一个group下，在每个group中定义多个告警规则(rule)。</p>
+<ul>
+<li>alert：告警规则的名称。</li>
+<li>expr：基于PromQL表达式告警触发条件，用于计算是否有时间序列满足该条件。</li>
+<li>for：评估等待时间，可选参数。用于表示只有当触发条件持续一段时间后才发送告警。在等待期间新产生告警的状态为pending。</li>
+<li>labels：自定义标签，允许用户指定要附加到告警上的一组附加标签。</li>
+<li>annotations：用于指定一组附加信息，比如用于描述告警详细信息的文字等，annotations的内容在告警产生时会一同作为参数发送到Alertmanager。</li>
+<li>record: Prometheus支持根据现有metric通过计算生产新的metric，此特性可用于由于性能提高查询效率，也可以用于生成新的metric值</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">groups:&#10;- name: redis&#10;  rules:&#10;  - alert: RedisDownProblem&#10;    expr: sum by (addr) (redis_up) != 1&#10;    for: 1m&#10;    labels:&#10;      tag: &#34;&#123;&#123; $labels.addr &#125;&#125;&#34;&#10;      level: CRITICAL&#10;    annotations:&#10;      message: &#34;&#123;&#123; $labels.addr &#125;&#125; &#123;&#123; $labels.rgroup &#125;&#125; redis is down!&#34;&#10;&#10;  - alert: RedisConnectionProblem&#10;    expr: sum by (addr) (redis_connected_clients / redis_config_maxclients) * 100 &#62;= 95&#10;    for: 2m&#10;    labels:&#10;      tag: &#34;&#123;&#123; $labels.addr &#125;&#125;&#34;&#10;    annotations:&#10;      info: &#34;&#123;&#123; $labels.addr &#125;&#125; redis connected connections &#123;&#123; $value &#125;&#125;, reach 95%&#34;&#10;&#10;  - record: elasticsearch_transport_rx_bps&#10;    expr: ( elasticsearch_transport_rx_size_bytes_total - ( elasticsearch_transport_rx_size_bytes_total offset 60s)) /8/60</span><br></pre></td></tr></table></figure>
+<h4 id="scrape-configs-数据拉取配置"><a href="#scrape-configs-数据拉取配置" class="headerlink" title="scrape_configs 数据拉取配置"></a><strong>scrape_configs 数据拉取配置</strong></h4><ul>
+<li>job_name：任务名称</li>
+<li>honor_labels： 用于解决拉取数据标签有冲突，当设置为 true, 以拉取数据为准，否则以服务配置为准</li>
+<li>params：数据拉取访问时带的请求参数</li>
+<li>scrape_interval： 拉取时间间隔</li>
+<li>scrape_timeout: 拉取超时时间</li>
+<li>metrics_path： 拉取节点的 metric 路径</li>
+<li>scheme： 拉取数据访问协议</li>
+<li>sample_limit： 存储的数据标签个数限制，如果超过限制，该数据将被忽略，不入存储；默认值为0，表示没有限制</li>
+<li>relabel_configs： 拉取数据重置标签配置</li>
+<li>metric_relabel_configs：metric 重置标签配置</li>
+<li>static_configs：exporter地址配置</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scrape_configs:&#10;  - job_name: &#39;redis&#39;&#10;    static_configs:&#10;    - targets: [&#39;192.168.1.180:9121&#39;]&#10;      labels:&#10;        group: ops</span><br></pre></td></tr></table></figure>
+<h4 id="remote-write-远程写"><a href="#remote-write-远程写" class="headerlink" title="remote_write 远程写"></a><strong>remote_write 远程写</strong></h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;remote_write:&#10;  - url: &#34;http://localhost:8088/prometheus&#34;&#9;# &#35775;&#38382;&#22320;&#22336;&#10;  #- remote_timeout: 30s&#9;# &#35831;&#27714;&#36229;&#26102;&#26102;&#38388;&#10;  #- write_relabel_configs: # &#26631;&#31614;&#37325;&#32622;&#37197;&#32622;, &#25289;&#21462;&#21040;&#30340;&#25968;&#25454;&#65292;&#32463;&#36807;&#37325;&#32622;&#22788;&#29702;&#21518;&#65292;&#21457;&#36865;&#32473;&#36828;&#31243;&#23384;&#20648;&#10;     #- [ - &#60;relabel_config&#62; ... ]</span><br></pre></td></tr></table></figure>
+<h4 id="remote-read-远程读"><a href="#remote-read-远程读" class="headerlink" title="remote_read 远程读"></a><strong>remote_read 远程读</strong></h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">remote_read:&#10;  - url: &#34;http://localhost:8088&#34;&#9;# &#35775;&#38382;&#22320;&#22336;&#10;  - remote_timeout: 30s&#9;&#9;# &#35831;&#27714;&#36229;&#26102;&#26102;&#38388;</span><br></pre></td></tr></table></figure>
+<h2 id="AlertManager"><a href="#AlertManager" class="headerlink" title="AlertManager"></a><strong>AlertManager</strong></h2><p>AlertManager对收到的告警信息进行处理，包括去重，降噪，分组，策略路由告警通知等。AlertManager还提供了静默和告警抑制机制来对告警通知行为进行优化。</p>
+<p><img src="https://blobscdn.gitbook.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LBdoxo9EmQ0bJP2BuUi%2F-LVMF4RtPS-2rjW9R-hG%2F-LPS9QhUbi37E1ZK8mXF%2Fprometheus-alert-artich.png?generation=1546578333144123&amp;alt=media" alt="Prometheus告警流程"></p>
+<h3 id="AlertManager-部署启动"><a href="#AlertManager-部署启动" class="headerlink" title="AlertManager 部署启动"></a><strong>AlertManager 部署启动</strong></h3><ul>
+<li><p>安装</p>
+<p>直接下载二进制包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">https://prometheus.io/download/<span class="comment">#alertmanager</span></span><br><span class="line"><span class="comment"># https://github-production-release-asset-2e65be.s3.amazonaws.com/11452538/99c4aad8-10a1-11e8-9ead-55da24ff8da3?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20180615%2Fus-east-1%2Fs3%2Faws4_request&amp;X-Amz-Date=20180615T062841Z&amp;X-Amz-Expires=300&amp;X-Amz-Signature=11da1a2b6bb688ca0e92bcb1cd5c2b6c14f796f3a8530fed1242523c2798b48e&amp;X-Amz-SignedHeaders=host&amp;actor_id=0&amp;response-content-disposition=attachment%3B%20filename%3Dalertmanager-0.14.0.linux-amd64.tar.gz&amp;response-content-type=application%2Foctet-stream</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/alertmanager</span><br><span class="line">/usr/<span class="built_in">local</span>/alertmanager/alertmanager --web.listen-address=:<span class="number">9093</span> --mesh.listen-address=:<span class="number">9094</span> --mesh.nickname=:<span class="number">9094</span> --config.file=/usr/<span class="built_in">local</span>/alertmanager/alertmanager.yaml --storage.path=/data1/alert/ --data.retention=<span class="number">24</span>h</span><br><span class="line"><span class="comment"># ./alertmanager --config.file=alertmanager.yaml --storage.path=/data1/alert/ --data.retention=24h --log.level=debug</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>平滑重启加载配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http://localhost:<span class="number">9093</span>/-/reload</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="AlertManager-特性"><a href="#AlertManager-特性" class="headerlink" title="AlertManager 特性"></a><strong>AlertManager 特性</strong></h3><p>AlertManager除了基础的告警功能外，还提供: 去重、抑制和静默等功能</p>
+<p><img src="https://blobscdn.gitbook.com/v0/b/gitbook-28427.appspot.com/o/assets%2F-LBdoxo9EmQ0bJP2BuUi%2F-LVMF4RtPS-2rjW9R-hG%2F-LPS9QhWQUhAIdLAiEfH%2Falertmanager-features.png?generation=1546578326190496&amp;alt=media" alt="AlertManager 特性"></p>
+<h4 id="分组"><a href="#分组" class="headerlink" title="分组"></a><strong>分组</strong></h4><p>分组机制将详细的告警信息合并成一个通知，按照设定的关键字对告警进行分组，能有效将告警内聚在一起成为一个通知，防止告警风暴</p>
+<h4 id="抑制"><a href="#抑制" class="headerlink" title="抑制"></a><strong>抑制</strong></h4><p>当某一告警发出后，可以停止重复发送由此告警引发的其它告警的机制。</p>
+<h4 id="静默"><a href="#静默" class="headerlink" title="静默"></a><strong>静默</strong></h4><p>AlertManager提供简单机制，可根据<code>label</code>对告警进行临时静默，访问AlertManager的Web界面可进行设置</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">http://localhost:9093</span></span><br></pre></td></tr></table></figure>
+<h3 id="AlertManager-配置文件"><a href="#AlertManager-配置文件" class="headerlink" title="AlertManager 配置文件"></a><strong>AlertManager 配置文件</strong></h3><p>AlertManager默认加载<code>alertmanager.yaml</code>配置文件，可通过启动参数<code>--config.file</code>指定配置文件</p>
+<p>AlertManager配置主要包含以下部分:</p>
+<ul>
+<li><strong><code>global</code></strong>: 全局配置，用于定义全局的公共参数，如全局的SMTP配置，Slack配置等内容</li>
+<li><strong><code>templates</code></strong>: 模板，用于定义告警通知时的模板，如HTML模板，邮件模板等</li>
+<li><strong><code>route</code></strong>: 告警路由，根据标签匹配，确定当前告警应该如何处理</li>
+<li><strong><code>receivers</code></strong>: 接收对象，可以是一个邮箱也可以是微信，Slack或者Webhook等，接收对象一般配合告警路由使用</li>
+<li><strong><code>inhibit_rules</code></strong>: 抑制规则，抑制告警风暴</li>
+</ul>
+<h4 id="global-全局配置-1"><a href="#global-全局配置-1" class="headerlink" title="global 全局配置"></a><strong>global 全局配置</strong></h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">global:&#10;  resolve_timeout: 5m&#9;# &#25345;&#32493;&#22810;&#38271;&#26102;&#38388;&#26410;&#25509;&#25910;&#21040;&#21578;&#35686;&#21518;&#26631;&#35760;&#21578;&#35686;&#29366;&#24577;&#20026;resolved&#10;&#10;  smtp_smarthost: &#39;&#60;smtp_host&#62;:25&#39;&#10;  smtp_from: &#39;&#60;user&#62;@&#60;smtp_domain&#62;&#39;&#10;  smtp_auth_username: &#39;&#60;user&#62;&#39;&#10;  smtp_auth_password: &#39;&#60;password&#62;&#39;</span><br></pre></td></tr></table></figure>
+<h4 id="route-路由配置"><a href="#route-路由配置" class="headerlink" title="route 路由配置"></a><strong>route 路由配置</strong></h4><p>route定义一个基于标签匹配规则的告警路由树，AlertManager根据route决定receiver。</p>
+<p>每一个告警都会从顶级的route进入路由树，默认情况下，告警进入到顶级route后会遍历所有的子节点，直到找到最深的匹配route(最长匹配原则)，并将告警发送到该route定义的receiver中，但可通过<code>continue: [true|false]</code>决定是否继续匹配后续子route。</p>
+<p>路由匹配有两种方式:</p>
+<ul>
+<li>基于字符串验证<code>match</code>: 根据<code>labelname</code>是否等于<code>labelvalue</code>进行匹配</li>
+<li>基于正则表达式<code>match_re</code>: 根据<code>labelvalue</code>是否满意正则表达式进行匹配</li>
+</ul>
+<p>告警分组是通过<code>group_by</code>来定义，基于告警中包含的<code>label</code>进行分组，分组主要由4个配置项:</p>
+<ul>
+<li><code>group_by</code>: 根据label定义分组，相同label会被合并成一个通知。<code>group_by: [key1, key2]</code>，只有在key1和key2都一样，才会被分到一个组</li>
+<li><code>group_wait</code>: 等待时间以收集多个告警，以便进行分组、去重和合并</li>
+<li><code>group_interval</code>: 定义相同分组之间发送告警的时间间隔</li>
+<li><code>repeat_interval</code>: 警报已经成功发送通知, 设置下次发送告警通知之前要等待时间</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">route:&#10;  receiver: &#39;default-receiver&#39;&#9;&#9;# &#40664;&#35748;receiver&#10;  group_wait: 30s&#10;  group_interval: 5m&#10;  repeat_interval: 4h&#10;  group_by: [cluster, alertname]&#9;# &#40664;&#35748;&#25353;&#29031;cluster &#21644; alertname &#36827;&#34892;&#20998;&#32452;&#10;&#10;  routes:&#10;  # DB&#23376;route&#65292;&#21578;&#35686;&#21253;&#21547;service label&#65292;&#33509;service&#26631;&#31614;&#21253;&#21547;mysql&#25110;cassandra&#20851;&#38190;&#23383;&#65292;&#21017;&#21457;&#36865;&#32473;&#21517;&#20026;`database-pager`&#30340;receiver&#12290;&#10;  # &#30001;&#20110;DB&#23376;route&#27809;&#26377;&#35774;&#32622;`group_by`&#65292;&#32487;&#25215;&#40664;&#35748;&#35774;&#32622;group_by: [cluster, alertname]&#10;  - receiver: &#39;database-pager&#39;&#10;    group_wait: 10s&#10;    match_re:&#10;      service: mysql|cassandra&#10;  #&#10;  - receiver: &#39;frontend-pager&#39;&#10;    group_by: [product, environment]&#10;    match:&#10;      team: frontend</span><br></pre></td></tr></table></figure>
+<h4 id="receiver-接收配置"><a href="#receiver-接收配置" class="headerlink" title="receiver 接收配置"></a><strong>receiver 接收配置</strong></h4><p>每个receiver具有全局唯一名称，一个receiver可有多种通知方式(email/webhook/slack…)</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">receivers:&#10;- name: &#39;webhook&#39;&#10;  webhook_configs:&#10;    - url: &#39;http://xxxxxx/xxxxxx&#39;&#10;&#10;- name: &#39;email&#39;&#10;  email_configs:&#10;    - to: &#39;&#39;&#10;&#10;- name: &#39;default&#39;&#10;  webhook_configs:&#10;    - url: &#39;http://xxxxxx/xxxxxx&#39;&#10;  email_configs:&#10;    - to: &#39;&#39;</span><br></pre></td></tr></table></figure>
+<h4 id="inhibit-rules-抑制配置"><a href="#inhibit-rules-抑制配置" class="headerlink" title="inhibit_rules 抑制配置"></a><strong>inhibit_rules 抑制配置</strong></h4><p>抑制规则能有效防止告警风暴，主要有3个配置项目:</p>
+<ul>
+<li><code>target_match|target_match_re</code>:  匹配已发送告警</li>
+<li><code>source_match|source_match_re</code>:  匹配新入告警</li>
+<li><code>equal</code>:  定义label，匹配新告警的label和target_match|target_match_re中的label</li>
+</ul>
+<p>已经发送的告警通知匹配到target_match或target_match_re规则，当有新的告警规则如果满足source_match或source_match_re，并且已发送的告警与新产生的告警中equal定义的标签完全相同，则启动抑制机制，新的告警不会发送。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- source_match:&#10;    alertname: NodeDown&#10;    severity: critical&#10;  target_match:&#10;    severity: critical&#10;  equal:&#10;    - node</span><br></pre></td></tr></table></figure>
+<p>当集群中的某一个主机节点异常宕机导致告警NodeDown被触发，同时在告警规则中定义了告警级别severity=critical。由于主机异常宕机，该主机上部署的所有服务，中间件会不可用并触发报警。根据抑制规则的定义，如果有新的告警级别为severity=critical，并且告警中标签node的值与NodeDown告警的相同，则说明新的告警是由NodeDown导致的，则启动抑制机制停止向接收器发送通知。</p>
+<h2 id="Exporter"><a href="#Exporter" class="headerlink" title="Exporter"></a><strong>Exporter</strong></h2><h3 id="elasticsearch-exporter"><a href="#elasticsearch-exporter" class="headerlink" title="elasticsearch_exporter"></a><strong>elasticsearch_exporter</strong></h3><p><a href="https://github.com/justwatchcom/elasticsearch_exporter" target="_blank" rel="external">elasticsearch_exporter</a></p>
+<ul>
+<li><p>安装</p>
+<p>直接下载二进制包 <a href="https://github.com/justwatchcom/elasticsearch_exporter/releases" target="_blank" rel="external">elasticsearch_exporter release</a></p>
+</li>
+<li><p>启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ./elasticsearch_exporter -es.uri "http://192.168.1.180:9200" -es.all -es.indices</span></span><br><span class="line"><span class="comment"># nohup ./elasticsearch_exporter -es.uri "http://localhost:9200" &amp;&gt; elasticsearch_exporter.log &amp;</span></span><br><span class="line"><span class="comment"># nohup ./elasticsearch_exporter -es.uri "http://192.168.1.181:9200" -web.listen-address "192.168.1.181:9108" &amp;&gt; elasticsearch_exporter.log &amp;</span></span><br><span class="line">./elasticsearch_exporter -es.uri <span class="string">"http://192.168.1.180:9200"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>prometheus配置</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># prometheus.yml&#10;  - job_name: &#39;elasticsearch&#39;&#10;    static_configs:&#10;    - targets: [&#39;localhost:9108&#39;]</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="redis-exporter"><a href="#redis-exporter" class="headerlink" title="redis_exporter"></a><strong>redis_exporter</strong></h3><p><a href="https://github.com/oliver006/redis_exporter" target="_blank" rel="external">redis_exporter</a></p>
+<ul>
+<li><p>安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go get github.com/oliver006/redis_exporter</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$GOPATH</span>/src/github.com/oliver006/redis_exporter</span><br><span class="line">go build</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup ./redis_exporter -redis.addr <span class="number">10.10</span>.<span class="number">10.68</span>:<span class="number">63910</span>,<span class="number">10.10</span>.<span class="number">10.49</span>:<span class="number">63910</span> -redis.password <span class="string">'&lt;redis_password&gt;'</span> &amp;&gt; redis_exporter.log &amp;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>prometheus配置</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># prometheus.yml&#10;  - job_name: &#39;redis&#39;&#10;    static_configs:&#10;    - targets: [&#39;localhost:9121&#39;]</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="rabbitmq-exporter"><a href="#rabbitmq-exporter" class="headerlink" title="rabbitmq_exporter"></a><strong>rabbitmq_exporter</strong></h3><p><a href="https://github.com/kbudde/rabbitmq_exporter" target="_blank" rel="external">rabbitmq_exporter</a></p>
+<ul>
+<li><p>安装</p>
+<p>二进制包 <a href="https://github.com/kbudde/rabbitmq_exporter/releases" target="_blank" rel="external">rabbitmq_exporter release</a></p>
+</li>
+<li><p>启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># PUBLISH_PORT=9419 RABBIT_CAPABILITIES=bert,no_sort RABBIT_URL="http://192.168.1.180:15672" RABBIT_USER="&lt;user&gt;" RABBIT_PASSWORD="&lt;password&gt;" nohup ./rabbitmq_exporter &amp;&gt; rabbitmq_exporexporter.log &amp;</span></span><br><span class="line">PUBLISH_PORT=<span class="number">9419</span>  RABBIT_URL=<span class="string">"http://10.10.10.32:15672"</span> RABBIT_EXPORTERS=<span class="string">"exchange,node,overview,queue,connections"</span> RABBIT_USER=<span class="string">"&lt;user&gt;"</span> RABBIT_PASSWORD=<span class="string">"&lt;password&gt;"</span> nohup ./rabbitmq_exporter &amp;&gt; /var/<span class="built_in">log</span>/rabbitmq_exporter.log &amp;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>prometheus配置</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># prometheus.yml&#10;  - job_name: &#39;rabbitmq&#39;&#10;    static_configs:&#10;    - targets: [&#39;localhost:9419&#39;]</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="node-exporter"><a href="#node-exporter" class="headerlink" title="node_exporter"></a><strong>node_exporter</strong></h3><p><a href="https://github.com/prometheus/node_exporter" target="_blank" rel="external">node_exporter</a></p>
+<ul>
+<li><p>安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">yum install glibc-static</span><br><span class="line">mkdir -p <span class="variable">$GOPATH</span>/src/golang.org/x/</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$GOPATH</span>/src/golang.org/x/</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/golang/tools.git</span><br><span class="line"></span><br><span class="line">go get github.com/prometheus/node_exporter</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$&#123;GOPATH-$HOME/go&#125;</span>/src/github.com/prometheus/node_exporter</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./node_exporter &lt;flags&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># prometheus.yml&#10;  - job_name: &#39;node&#39;&#10;    static_configs:&#10;    - targets: [&#39;localhost:9100&#39;]</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="mysql-exporter"><a href="#mysql-exporter" class="headerlink" title="mysql_exporter"></a><strong>mysql_exporter</strong></h3><p><a href="https://github.com/prometheus/mysqld_exporter" target="_blank" rel="external">mysql_exporter</a></p>
+<ul>
+<li><p>mysql授权</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE USER &#39;exporter&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;mysql_exporter&#39; WITH MAX_USER_CONNECTIONS 3;&#10;GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO &#39;exporter&#39;@&#39;localhost&#39;;&#10;FLUSH PRIVILEGES;&#10;&#10;# 5.1&#10;# CREATE USER &#39;exporter&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;mysql_exporter&#39;;&#10;# GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO &#39;exporter&#39;@&#39;localhost&#39; WITH MAX_USER_CONNECTIONS 3;&#10;# FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装</p>
+<p>二进制包 <a href="https://github.com/prometheus/mysqld_exporter/releases/" target="_blank" rel="external">mysql_exporter release</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget -O mysqld_exporter-<span class="number">0.10</span>.<span class="number">0</span>.linux-amd64.tar.gz <span class="string">'https://github.com/prometheus/mysqld_exporter/releases/download/v0.10.0/mysqld_exporter-0.10.0.linux-amd64.tar.gz'</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#.my.cnf</span></span><br><span class="line">[client]</span><br><span class="line">user=exporter</span><br><span class="line">password=<span class="string">"&lt;mysql_password&gt;"</span></span><br><span class="line">port=<span class="number">3306</span></span><br><span class="line">host=localhost</span><br><span class="line"></span><br><span class="line">./mysqld_exporter -config.my-cnf=<span class="string">".my.cnf"</span></span><br><span class="line"><span class="comment">#./mysqld_exporter -config.my-cnf=".my.cnf" -web.listen-address="192.168.1.181:9104"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>prometheus配置</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># prometheus.yml&#10;  - job_name: &#39;mysql&#39;&#10;    static_configs:&#10;    - targets: [&#39;10.10.10.136:9115&#39;]&#10;      labels:&#10;        db_instance: db1</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="mongodb-exporter"><a href="#mongodb-exporter" class="headerlink" title="mongodb_exporter"></a><strong>mongodb_exporter</strong></h3><p><a href="https://github.com/dcu/mongodb_exporter" target="_blank" rel="external">mongodb_exporter</a></p>
+<ul>
+<li><p>安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># curl https://glide.sh/get | sh</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/dcu/mongodb_exporter <span class="variable">$GOPATH</span>/src/github.com/dcu/mongodb_exporter</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$GOPATH</span>/src/github.com/dcu/mongodb_exporter</span><br><span class="line">make build</span><br><span class="line">./mongodb_exporter -h</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./mongodb_exporter -mongodb.uri mongodb://<span class="number">10.10</span>.<span class="number">10.20</span>:<span class="number">27003</span></span><br><span class="line"><span class="comment"># nohup ./mongodb_exporter -mongodb.uri mongodb://10.10.10.20:27003 -web.listen-address ":9001" &amp;&gt; /var/log/mongodb_exporter1.log &amp;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>prometheus配置</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># promethues&#10;  - job_name: &#39;mongodb&#39;&#10;    static_configs:&#10;    - targets: [&#39;10.10.11.15:9001&#39;]&#10;      labels:&#10;        mgroup: APP&#10;        maddr: 10.10.10.20:27003</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="Adapter"><a href="#Adapter" class="headerlink" title="Adapter"></a><strong>Adapter</strong></h2><h3 id="InfluxDB"><a href="#InfluxDB" class="headerlink" title="InfluxDB"></a><strong>InfluxDB</strong></h3><p>prometheus默认的adapter支持<code>Graphite</code>、<code>OpenTSDB</code>、<code>InfluxDB</code>，<a href="https://github.com/prometheus/prometheus/tree/master/documentation/examples/remote_storage/remote_storage_adapter" target="_blank" rel="external">remote_storage_adapter</a></p>
+<ul>
+<li><p>安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">go get github.com/prometheus/prometheus/documentation/examples/remote_storage/remote_storage_adapter</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$GOPATH</span>/github.com/prometheus/prometheus/documentation/examples/remote_storage/remote_storage_adapter</span><br><span class="line">go build</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./remote_storage_adapter -influxdb-url=http://localhost:<span class="number">8086</span>/ -influxdb.database=prometheus -influxdb.retention-policy=autogen</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>prometheus配置</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#prometheus.yml&#10;remote_write:&#10;  - url: &#34;http://localhost:9201/write&#34;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="ElasticSearch"><a href="#ElasticSearch" class="headerlink" title="ElasticSearch"></a><strong>ElasticSearch</strong></h3><p>使用<a href="https://github.com/infonova/prometheusbeat" target="_blank" rel="external">Prometheusbeat</a>(Go &gt;= 1.9)作为adapter进行远程写，此adapter处于<strong>alpha</strong>版本</p>
+<ul>
+<li><p>安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">go get github.com/elastic/beats</span><br><span class="line"><span class="built_in">cd</span> <span class="variable">$&#123;GOPATH&#125;</span>/github.com/infonova/</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/infonova/prometheusbeat</span><br><span class="line"><span class="built_in">cd</span> prometheusbeat</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># prometheusbeat.yml&#10;prometheusbeat:&#10;  listen: &#34;:8080&#34;&#10;  context: &#34;/prometheus&#34;&#10;  version: 2&#10;setup.kibana:&#10;output.elasticsearch:&#10;  hosts: [&#34;localhost:9200&#34;]</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># prometheus.yml&#10;remote_write:&#10;  - url: &#34;http://localhost:8080/prometheus&#34;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#./prometheusbeat -c prometheusbeat.yml -e -d "*"</span></span><br><span class="line">./prometheusbeat -c prometheusbeat.yml</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="高可用"><a href="#高可用" class="headerlink" title="高可用"></a><strong>高可用</strong></h2><p>待续…</p>
+<h2 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a><strong>服务发现</strong></h2><p>待续…</p>
+
+				</div>
+
+				
+
+					<div class="content-tag">
+
+						 <a class="tag-link" href="/tags/GO/">GO</a>
+
+					</div>
+
+				
+
+			</article>
+
+			<div class="content-nav">
+
+				
+					<a href="/2018/12/05/redis-cluster/" title="RedisCluster">&larr; Prev</a>
+				
+
+				
+					<a href="/2017/12/05/cdh-ops/" title="CDH集群运维杂记">Next &rarr;</a>
+				
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+	<div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+
+	<!-- <div class="row">
+	<p class="theme">Powered: <a href="http://hexo.io/"  target="_blank">Hexo</a>, Theme: <a href="https://github.com/samwhelp/hexo-theme-nadya" target="_blank">Nadya</a> remastered from <a href="https://github.com/nadymain/hexo-theme-nadymain" target="_blank">NadyMain</a></p>
+</div>
+ -->
+
+</body>
+</html>
