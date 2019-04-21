@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2019-04-21T15:29:27.651Z</updated>
+  <updated>2019-04-21T15:36:14.080Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://yoursite.com/2019/04/05/jaeger/"/>
     <id>http://yoursite.com/2019/04/05/jaeger/</id>
     <published>2019-04-05T07:45:33.000Z</published>
-    <updated>2019-04-21T15:29:27.651Z</updated>
+    <updated>2019-04-21T15:36:14.080Z</updated>
     <content type="html"><![CDATA[<h2 id="OpenTracing"><a href="#OpenTracing" class="headerlink" title="OpenTracing"></a><strong>OpenTracing</strong></h2><h3 id="微服务诊断分析系统"><a href="#微服务诊断分析系统" class="headerlink" title="微服务诊断分析系统"></a><strong>微服务诊断分析系统</strong></h3><ul>
 <li>集中式日志系统(logging)：ELK</li>
 <li>集中式度量系统(metrics)：Prometheus</li>
@@ -288,7 +288,7 @@
     
       <category term="GO" scheme="http://yoursite.com/tags/GO/"/>
     
-      <category term="OPS" scheme="http://yoursite.com/categories/OPS/"/>
+      <category term="Golang" scheme="http://yoursite.com/categories/Golang/"/>
     
   </entry>
   
@@ -542,7 +542,7 @@
     <link href="http://yoursite.com/2018/10/05/prometheus/"/>
     <id>http://yoursite.com/2018/10/05/prometheus/</id>
     <published>2018-10-05T07:45:33.000Z</published>
-    <updated>2019-04-21T14:53:07.549Z</updated>
+    <updated>2019-04-21T15:36:19.244Z</updated>
     <content type="html"><![CDATA[<p>参考资料</p>
 <ul>
 <li><a href="https://yunlzheng.gitbook.io/prometheus-book/" target="_blank" rel="external">Prometheus中文</a></li>
@@ -893,7 +893,7 @@
     
       <category term="GO" scheme="http://yoursite.com/tags/GO/"/>
     
-      <category term="OPS" scheme="http://yoursite.com/categories/OPS/"/>
+      <category term="Golang" scheme="http://yoursite.com/categories/Golang/"/>
     
   </entry>
   
