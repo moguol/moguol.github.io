@@ -244,7 +244,7 @@
 <li>多个<code>init()</code>初始化函数，在程序执行时，<strong>按声明顺序</strong>被自动调用</li>
 </ul>
 <p>包的初始化顺序如下图所示：</p>
-<p><img src="https://beego.me/docs/images/init.png" alt="Go 包初始化"></p>
+<p><img src="https://raw.githubusercontent.com/moguol/blogImg/master/golang-pkg-init.png" alt="Go 包初始化"></p>
 <p><a href="https://beego.me/docs/quickstart/router.md" target="_blank" rel="external">图片出处</a></p>
 <ol>
 <li><strong>初始化依赖包</strong>：初始化一个包前，必须完全初始化其所依赖的包，按包<strong>出现顺序</strong>初始化并且每个包<strong>只会初始化一次</strong>(即使多次引用也一次)</li>

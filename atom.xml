@@ -265,7 +265,7 @@
     <link href="http://yoursite.com/2019/05/01/golang-bible-0/"/>
     <id>http://yoursite.com/2019/05/01/golang-bible-0/</id>
     <published>2019-05-01T02:49:33.000Z</published>
-    <updated>2019-05-15T07:57:58.347Z</updated>
+    <updated>2019-05-22T02:46:04.083Z</updated>
     <content type="html"><![CDATA[<h2 id="程序结构"><a href="#程序结构" class="headerlink" title="程序结构"></a><strong>程序结构</strong></h2><h3 id="命名"><a href="#命名" class="headerlink" title="命名"></a><strong>命名</strong></h3><ul>
 <li><p>命名规则:</p>
 <ul>
@@ -373,7 +373,7 @@
 <li>多个<code>init()</code>初始化函数，在程序执行时，<strong>按声明顺序</strong>被自动调用</li>
 </ul>
 <p>包的初始化顺序如下图所示：</p>
-<p><img src="https://beego.me/docs/images/init.png" alt="Go 包初始化"></p>
+<p><img src="https://raw.githubusercontent.com/moguol/blogImg/master/golang-pkg-init.png" alt="Go 包初始化"></p>
 <p><a href="https://beego.me/docs/quickstart/router.md" target="_blank" rel="external">图片出处</a></p>
 <ol>
 <li><strong>初始化依赖包</strong>：初始化一个包前，必须完全初始化其所依赖的包，按包<strong>出现顺序</strong>初始化并且每个包<strong>只会初始化一次</strong>(即使多次引用也一次)</li>
