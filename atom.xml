@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2019-07-02T06:01:50.905Z</updated>
+  <updated>2019-07-02T06:02:04.993Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://yoursite.com/2019/06/28/golang-rpc/"/>
     <id>http://yoursite.com/2019/06/28/golang-rpc/</id>
     <published>2019-06-28T07:54:39.000Z</published>
-    <updated>2019-07-02T06:01:50.905Z</updated>
+    <updated>2019-07-02T06:02:04.993Z</updated>
     <content type="html"><![CDATA[<p><strong>RPC</strong>(Remote Procedure Call)，远程调用。RPC消息传输可通过TCP、HTTP和UDP等。<br>Golang中实现RPC有多种方式：</p>
 <ul>
 <li><strong><code>net/rpc</code></strong>: 官方RPC库，支持TCP和HTTP方式传输，使用<code>gob</code>编解码(导致无法跨语言调用)</li>
@@ -1978,21 +1978,21 @@
   </entry>
   
   <entry>
-    <title><![CDATA[Kafka]]></title>
+    <title><![CDATA[Kafka & ZooKeeper]]></title>
     <link href="http://yoursite.com/2017/08/31/Kafka/"/>
     <id>http://yoursite.com/2017/08/31/Kafka/</id>
     <published>2017-08-31T04:17:30.000Z</published>
-    <updated>2019-03-31T04:24:48.680Z</updated>
+    <updated>2019-08-10T10:20:24.154Z</updated>
     <content type="html"><![CDATA[<h2 id="Kafka原理"><a href="#Kafka原理" class="headerlink" title="Kafka原理"></a><strong>Kafka原理</strong></h2><h3 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a><strong>基础概念</strong></h3><ul>
 <li><p><strong>producer</strong>: 生产者，将消息发到<code>topic</code>里的为生产者</p>
 </li>
-<li><p><strong>consumer</strong>: 消费者，从<code>topic</code>里读取消息的为消费者。Kafka以<code>group</code>为单位组织<code>consumer</code>，同一个<code>topic</code>可有多个<code>consumer group</code>，一条消息会发到所有<code>consumer group</code>中，一个<code>consumer group</code>可能会有多个<code>consumer</code>，但一条消息只会被<code>consumer group</code>内的一个<code>consumer</code>消费，即一条消息在同一个<code>consumer group</code>内只会被消费一次。</p>
+<li><p><strong>consumer</strong>: 消费者，从<code>topic</code>里读取消息的为消费者。Kafka以<code>group</code>为单位组织<code>consumer</code>，同一个<code>topic</code>可有多个<code>consumer group</code>，一条消息会发到所有<code>consumer group</code>中，一个<code>consumer group</code>可能会有多个<code>consumer</code>，但一条消息只会被<code>consumer group</code>内的一个<code>consumer</code>消费，即一条消息在同一个<code>consumer group</code>内只会被消费一次。Kafka有<strong>consumer rebalance</strong>机制，自动平衡消费者，但在平衡期间不会进行消费，consumer或broker的增减都会触发rebalance，Kafka也会将无法消费或消费过慢的consumer剔除后自动引发rebalance。</p>
 </li>
 <li><p><strong>broker</strong>: 每个Kafka实例称之为<code>broker</code></p>
 </li>
 <li><p><strong>topic</strong>: Kafka以<code>topic</code>为单位对消息进行分类，相同类型的消息分到同一个<code>topic</code>进行生成消费管理。一个<code>topic</code>由一个或多个<code>partition</code>组成。</p>
 </li>
-<li><p><strong>partition</strong>: Kafka中可将一个<code>topic</code>切分成一个或多个<code>partition</code>，<code>partition</code>是Kafka横向扩展及并行处理的关键。每个<code>partition</code>都是一个顺序、不可变的消息队列。Kafka会将消息持久化到磁盘，但官方建议消息的高可用应由partition replication来保证。可为每个partition设置replicas，每个partition会选举出唯一一个leader partition，所有的读写请求都由leader处理，replicas只负责将消息同步到本地确保高可用。</p>
+<li><p><strong>partition</strong>: Kafka中可将一个<code>topic</code>切分成一个或多个<code>partition</code>，<code>partition</code>是Kafka横向扩展及并行处理的关键。每个<code>partition</code>都是一个顺序、不可变的消息队列。Kafka会将消息持久化到磁盘，但官方建议消息的高可用应由partition replication来保证。可为每个partition设置replicas，每个partition会选举出唯一一个leader partition，<strong>所有的读写请求都由leader处理</strong>，replicas只负责将消息同步到本地确保高可用。</p>
 <ul>
 <li><strong>Isr</strong>: In-Sync Replica，表示能与leader保持数据同步的replicas。如果replicas同步leader消息的<strong>延迟时间</strong>或<strong>延迟条数</strong>其中一个超出阀值，则会将延迟的replicas剔出Isr。当leader partition挂掉后，<strong>只有在Isr队列里的replicas才可参与leader partition的选举过程</strong>。</li>
 <li><strong>replication-factor</strong>: 复制因子，topic partition的副本数目，默认<code>1</code>，即无副本。若<code>replication-factor=N</code>，则允许<code>N-1</code>台机器宕机以确保消息的高可用。</li>
@@ -2007,7 +2007,7 @@
 <li><strong><code>High Watermark</code></strong>: 表示<code>High Watermark</code>之前的数据都已被同步到所有replicas中，<code>High Watermark</code>offset之前的数据是高可用的(消息有多个副本)。</li>
 <li><strong><code>Log End Offset</code></strong>: 表示producer发送到该partition中最新消息的offset。<code>High Watermark</code>和<code>Log End Offset</code>之间的数据表示消息已写入leader partition但未同步至replicas中，这之间的数据没高可用，是不安全的，<strong>不允许消费</strong></li>
 </ul>
-<p>从<code>0.9</code>版本后的Kafka开始，新版的consumer api是将<code>offset</code>存放在Kafka的<strong><code>__consumer_offsets</code></strong> topic中。该topic默认有<strong><code>50</code></strong>个partition和<strong><code>3</code></strong>个replicas。某个consumer group的offset具体存放在哪个partition是通过<strong><code>abs(GroupId.hashCode()) % NumPartitions</code></strong> 计算出来的(<code>NumPartitions</code>默认<code>50</code>)。旧版本的Kafka默认是将offset存在Zookeeper中。</p>
+<p>从<code>0.9</code>版本后的Kafka开始，新版的consumer api是将<code>offset</code>存放在Kafka的<strong><code>__consumer_offsets</code></strong> topic中。该topic默认有<strong><code>50</code></strong>个partition和<strong><code>3</code></strong>个replicas。某个consumer group的offset具体存放在哪个partition是通过<strong><code>abs(GroupId.hashCode()) % NumPartitions</code></strong> 计算出来的(<code>NumPartitions</code>默认<code>50</code>)。旧版本的Kafka默认是将offset存在ZooKeeper中。</p>
 </li>
 <li><p><strong>ack</strong>: ack确认机制是producer发送消息给Kafka，确认消息高可用的机制，依赖于producer的<code>request.required.acks</code>设置</p>
 <ul>
@@ -2016,8 +2016,111 @@
 <li><strong><code>all/-1</code></strong>: 旧版Kafka(<code>0.8</code>)值为<code>-1</code>，新版Kafka值为<code>all</code>。等待所有replicas都同步消息后才返回成功，数据高可用最安全，生产消息性能会受影响。</li>
 </ul>
 </li>
+<li><p><strong>ZeroCopy</strong>: Kafka使用ZeroCopy机制以提高性能，以从磁盘读取数据返回给消费者为例</p>
+<ul>
+<li>传统方式(涉及4次切换):<ol>
+<li>进程通过<code>read()</code>系统调用从用户态切换到内核态[1]，内核向磁盘发起请求，将数据从磁盘读取到内核缓存区</li>
+<li>进程将数据从内核空间拷贝到用户空间，从内核态切换到用户态[2]</li>
+<li>进程将数据发送到Socket，从用户态切换到内核态[3]，将数据写入到Socket Buffer</li>
+<li>内核将Socket Buffer中的数据拷贝到NIC Buffer中，最终发送给消费者。从内核态切换用户态[4]，完成操作</li>
+</ol>
+</li>
+<li>ZeroCopy方式(涉及2次切换):<ol>
+<li>进程通过<code>sendfile()</code>从用户态切换到内核态[1]，内核从磁盘读取数据到内核缓存区，然后直接将数据拷贝到Socket Buffer，再将数据从Socket Buffer拷贝到NIC Buffer</li>
+<li>完成操作后从内核态切换用户态[2]</li>
+</ol>
+</li>
 </ul>
-<h2 id="Zookeeper集群部署"><a href="#Zookeeper集群部署" class="headerlink" title="Zookeeper集群部署"></a><strong>Zookeeper集群部署</strong></h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a><strong>安装</strong></h3><p>JDK安装省略</p>
+</li>
+</ul>
+<h2 id="ZooKeeper原理"><a href="#ZooKeeper原理" class="headerlink" title="ZooKeeper原理"></a><strong>ZooKeeper原理</strong></h2><h3 id="基础概念-1"><a href="#基础概念-1" class="headerlink" title="基础概念"></a><strong>基础概念</strong></h3><ul>
+<li><p><strong>角色</strong>: ZK中分为3中角色。ZK所有节点都可接收并处理<strong>读请求</strong>(<code>exists</code>/<code>getData</code>/<code>getChildren</code>…)，但只有<strong>Leader</strong>角色节点才能处理<strong>写请求</strong>(<code>create</code>/<code>setData</code>/<code>delete</code>)</p>
+<ul>
+<li><strong>Leader</strong>: 主节点，响应所有其余节点请求(包括写请求)，维护集群状态</li>
+<li><strong>Follower</strong>: 从Leader中同步消息和状态，接收并处理读请求，转发写请求到Leader。可参与选举</li>
+<li><strong>Observer</strong>: <code>3.3.0</code>版本开始引入，仅处理读请求，提高读请求吞吐量，转发写请求到Leader。数据不持久化到磁盘，不可参与选举</li>
+</ul>
+</li>
+<li><p><strong>ZNODE</strong>: ZK使用类似文件系统方式组织资源，资源中的每个节点称为ZNODE。ZNODE分4中类型</p>
+<ul>
+<li><strong>持久节点(persistent)</strong>: 只能通过<code>delete</code>指令删除，数据会被持久化</li>
+<li><strong>临时节点(ephemeral)</strong>: 创建该ZNODE的客户端断开连接后，临时节点会被<strong>自动删除</strong></li>
+<li><strong>有序节点</strong>: 创建节点时会自动在节点名后添加一串单调递增序号，<code>/tasks/task0000000001</code></li>
+<li><strong>无序节点</strong>: 默认创建无序节点</li>
+</ul>
+</li>
+<li><p><strong>ZNODE stat结构</strong>: 每个ZNODE都会有一个<code>stat</code>信息，可通过<code>stat &lt;/zookeeper/test/node&gt;</code>或<code>ls2 &lt;/zookeeper/test/node&gt;</code>查看</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[zk: localhost(CONNECTED) <span class="number">0</span>] <span class="built_in">stat</span> /zookeeper</span><br><span class="line">cZxid = <span class="number">0</span>x0</span><br><span class="line">ctime = Thu Jan <span class="number">01</span> <span class="number">05</span>:<span class="number">30</span>:<span class="number">00</span> IST <span class="number">1970</span></span><br><span class="line">mZxid = <span class="number">0</span>x0</span><br><span class="line">mtime = Thu Jan <span class="number">01</span> <span class="number">05</span>:<span class="number">30</span>:<span class="number">00</span> IST <span class="number">1970</span></span><br><span class="line">pZxid = <span class="number">0</span>x0</span><br><span class="line">cversion = -<span class="number">1</span></span><br><span class="line">dataVersion = <span class="number">0</span></span><br><span class="line">aclVersion = <span class="number">0</span></span><br><span class="line">ephemeralOwner = <span class="number">0</span>x0</span><br><span class="line">dataLength = <span class="number">0</span></span><br><span class="line">numChildren = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>cZxid</strong>: 导致创建znode更改的事务ID</li>
+<li><strong>mZxid</strong>: 最后修改znode更改的事务ID</li>
+<li><strong>pZxid</strong>: 用于添加或删除子节点的znode更改的事务ID</li>
+<li><strong>ctime</strong>: 表示从1970-01-01T00:00:00Z开始以毫秒为单位的znode创建时间</li>
+<li><strong>mtime</strong>: 表示从1970-01-01T00:00:00Z开始以毫秒为单位的znode最近修改时间</li>
+<li><strong>dataVersion</strong>: 表示对该znode的数据所做的更改次数</li>
+<li><strong>cversion</strong>: 这表示对此znode的子节点进行的更改次数</li>
+<li><strong>aclVersion</strong>: 表示对此znode的ACL进行更改的次数</li>
+<li><strong>ephemeralOwner</strong>: 如果znode是临时节点，则为此znode所有者的 session ID；如果znode不是临时节点，则该字段设置为零</li>
+<li><strong>dataLength</strong>: 这是znode数据字段的长度</li>
+<li><strong>numChildren</strong>: 这表示znode的子节点的数量</li>
+</ul>
+</li>
+<li><p><strong>监视通知机制</strong>: ZK自身提供监视通知机制，可对某ZNODE设置一个监视<code>watcher</code>，当监视事件发生时会发送通知。可设置2种类似watcher</p>
+<ul>
+<li><strong>Data Watches</strong>: ZNODE数据变更触发通知(<code>create</code>/<code>setData</code>)</li>
+<li><strong>Child Watches</strong>: ZNODE子节点变更触发通知(<code>delete</code>/<code>create</code>[child znode])</li>
+</ul>
+</li>
+<li><p><strong>会话(session)</strong>: client连接到ZK时，便会创建一个会话(session)。会话失效后ZK会清除会话相关信息(临时节点/Watcher)。每个会话session都有4个基本属性</p>
+<ul>
+<li><strong>SID</strong>: 会话ID，唯一标识每个会话</li>
+<li><strong>TimeOut</strong>: 会话超时时间。会话异常断开后，client会尝试重连，若在TimeOut时间内重连上，则收到<code>syncconnected</code>事件重用会话；若超过TimeOut时间重连上，则收到<code>expired</code>事件，结束会话重新发起新连接。</li>
+<li><strong>TickTime</strong>: 下次会话超时时间点，13位long型数据，<code>TickTime ~= NowTime + TimeOut</code></li>
+<li><strong>isClosing</strong>: 会话超时标记，会话超时失效时，将会话标记为已关闭</li>
+</ul>
+</li>
+<li><p><strong>Leader选举</strong>:</p>
+<ul>
+<li><strong>ZAB协议</strong>: ZK通过ZAB(Zookeeper Atomic Broadcast)协议进行消息传递，选举消息自然使用ZAB协议进行</li>
+<li><strong>选举算法</strong>: <code>3.4.10</code>为止，有4种选举算法，<strong>默认3</strong><ul>
+<li><code>0</code>: 基于UDP的LeaderElection</li>
+<li><code>1</code>: 基于UDP的FastLeaderElection</li>
+<li><code>2</code>: 基于UDP和认证的FastLeaderElection</li>
+<li><code>3</code>: 基于TCP的FastLeaderElection</li>
+</ul>
+</li>
+<li><strong>选举消息</strong><ul>
+<li><strong>sid</strong>: ZK配置文件中配置<code>server.&lt;X&gt;</code>，ZK集群的唯一ID</li>
+<li><strong>zxid</strong>: 事务ID，每个zxid由64位数字表示，zxid全局单调递增</li>
+<li><strong>epoch</strong>: zxid高32位为epoch，从<code>1</code>开始单调递增，每选举投票一轮<code>epoch + 1</code>。低32位为epoch内序号，epoch变化则重置</li>
+</ul>
+</li>
+<li><strong>选举优先级原则</strong><ul>
+<li><strong>epoch &gt; zxid(低32位) &gt; sid</strong><ul>
+<li>只有epoch为最新的follower才能参加选举(收到的epoch比自身大，无条件放弃选举)</li>
+<li>zxid大的优先级高</li>
+<li>sid大的优先级高</li>
+</ul>
+</li>
+<li><strong>过半原则</strong>: 得票数 &gt; 集群总节点数/2，则产生新Leader</li>
+</ul>
+</li>
+<li><strong>选举大致过程</strong><ul>
+<li>产生选举信息。所有ZK节点(Observer除外)产生<code>(sid, zxid)</code>选举信息，并都认为自己是Leader，投自己一票</li>
+<li>接收选举信息。ZK节点之间会建立TCP连接，为避免重复建立连接，ZK节点只允许<strong>sid</strong>大于自身的节点与自己建立连接，否则断开连接，并主动和对方建立连接</li>
+<li>处理选举信息。<ul>
+<li>检查epoch，收到的epoch大于自身epoch，退出选举，更新投票信息，发送投票结果</li>
+<li>epoch相同，比较zxid，较大节点胜出</li>
+<li>zxid相同，比较sid，较大节点胜出</li>
+</ul>
+</li>
+<li>统计选举信息。每轮投票结束都会统计选举结果，若过半则产生新Leader，否则继续下一轮选举投票</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="ZooKeeper集群部署"><a href="#ZooKeeper集群部署" class="headerlink" title="ZooKeeper集群部署"></a><strong>ZooKeeper集群部署</strong></h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a><strong>安装</strong></h3><p>JDK安装省略</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">wget http://www.apache.org/dist/zookeeper/zookeeper-<span class="number">3.4</span>.<span class="number">8</span>/zookeeper-<span class="number">3.4</span>.<span class="number">8</span>.tar.gz</span><br><span class="line">tar -zxvf zookeeper-<span class="number">3.4</span>.<span class="number">8</span>.tar.gz</span><br><span class="line">mv zookeeper-<span class="number">3.4</span>.<span class="number">8</span> /usr/<span class="built_in">local</span>/zookeeper</span><br><span class="line">mkdir /usr/<span class="built_in">local</span>/zookeeper/data /usr/<span class="built_in">local</span>/zookeeper/<span class="built_in">log</span> /usr/<span class="built_in">local</span>/zookeeper/datalog</span><br></pre></td></tr></table></figure>
 <h3 id="集群配置"><a href="#集群配置" class="headerlink" title="集群配置"></a><strong>集群配置</strong></h3><ul>
 <li><p>zoo.cfg</p>
@@ -2028,7 +2131,7 @@
 <li><code>syncLimit</code>:  Leader与Follower间请求和应答时间长度</li>
 <li><code>dataDir</code>: 快照文件目录</li>
 <li><code>dataLogDir</code>: 事务日志目录(<code>dataDir</code>和<code>dataLogDir</code>目录最好是在两个不同磁盘中，避免IO竞争)</li>
-<li><code>2181</code>: Zookeeper监听端口(客户端连接端口)</li>
+<li><code>2181</code>: ZooKeeper监听端口(客户端连接端口)</li>
 <li><code>2888</code>: leader和follower之间数据同步使用的端口号</li>
 <li><code>3888</code>: leader选举专用的端口号</li>
 <li><code>maxClientCnxns</code>: 客户端并发连接数目</li>
@@ -2043,14 +2146,14 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># zkEnv.sh</span></span><br><span class="line">JAVA_HOME=/usr/share/java</span><br><span class="line">ZOO_LOG_DIR=/usr/<span class="built_in">local</span>/zookeeper/<span class="built_in">log</span></span><br><span class="line"><span class="comment"># 设置日志轮转</span></span><br><span class="line">ZOO_LOG4J_PROP=<span class="string">"INFO,ROLLINGFILE"</span></span><br><span class="line">JVMFLAGS=<span class="string">"-Xms1024m -Xmx1024m <span class="variable">$JVMFLAGS</span>"</span></span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<h3 id="启动Zookeeper集群"><a href="#启动Zookeeper集群" class="headerlink" title="启动Zookeeper集群"></a><strong>启动Zookeeper集群</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># **所有节点执行，启动Zookeeper集群**</span></span><br><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkServer.sh start</span><br><span class="line"><span class="comment"># **查看集群状态**</span></span><br><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkServer.sh status</span><br></pre></td></tr></table></figure>
-<h3 id="Zookeeper日志维护"><a href="#Zookeeper日志维护" class="headerlink" title="Zookeeper日志维护"></a><strong>Zookeeper日志维护</strong></h3><p>默认Zookeeper不会定期清除日志，<code>3.4.0</code>开始支持定期清理</p>
+<h3 id="启动ZooKeeper集群"><a href="#启动ZooKeeper集群" class="headerlink" title="启动ZooKeeper集群"></a><strong>启动ZooKeeper集群</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># **所有节点执行，启动ZooKeeper集群**</span></span><br><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkServer.sh start</span><br><span class="line"><span class="comment"># **查看集群状态**</span></span><br><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkServer.sh status</span><br></pre></td></tr></table></figure>
+<h3 id="ZooKeeper日志维护"><a href="#ZooKeeper日志维护" class="headerlink" title="ZooKeeper日志维护"></a><strong>ZooKeeper日志维护</strong></h3><p>默认ZooKeeper不会定期清除日志，<code>3.4.0</code>开始支持定期清理</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># **zoo.cfg**</span></span><br><span class="line"><span class="comment"># **清理频率，单位小时**</span></span><br><span class="line">autopurge.purgeInterval=<span class="number">24</span></span><br><span class="line"><span class="comment"># **保留文件数目，默认3**</span></span><br><span class="line">autopurge.snapRetainCount=<span class="number">10</span></span><br></pre></td></tr></table></figure>
-<p>但一般采用计划任务选择在空闲时间段定期删除，避免占用大量IO影响Zookeeper。<strong>Zookeeper每次执行事务都会写入事务日志，而且需要过半节点同步</strong>。磁盘IO直接影响事务处理速度！</p>
-<p>有鉴于此，尽量让<code>dataDir</code>和<code>dataLogDir</code>分开在不同的磁盘，避免IO竞争。Zookeeper提供<code>zkCleanup.sh</code>脚本帮助清理。</p>
+<p>但一般采用计划任务选择在空闲时间段定期删除，避免占用大量IO影响ZooKeeper。<strong>ZooKeeper每次执行事务都会写入事务日志，而且需要过半节点同步</strong>。磁盘IO直接影响事务处理速度！</p>
+<p>有鉴于此，尽量让<code>dataDir</code>和<code>dataLogDir</code>分开在不同的磁盘，避免IO竞争。ZooKeeper提供<code>zkCleanup.sh</code>脚本帮助清理。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkCleanup.sh -n &lt;日志保留数目/默认<span class="number">3</span>&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="Zookeeper常用操作"><a href="#Zookeeper常用操作" class="headerlink" title="Zookeeper常用操作"></a><strong>Zookeeper常用操作</strong></h3><h4 id="命令行连接Zookeeper"><a href="#命令行连接Zookeeper" class="headerlink" title="命令行连接Zookeeper"></a><strong>命令行连接Zookeeper</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkCli.sh -server <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure>
-<h4 id="四字命令"><a href="#四字命令" class="headerlink" title="四字命令"></a><strong>四字命令</strong></h4><p>可通过常用的Zookeeper四字命令监控Zookeeper，一般用法为：<strong><code>echo &lt;四字命令&gt; | nc localhost 2181</code></strong></p>
+<h3 id="ZooKeeper常用操作"><a href="#ZooKeeper常用操作" class="headerlink" title="ZooKeeper常用操作"></a><strong>ZooKeeper常用操作</strong></h3><h4 id="命令行连接ZooKeeper"><a href="#命令行连接ZooKeeper" class="headerlink" title="命令行连接ZooKeeper"></a><strong>命令行连接ZooKeeper</strong></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkCli.sh -server <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure>
+<h4 id="四字命令"><a href="#四字命令" class="headerlink" title="四字命令"></a><strong>四字命令</strong></h4><p>可通过常用的ZooKeeper四字命令监控ZooKeeper，一般用法为：<strong><code>echo &lt;四字命令&gt; | nc localhost 2181</code></strong></p>
 <table>
 <thead>
 <tr>
@@ -2193,9 +2296,9 @@
 </ul>
 </li>
 <li><p>方法二</p>
-<p>这种方法允许指定<code>offset</code>到具体位置，需要通过Zookeeper修改</p>
+<p>这种方法允许指定<code>offset</code>到具体位置，需要通过ZooKeeper修改</p>
 <ul>
-<li><p>进入Zookeeper命令行</p>
+<li><p>进入ZooKeeper命令行</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkCli.sh -server <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span></span><br></pre></td></tr></table></figure>
 </li>
 <li><p>查看具体topic partition的offset</p>
@@ -2211,7 +2314,7 @@
 </ul>
 </li>
 <li><p>方法三：</p>
-<p>方法一、方法二都适用于旧版的consumer api，新版Kafka使用了新的consumer api不再依赖Zookeeper管理offset，而是直接将offset存放在<code>__consumer_offsets</code>这个内部topic中。最简单的识别方法是，新版api使用<strong><code>--bootstrap-server</code></strong>而非<code>--zookeeper</code>，如果consumer是使用<code>--bootstrap-server</code>则使用的是新api，方法一、二并不适用新版api手动调整offset，需要使用方法三。</p>
+<p>方法一、方法二都适用于旧版的consumer api，新版Kafka使用了新的consumer api不再依赖ZooKeeper管理offset，而是直接将offset存放在<code>__consumer_offsets</code>这个内部topic中。最简单的识别方法是，新版api使用<strong><code>--bootstrap-server</code></strong>而非<code>--zookeeper</code>，如果consumer是使用<code>--bootstrap-server</code>则使用的是新api，方法一、二并不适用新版api手动调整offset，需要使用方法三。</p>
 <p>方法三也有个限制，只适用与<code>kafka 0.11.0.0</code>之后的版本，而且consumer group的状态须为<strong>inactive</strong>，即没有消费者正在消费消息。<code>0.11.0.0</code>之前的版本，新版consumer api只能通过编写Java程序手动调用<code>KafkaConsumer seek</code>方法。</p>
 <ul>
 <li><p>新版consumer api查看consumer group情况</p>
@@ -2226,7 +2329,7 @@
 <h4 id="Kafka集群扩容"><a href="#Kafka集群扩容" class="headerlink" title="Kafka集群扩容"></a><strong>Kafka集群扩容</strong></h4><p>Kafka集群扩容，新节点机器加入集群后，原本存在topic的partitions是不会自动迁移到新节点，只有新建的topic会分配到新节点上，这样新节点对于旧有的topic是无用的。为了旧有的topic也能用到新节点，在扩容后需要手动将旧有topic的partition迁移到新节点中。</p>
 <ul>
 <li><p>配置新节点并启动Kafka</p>
-<p>复制现有Kafka集群节点配置，修改<code>broker.id</code>后启动Kafka。通过Zookeeper查看新增<code>broker id</code>，验证Kafka已加入集群</p>
+<p>复制现有Kafka集群节点配置，修改<code>broker.id</code>后启动Kafka。通过ZooKeeper查看新增<code>broker id</code>，验证Kafka已加入集群</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkCli.sh -server <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span></span><br><span class="line">[zk: <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span>(CONNECTED) <span class="number">0</span>] ls /brokers/ids</span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line"></span><br><span class="line">[zk: <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span>/(CONNECTED) <span class="number">1</span>] ls /brokers/ids</span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br></pre></td></tr></table></figure>
 <p>查看旧有topic partition的Leader、Replicas都是没有<code>broker.id=4</code>的新节点的，只有旧的节点<code>1, 2, 3</code></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/kafka/bin/kafka-topics.sh --describe --zookeeper <span class="number">10.201</span>.<span class="number">3.222</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.223</span>:<span class="number">2181</span>,<span class="number">10.201</span>.<span class="number">3.224</span>:<span class="number">2181</span> --topic jr_tomcat</span><br><span class="line">Topic:jr_tomcat	PartitionCount:<span class="number">5</span>	ReplicationFactor:<span class="number">2</span>	Configs:</span><br><span class="line">	Topic: jr_tomcat	Partition: <span class="number">0</span>	Leader: <span class="number">2</span>	Replicas: <span class="number">2</span>,<span class="number">3</span>	Isr: <span class="number">2</span>,<span class="number">3</span></span><br><span class="line">	Topic: jr_tomcat	Partition: <span class="number">1</span>	Leader: <span class="number">3</span>	Replicas: <span class="number">3</span>,<span class="number">1</span>	Isr: <span class="number">3</span>,<span class="number">1</span></span><br><span class="line">	Topic: jr_tomcat	Partition: <span class="number">2</span>	Leader: <span class="number">1</span>	Replicas: <span class="number">1</span>,<span class="number">2</span>	Isr: <span class="number">1</span>,<span class="number">2</span></span><br><span class="line">	Topic: jr_tomcat	Partition: <span class="number">3</span>	Leader: <span class="number">2</span>	Replicas: <span class="number">2</span>,<span class="number">1</span>	Isr: <span class="number">2</span>,<span class="number">1</span></span><br><span class="line">	Topic: jr_tomcat	Partition: <span class="number">4</span>	Leader: <span class="number">3</span>	Replicas: <span class="number">3</span>,<span class="number">2</span>	Isr: <span class="number">3</span>,<span class="number">2</span></span><br></pre></td></tr></table></figure>
